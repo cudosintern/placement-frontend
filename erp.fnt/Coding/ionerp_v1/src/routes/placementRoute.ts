@@ -1,44 +1,21 @@
-import Home from "../pages/ems/home";
-
-import DepartmentPage from "../pages/ems/configuration/departmentDetail/departmentPage";
-
 import { Outlet } from "react-router-dom";
+import CompanyContactPage from "../pages/placement/master/company-contact/companyContactPage";
 
-import ChangePasswordPage from "../pages/changepassword";
-
-export const EMSROUTE = [
+export const PLACEMENTROUTE = [
   {
-    name: "Home",
-    href: "/",
-    element: Home,
-    roles: [],
-    subItems: [],
-  },
-
-  {
-    name: "Change Password",
-    href: "/change_password",
-    element: ChangePasswordPage,
-    roles: [],
-    subItems: [],
-  },
-
-  {
-    name: "Configuration",
+    name: "Master",
     href: "",
     element: Outlet,
     roles: [],
     subItems: [
-    
       {
-        name: "Department",
-        href: "department",
+        name: "Company Contact",
+        href: "company-contact",
         roles: [],
-        element: DepartmentPage,
+        element: CompanyContactPage,
       },
     ],
   },
-
 ];
 
-export default EMSROUTE;
+export default PLACEMENTROUTE;

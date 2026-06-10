@@ -1,5 +1,5 @@
 export function getRoleType() {
-  return ["ionems", "ionadmission", "iontransport", "main", "ionhostel"];
+  return ["ionems", "ionadmission", "iontransport", "main", "ionhostel", "ionplacement"];
 }
 
 export function getRoleName(): any {
@@ -9,6 +9,7 @@ export function getRoleName(): any {
     iontransport: "Transport",
     ionhostel: "Hostel",
     main: "Main",
+    ionplacement: "Placement",
   };
 }
 
@@ -49,4 +50,11 @@ export const MainPageCards: CardItem[] = [
     keyname: "ionhostel",
     description: "",
   },
+  {
+  name: "Placement",
+  url: "/",
+  iconName: "ems",
+  keyname: "ionplacement",
+  description: "",
+},
 ];
