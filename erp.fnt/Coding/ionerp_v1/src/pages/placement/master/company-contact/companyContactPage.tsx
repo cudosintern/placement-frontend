@@ -59,13 +59,28 @@ const CompanyContactPage = () => {
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectedCompany, setSelectedCompany] = React.useState("All");
+  const [editingContact, setEditingContact] = React.useState<any>(null);
 
   const OpenModalHandler = () => {
     setIsModalOpen(true);
   };
 
+  const editContactHandler = (contact: any) => {
+  setEditingContact(contact);
+  setIsModalOpen(true);
+};
+
+ const deleteContactHandler = (contactId: number) => {
+  const updatedContacts = contacts.filter(
+    (contact) => contact.contact_id !== contactId
+  );
+
+  setContacts(updatedContacts);
+};
+
   const closeModalHandler = () => {
-    setIsModalOpen(false);
+     setIsModalOpen(false);
+     setEditingContact(null);
   };
 
   const handleFormSubmit = (data: any) => {
@@ -101,8 +116,9 @@ const companies = [
 
 const columnDefsWithAction = [
   ...SchemaColumnDefs,
+
   {
-    headerName: "Action",
+    headerName: "Primary Action",
     cellRenderer: (params: any) => {
       if (params.data.is_primary) {
         return "Current Primary";
@@ -118,6 +134,29 @@ const columnDefsWithAction = [
       );
     },
   },
+
+  {
+  headerName: "Edit",
+  cellRenderer: (params: any) => (
+    <button
+      onClick={() => editContactHandler(params.data)}
+      className="bg-green-500 text-white px-2 py-1 rounded text-xs mr-2"
+    >
+      Edit
+    </button>
+  ),
+},
+{
+  headerName: "Delete",
+  cellRenderer: (params: any) => (
+    <button
+      onClick={() => deleteContactHandler(params.data.contact_id)}
+      className="bg-red-500 text-white px-2 py-1 rounded text-xs"
+    >
+      Delete
+    </button>
+  ),
+},
 ];
 return (
     <div>
@@ -131,7 +170,7 @@ return (
           schema={Schema}
           size={"lg"}
           columnLayout={1}
-          initialValues={{}}
+          initialValues={editingContact || {}}
         />
       )}
 

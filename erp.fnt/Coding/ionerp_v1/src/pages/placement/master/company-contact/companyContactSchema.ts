@@ -14,11 +14,17 @@ export const SchemaFields = [
     group: "",
     fields: [
       {
-        type: "text",
+        type: "select",
         name: "company_id",
         label: "Company",
         placeholder: "Select Company",
         required: true,
+         options: [
+            { label: "TATA", value: "TATA" },
+            { label: "Infosys", value: "Infosys" },
+            { label: "TCS", value: "TCS" },
+            { label: "Wipro", value: "Wipro" },
+  ],
       },
       {
         type: "text",
@@ -28,11 +34,17 @@ export const SchemaFields = [
         required: true,
       },
       {
-        type: "text",
+      type: "select",
         name: "designation",
         label: "Designation",
         placeholder: "Select Designation",
         required: true,
+        options: [
+          { label: "Recruitment Manager", value: "Recruitment Manager" },
+          { label: "HR Manager", value: "HR Manager" },
+          { label: "Recruiter", value: "Recruiter" },
+          { label: "Talent Acquisition", value: "Talent Acquisition" },
+  ],
       },
       {
         type: "text",
