@@ -22,8 +22,10 @@ export interface RoleRoutes {
 }
 
 export const roleRoutes: RoleRoutes = {
-  main: [...MAINROUTE],
-  ionems: EMSROUTE,
+  // Use Placement routes as the default/main routes so the UI shows
+  // only the Placement Management System as requested.
+  main: PLACEMENTROUTE,
+  ionems: PLACEMENTROUTE,
   // ioncudos: CUDOSROUTE,
   // ionadmission: ADMISSIONROUTE,
   // iontransport: TRANSPORTROUTE,
