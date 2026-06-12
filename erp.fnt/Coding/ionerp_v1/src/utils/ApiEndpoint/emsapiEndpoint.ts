@@ -13,6 +13,10 @@ export const ApiEndpoint = {
     save_department: "department/save_department",
     department_list: "comman_function/department_list",
   },
+  company: {
+    save_company: "company/save_company",
+    company_list: "comman_function/company_list",
+  },
 
   bos: {
     list: "bos_members/list",
