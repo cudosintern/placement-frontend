@@ -10,6 +10,7 @@ export const ApiEndpoint = {
   fetch_result_year_options: "comman_function/fetch_result_year_options",
 
   department: {
+    
     save_department: "department/save_department",
     department_list: "comman_function/department_list",
   },
@@ -18,6 +19,13 @@ export const ApiEndpoint = {
     company_list: "comman_function/company_list",
   },
 
+  placementContact: {
+  get_contact_list: "placement/contact/get_contact_list",
+  add_contact: "placement/contact/add_contact",
+  update_contact: "placement/contact/update_contact",
+  delete_contact: "placement/contact/delete_contact",
+  get_designations: "placement/contact/get_designations",
+},
   bos: {
     list: "bos_members/list",
     save: "bos_members/save",

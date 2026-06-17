@@ -3,7 +3,7 @@ import { z } from "zod";
 export const Schema = z.object({
   company_id: z.string().min(1, { message: "Company is required" }),
   contact_name: z.string().min(1, { message: "Contact Name is required" }),
-  designation: z.string().min(1, { message: "Designation is required" }),
+  designation: z.any(),
   email: z.string().email({ message: "Valid Email is required" }),
   mobile: z.string().min(10, { message: "Mobile Number is required" }),
   is_primary: z.any().optional(),
@@ -14,18 +14,19 @@ export const SchemaFields = [
     group: "",
     fields: [
       {
-        type: "select",
-        name: "company_id",
-        label: "Company",
-        placeholder: "Select Company",
-        required: true,
-         options: [
-            { label: "TATA", value: "TATA" },
-            { label: "Infosys", value: "Infosys" },
-            { label: "TCS", value: "TCS" },
-            { label: "Wipro", value: "Wipro" },
-  ],
-      },
+  type: "select",
+  name: "company_id",
+  label: "Company",
+  placeholder: "Select Company",
+  required: true,
+  loadOptions: async () => {
+    return [
+      { label: "Infosys", value: "1" },
+      { label: "TCS", value: "2" },
+      { label: "Wipro", value: "3" },
+    ];
+  },
+},
       {
         type: "text",
         name: "contact_name",
@@ -34,18 +35,13 @@ export const SchemaFields = [
         required: true,
       },
       {
-      type: "select",
-        name: "designation",
-        label: "Designation",
-        placeholder: "Select Designation",
-        required: true,
-        options: [
-          { label: "Recruitment Manager", value: "Recruitment Manager" },
-          { label: "HR Manager", value: "HR Manager" },
-          { label: "Recruiter", value: "Recruiter" },
-          { label: "Talent Acquisition", value: "Talent Acquisition" },
-  ],
-      },
+  type: "select",
+  name: "designation",
+  label: "Designation",
+  placeholder: "Select Designation",
+  required: true,
+  loadOptions: async () => [],
+},
       {
         type: "text",
         name: "email",
@@ -71,7 +67,7 @@ export const SchemaFields = [
 ];
 
 export const SchemaColumnDefs = [
-  {
+   {
     headerName: "Company",
     field: "company_name",
     sortable: true,
@@ -96,19 +92,25 @@ export const SchemaColumnDefs = [
     filter: false,
   },
   {
+    headerName: "Contact Name",
+    valueGetter: (params: any) =>
+      `${params.data.first_name || ""} ${params.data.last_name || ""}`,
+  },
+  {
+    headerName: "Designation",
+    field: "designation_name",
+  },
+  {
     headerName: "Mobile",
-    field: "mobile",
+    field: "phone",
+  },
+  {
+    headerName: "Primary",
+    field: "is_primary",
     sortable: true,
     filter: false,
+    cellRenderer: (params: any) => {
+      return params.value ? "✅ Primary" : "";
+    },
   },
- {
-  headerName: "Primary",
-  field: "is_primary",
-  sortable: true,
-  filter: false,
-  cellRenderer: (params: any) => {
-    return params.value ? "✅ Primary" : "";
-  },
-},
 ];
-//test

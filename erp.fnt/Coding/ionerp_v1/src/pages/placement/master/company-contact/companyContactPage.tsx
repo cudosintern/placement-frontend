@@ -1,62 +1,72 @@
 import React from "react";
 import DataTable from "../../../../components/Table/DataTable";
 import ModalWithForm from "../../../../components/Modal/ModalWithForm";
+import { ApiEndpoint } from "../../../../utils/ApiEndpoint/emsapiEndpoint";
+import { useAxios } from "../../../../hooks/useAxios"; 
 
 import {
   Schema,
-  SchemaFields,
+  SchemaFields, 
   SchemaColumnDefs,
 } from "./companyContactSchema";
 
 const CompanyContactPage = () => {
- const [contacts, setContacts] = React.useState([
-    {
-      contact_id: 1,
-      company_name: "Infosys",
-      contact_name: "Ramesh Kumar",
-      designation: "HR Manager",
-      email: "ramesh@infosys.com",
-      mobile: "9876543210",
-      is_primary: true,
-    },
-    {
-      contact_id: 2,
-      company_name: "TCS",
-      contact_name: "Krishna raj",
-      designation: "Recruiter",
-      email: "krishna@tcs.com",
-      mobile: "9876543211",
-      is_primary: false,
-    },
-    {
-      contact_id: 3,
-      company_name: "Infosys",
-      contact_name: "Suresh Rao",
-      designation: "Hr manager",
-      email: "suresh@infosys.com",
-      mobile: "9876544533",
-      is_primary: false,
-    },
-    {
-      contact_id: 5,
-      company_name: "Wipro",
-      contact_name: "kumar",
-      designation: "Recruiter",
-      email: "kumar@wipro.com",
-      mobile: "9873443211",
-      is_primary: true,
-    },
-    {
-      contact_id: 6,
-      company_name: "TCS",
-      contact_name: "Sonny R",
-      designation: "Recruiter",
-      email: "suresh@tcs.com",
-      mobile: "9876543211",
-      is_primary: true,
-    },
-  ]);
 
+const { addItem,customApiCall} = useAxios(
+  ApiEndpoint.placementContact.add_contact,
+  {
+    method: "post",
+    shouldFetch: false,
+  }
+);
+
+const { responseData, refetch } = useAxios(
+  ApiEndpoint.placementContact.get_contact_list,
+  {
+    method: "get",
+    shouldFetch: true,
+  }
+);
+console.log("responseData =", responseData);
+
+
+const { responseData: companyData } = useAxios(
+  ApiEndpoint.company.company_list,
+  {
+    method: "get",
+    shouldFetch: true,
+  }
+);
+
+const { responseData: designationData } = useAxios(
+  ApiEndpoint.placementContact.get_designations,
+  {
+    method: "get",
+    shouldFetch: true,
+  }
+);
+
+const designationOptions = ((designationData as any[]) || []).map(
+  (designation: any) => ({
+    label: designation.designation_name,
+    value: designation.designation_id,
+  })
+);
+
+React.useEffect(() => {
+  console.log("responseData =", responseData);
+  if (Array.isArray(responseData)) {
+    setContacts(responseData);
+  }
+}, [responseData]);
+React.useEffect(() => {
+  console.log("designationData =", designationData);
+  console.log("companyData =", companyData);
+}, [companyData]);
+
+
+ const [contacts, setContacts] = React.useState<any[]>([]);
+    console.log("First Contact =", contacts[0]);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectedCompany, setSelectedCompany] = React.useState("All");
   const [editingContact, setEditingContact] = React.useState<any>(null);
@@ -65,17 +75,38 @@ const CompanyContactPage = () => {
     setIsModalOpen(true);
   };
 
-  const editContactHandler = (contact: any) => {
-  setEditingContact(contact);
+ const editContactHandler = (contact: any) => {
+  setEditingContact({
+    company_id: String(contact.company_id),
+    contact_name: `${contact.first_name || ""} ${contact.last_name || ""}`,
+    designation: String(contact.designation_id),
+    email: contact.email || "",
+    mobile: contact.phone || "",
+    is_primary: contact.is_primary,
+    contact_id: contact.contact_id,
+  }); 
+
   setIsModalOpen(true);
 };
 
- const deleteContactHandler = (contactId: number) => {
-  const updatedContacts = contacts.filter(
-    (contact) => contact.contact_id !== contactId
+const deleteContactHandler = async (contactId: number) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this contact?"
   );
 
-  setContacts(updatedContacts);
+  if (!confirmDelete) return;
+
+  const response = await customApiCall(
+    ApiEndpoint.placementContact.delete_contact,
+    "delete",
+    {
+      contact_id: contactId,
+    }
+  );
+
+  console.log("Delete Response =", response);
+
+  await refetch();
 };
 
   const closeModalHandler = () => {
@@ -83,10 +114,55 @@ const CompanyContactPage = () => {
      setEditingContact(null);
   };
 
-  const handleFormSubmit = (data: any) => {
-    console.log(data);
-    setIsModalOpen(false);
-  };
+  const handleFormSubmit = async (data: any) => {
+  console.log("Submitted Data:", data);
+
+  if (editingContact) {
+    const updatePayload = {
+      contact_id: editingContact.contact_id,
+      company_id: data.company_id,
+      first_name: data.contact_name,
+      last_name: "",
+      email: data.email,
+      phone: data.mobile,
+      designation_id: data.designation,
+      is_primary: data.is_primary,
+      status: 1,
+    };
+
+    const response = await customApiCall(
+  ApiEndpoint.placementContact.update_contact,
+  "put",
+  updatePayload
+);
+
+    console.log("Update Response =", response);
+    await refetch();
+  } else {
+    const payload = {
+      company_id: data.company_id,
+      first_name: data.contact_name,
+      last_name: "",
+      email: data.email,
+      phone: data.mobile,
+      designation_id: data.designation,
+      is_primary: data.is_primary,
+      status: 1,
+    };
+
+    const response = await addItem(
+  payload,
+  ApiEndpoint.placementContact.add_contact
+);
+
+  
+    console.log("Add Contact Response =", response);
+    await refetch();
+  }
+
+  setIsModalOpen(false);
+  setEditingContact(null);
+};
 
   const makePrimaryContact = (selectedContact: any) => {
   const updatedContacts = contacts.map((contact) => {
@@ -101,18 +177,45 @@ const CompanyContactPage = () => {
 
   setContacts(updatedContacts);
 };
+console.log("First Company =", (companyData as any[])?.[0]);
 
-  const filteredContacts =
+const contactsWithCompanyName = contacts.map((contact: any) => {
+  const company = (companyData as any[])?.find(
+    (c: any) => c.company_id === contact.company_id
+  );
+
+  return {
+    ...contact,
+    company_name: company?.company_name || "",
+  };
+});
+
+console.log("contactsWithCompanyName =", contactsWithCompanyName);
+
+const filteredContacts =
   selectedCompany === "All"
-    ? contacts
-    : contacts.filter(
-        (contact) => contact.company_name === selectedCompany
+    ? contactsWithCompanyName
+
+    : contactsWithCompanyName.filter(
+      
+        (contact: any) => contact.company_name === selectedCompany
       );
+console.log("companyData =", companyData);
 
 const companies = [
   "All",
-  ...Array.from(new Set(contacts.map((contact) => contact.company_name))),
+  ...Array.from(
+    new Set(
+      ((companyData as any[]) || []).map(
+        (company: any) => company.company_name
+      )
+    )
+  ),
 ];
+
+console.log("companies =", companies);
+console.log("companyData =", companyData);
+
 
 const columnDefsWithAction = [
   ...SchemaColumnDefs,
@@ -123,7 +226,7 @@ const columnDefsWithAction = [
       if (params.data.is_primary) {
         return "Current Primary";
       }
-
+    
       return (
         <button
           onClick={() => makePrimaryContact(params.data)}
@@ -158,6 +261,17 @@ const columnDefsWithAction = [
   ),
 },
 ];
+const formFields = SchemaFields.map((group: any) => ({
+  ...group,
+  fields: group.fields.map((field: any) =>
+    field.name === "designation"
+      ? {
+          ...field,
+          loadOptions: async () => designationOptions,
+        }
+      : field
+  ),
+}));
 return (
     <div>
       {isModalOpen && (
@@ -166,7 +280,7 @@ return (
           isOpen={isModalOpen}
           onSubmit={handleFormSubmit}
           onClose={closeModalHandler}
-          formFields={SchemaFields}
+          formFields={formFields}
           schema={Schema}
           size={"lg"}
           columnLayout={1}
@@ -208,4 +322,6 @@ return (
 };
 
 export default CompanyContactPage;
-//test
+
+//cd "C:\Users\sound\Placement Module\placement-backend\edu.erp\Coding\backend"
+//python -m uvicorn app.main:app --reload --port 8003
