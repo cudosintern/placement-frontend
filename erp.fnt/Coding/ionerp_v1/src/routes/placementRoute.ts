@@ -13,6 +13,7 @@ import {
   StudentCertificationWrapper,
 } from "../pages/placement/student/studentRoutes";
 import AvailableDrivesPage from "../pages/placement/drives/AvailableDrivesPage";
+import NotificationTemplatePage from "../pages/placement/master/notification-template/notificationTemplatePage";
 
 import CompanyRegistrationPage from "../pages/placement/master/companyRegistration/companyRegistrationPage";
 import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
@@ -46,6 +47,13 @@ const PLACEMENTROUTE = [
         element: CompanyContactPage,
         subItems: [],
       },
+       {
+    name: "Notification Template",
+    href: "notification-template",
+    roles: [],
+    element: NotificationTemplatePage,
+    subItems: [],
+  },
       {
         name: "Configuration",
         href: "",
@@ -131,4 +139,6 @@ const PLACEMENTROUTE = [
   },
 ];
 
+
 export default PLACEMENTROUTE;
+

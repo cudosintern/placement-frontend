@@ -1,0 +1,70 @@
+import { z } from "zod";
+
+export const Schema = z.object({
+  notification_title: z
+    .string()
+    .min(1, { message: "Notification Title is required" }),
+
+  notification_message: z
+    .string()
+    .min(1, { message: "Notification Message is required" }),
+
+  notification_type: z
+    .string()
+    .min(1, { message: "Notification Type is required" }),
+});
+
+export const SchemaFields = [
+  {
+    group: "",
+    fields: [
+      {
+        type: "text",
+        name: "notification_title",
+        label: "Notification Title",
+        placeholder: "Enter Notification Title",
+        required: true,
+      },
+      {
+        type: "textarea",
+        name: "notification_message",
+        label: "Notification Message",
+        placeholder: "Enter Notification Message",
+        required: true,
+      },
+      {
+        type: "select",
+        name: "notification_type",
+        label: "Notification Type",
+        placeholder: "Select Notification Type",
+        required: true,
+        options: [
+          { label: "Email", value: "Email" },
+          { label: "SMS", value: "SMS" },
+          { label: "Push", value: "Push" },
+        ],
+      },
+    ],
+  },
+];
+
+export const SchemaColumnDefs = [
+  {
+    headerName: "Title",
+    field: "notification_title",
+    sortable: true,
+    filter: true,
+  },
+  {
+    headerName: "Message",
+    field: "notification_message",
+    sortable: true,
+    filter: true,
+  },
+  {
+    headerName: "Type",
+    field: "notification_type",
+    sortable: true,
+    filter: true,
+  },
+];
