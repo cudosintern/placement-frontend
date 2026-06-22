@@ -190,30 +190,40 @@ const DynamicFormBuilder = forwardRef<DynamicFormHandle, DynamicFormProps>((prop
     return acc;
   }, {} as { [key: string]: any });
 
+  const prevDependencyMapRef = React.useRef<{ [key: string]: any }>({});
+
   React.useEffect(() => {
     fields.forEach((group) => {
       group.fields.forEach((field) => {
         if (field.type === "select" || field.type === "multiselect") {
           const dependencyValue = dependencyMap[field.dependsOn || ""];
+          const prevDependencyValue = prevDependencyMapRef.current[field.dependsOn || ""];
 
-          // Check if options have already been loaded for this field
-          if (field.dependsOn && dependencyValue && field.loadOptions) {
-            // Always load options if editing
-            field
-              .loadOptions(dependencyValue)
-              .then((options) => {
-                setOptionsState((prev) => ({ ...prev, [field.name]: options }));
-                // setOptionsLoaded((prev) => ({ ...prev, [field.name]: true })); // Mark as loaded
-              })
-              .catch((error) => {
-                // console.error(`Error loading options for ${field.name}:`, error);
-                setOptionsState((prev) => ({ ...prev, [field.name]: [] }));
-              });
+          // Reset the child field value if the dependency changed
+          if (field.dependsOn && dependencyValue !== prevDependencyValue) {
+            setValue(field.name, field.type === "multiselect" ? [] : "");
+          }
+
+          if (field.dependsOn && field.loadOptions) {
+            if (dependencyValue) {
+              field
+                .loadOptions(dependencyValue)
+                .then((options) => {
+                  setOptionsState((prev) => ({ ...prev, [field.name]: options }));
+                })
+                .catch((error) => {
+                  setOptionsState((prev) => ({ ...prev, [field.name]: [] }));
+                });
+            } else {
+              // Clear options if dependency value is empty
+              setOptionsState((prev) => ({ ...prev, [field.name]: [] }));
+            }
           }
         }
       });
     });
-  }, [JSON.stringify(dependencyMap), fields]); // Removed optionsLoaded from dependencies
+    prevDependencyMapRef.current = { ...dependencyMap };
+  }, [JSON.stringify(dependencyMap), fields, setValue]);
 
   React.useEffect(() => {
     fields.forEach((group) => {

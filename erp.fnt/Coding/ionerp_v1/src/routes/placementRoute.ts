@@ -1,4 +1,3 @@
-
 import Home from "../pages/ems/home";
 
 import DepartmentPage from "../pages/ems/configuration/departmentDetail/departmentPage";
@@ -8,7 +7,11 @@ import { Outlet } from "react-router-dom";
 import CompanyContactPage from "../pages/placement/master/company-contact/companyContactPage";
 import ChangePasswordPage from "../pages/changepassword";
 
-export const PLACEMENTROUTE = [
+import CompanyRegistrationPage from "../pages/placement/master/companyRegistration/companyRegistrationPage";
+import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
+import DrivePage from "../pages/placement/tpoDashboard/drivePage";
+
+const PLACEMENTROUTE = [
   {
     name: "Home",
     href: "/",
@@ -60,10 +63,42 @@ export const PLACEMENTROUTE = [
       },
     ],
   },
+  {
+    name: "Company Registration",
+    href: "/placement/company-registration",
+    element: CompanyRegistrationPage,
+    roles: [],
+    subItems: [],
+  },
+  {
+    // TPO — top-level expandable in sidebar (chevron + dropdown).
+    // href "" means renderRoutes builds no meaningful route for the parent.
+    // Sidebar sees subItems.length > 0 so it renders as a collapsible group.
+    name: "TPO",
+    href: "",
+    element: Outlet,
+    roles: [],
+    subItems: [
+      {
+        // Company Approval — leaf route.
+        // href "/tpo/company-approval" is absolute — sidebar <Link to={href}>
+        // navigates directly to this path, which is registered inside <Layout/>
+        // in routes.tsx so the sidebar and header are visible.
+        name: "Company Approval",
+        href: "/tpo/company-approval",
+        roles: [],
+        element: CompanyApprovalPage,
+        subItems: [],
+      },
+      {
+        name: "Placement Drive",
+        href: "/tpo/placement-drive",
+        roles: [],
+        element: DrivePage,
+        subItems: [],
+      },
+    ],
+  },
 ];
 
-
-
-
-
-
+export default PLACEMENTROUTE;

@@ -7,7 +7,10 @@ import { VerticalLayout, HorizontalLayout } from "../components/Layout/index";
 import { useLayout } from "../contexts/LayoutContext";
 import { LocalStorageHelper } from "../utils/localStorageHelper";
 import ForgotPasswordPage from "../pages/login/forgotPassword";
-
+import CompanyRegistrationPage from "../pages/placement/master/companyRegistration/companyRegistrationPage";
+import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
+import DrivePage from "../pages/placement/tpoDashboard/drivePage";
+import DriveFormPage from "../pages/placement/tpoDashboard/driveFormPage";
 const ProtectedRoute: React.FC<{
   element: React.ReactElement;
   roles?: string[];
@@ -85,11 +88,24 @@ const AppRoutes: React.FC = () => {
         element={
           // if the user is already authenticated or bypass mode is active,
           // send them straight to the home page instead of showing login.
-          isAuthenticated || BYPASS_LOGIN ? <Navigate to="/" replace /> : <Login />
+          isAuthenticated || BYPASS_LOGIN ? (
+            <Navigate to="/" replace />
+          ) : (
+            <Login />
+          )
         }
+      />
+      <Route
+        path="/placement/company-registration"
+        element={<CompanyRegistrationPage />}
       />
       <Route element={<Layout />}>
         {routesForProduct && renderRoutes(routesForProduct)}
+        {/* TPO pages — inside Layout so sidebar+header are visible */}
+        <Route path="/tpo/company-approval" element={<CompanyApprovalPage />} />
+        <Route path="/tpo/placement-drive" element={<DrivePage />} />
+        <Route path="/tpo/placement-drive/create" element={<DriveFormPage />} />
+        <Route path="/tpo/placement-drive/edit" element={<DriveFormPage />} />
       </Route>
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
