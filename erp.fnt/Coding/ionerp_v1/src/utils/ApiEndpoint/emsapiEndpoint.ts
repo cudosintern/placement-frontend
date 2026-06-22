@@ -141,4 +141,6 @@ export const ApiEndpoint = {
       base: "/cudos/survey/template",
     },
   },
+
 } as const;
+

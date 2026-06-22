@@ -6,6 +6,13 @@ import CompanyList from "../pages/placement/master/company/CompanyList";
 import { Outlet } from "react-router-dom";
 import CompanyContactPage from "../pages/placement/master/company-contact/companyContactPage";
 import ChangePasswordPage from "../pages/changepassword";
+import {
+  StudentRegistrationWrapper,
+  StudentProfileWrapper,
+  StudentSkillWrapper,
+  StudentCertificationWrapper,
+} from "../pages/placement/student/studentRoutes";
+import AvailableDrivesPage from "../pages/placement/drives/AvailableDrivesPage";
 
 import CompanyRegistrationPage from "../pages/placement/master/companyRegistration/companyRegistrationPage";
 import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
@@ -64,13 +71,6 @@ const PLACEMENTROUTE = [
     ],
   },
   {
-    name: "Company Registration",
-    href: "/placement/company-registration",
-    element: CompanyRegistrationPage,
-    roles: [],
-    subItems: [],
-  },
-  {
     // TPO — top-level expandable in sidebar (chevron + dropdown).
     // href "" means renderRoutes builds no meaningful route for the parent.
     // Sidebar sees subItems.length > 0 so it renders as a collapsible group.
@@ -95,6 +95,36 @@ const PLACEMENTROUTE = [
         href: "/tpo/placement-drive",
         roles: [],
         element: DrivePage,
+        subItems: [],
+      },
+    ],
+  },
+  {
+    name: "Company Registration",
+    href: "/placement/company-registration",
+    element: CompanyRegistrationPage,
+    roles: [],
+    subItems: [],
+  },
+
+  {
+    name: "Student",
+    href: "",
+    element: Outlet,
+    roles: [],
+    subItems: [
+      {
+        name: "Student Profile",
+        href: "student/profile",
+        roles: [],
+        element: StudentProfileWrapper,
+        subItems: [],
+      },
+      {
+        name: "Available Drives",
+        href: "drives/available",
+        roles: [],
+        element: AvailableDrivesPage,
         subItems: [],
       },
     ],

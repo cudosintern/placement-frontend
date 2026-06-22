@@ -45,17 +45,19 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ location }) => {
         {pathnames.map((value, index) => {
           const to = `/${pathnames.slice(0, index + 1).join("/")}`;
           const isLast = index === pathnames.length - 1;
+          const routeName = findRouteName(value, routesForRole);
+          if (!routeName) return null;
           return (
             <li key={to} className='flex items-center'>
               <span className='mx-2'>/</span>
               {isLast ? (
                 <span className='text-color-1 dark:text-text-dark'>
                   {" "}
-                  {findRouteName(value, routesForRole)}
+                  {routeName}
                 </span>
               ) : (
                 <Link to={to} className='hover:underline text-gray-500 text-sm'>
-                  {findRouteName(value, routesForRole)}
+                  {routeName}
                 </Link>
               )}
             </li>
