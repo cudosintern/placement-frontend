@@ -200,7 +200,7 @@ return (
         showAddButton={true}
         addButtonHandler={OpenModalHandler}
         showExportButton={false}
-        headerFilter={true}
+        headerFilter={false}
         pageSize={20}
       />
     </div>

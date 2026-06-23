@@ -44,6 +44,14 @@ export const SchemaFields = [
           { label: "Push", value: "Push" },
         ],
       },
+      {
+  type: "select",
+  name: "event_type_id",
+  label: "Event Type",
+  placeholder: "Select Event Type",
+  required: true,
+  options: [],
+},
     ],
   },
 ];
@@ -67,4 +75,10 @@ export const SchemaColumnDefs = [
     sortable: true,
     filter: true,
   },
+ {
+  headerName: "Event Type",
+  field: "event_type_id",
+  sortable: true,
+  filter: true,
+},
 ];

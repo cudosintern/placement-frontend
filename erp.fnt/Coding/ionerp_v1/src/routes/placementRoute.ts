@@ -14,12 +14,18 @@ import {
 } from "../pages/placement/student/studentRoutes";
 import AvailableDrivesPage from "../pages/placement/drives/AvailableDrivesPage";
 import NotificationTemplatePage from "../pages/placement/master/notification-template/notificationTemplatePage";
+<<<<<<< HEAD
 
 import CompanyRegistrationPage from "../pages/placement/master/companyRegistration/companyRegistrationPage";
 import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
 import DrivePage from "../pages/placement/tpoDashboard/drivePage";
 
 const PLACEMENTROUTE = [
+=======
+import NotificationLogPage from "../pages/placement/master/notification-log/NotificationLogPage";
+import EventTypePage from "../pages/placement/master/event-type/eventTypePage";
+export const PLACEMENTROUTE = [
+>>>>>>> d8e3284 (implemented Event type)
   {
     name: "Home",
     href: "/",
@@ -54,6 +60,22 @@ const PLACEMENTROUTE = [
     element: NotificationTemplatePage,
     subItems: [],
   },
+
+  {
+  name: "Notification Log",
+  href: "notification-log",
+  roles: [],
+  element: NotificationLogPage,
+  subItems: [],
+},
+
+{
+  name: "Event Type",
+  href: "event-type",
+  roles: [],
+  element: EventTypePage,
+  subItems: [],
+},
       {
         name: "Configuration",
         href: "",
