@@ -1,11 +1,12 @@
 import axiosInstance from "../../../../utils/api";
+import { ApiEndpoint } from "../../../../utils/ApiEndpoint/placementapiEndpoint";
 
-const baseUrl = "/placement/notification";
+const baseUrl = ApiEndpoint.notification;
 
 const getTemplates = async () => {
   try {
     const res = await axiosInstance.get(
-      `${baseUrl}/get_notification_templates`,
+      baseUrl.get_templates,
     );
 
     return res.data;
@@ -18,7 +19,7 @@ const getTemplates = async () => {
 const addTemplate = async (payload: any) => {
   try {
     const res = await axiosInstance.post(
-      `${baseUrl}/add_notification_template`,
+      baseUrl.add_template,
       payload
     );
 
@@ -32,7 +33,7 @@ const addTemplate = async (payload: any) => {
 const updateTemplate = async (id: number, payload: any) => {
   try {
     const res = await axiosInstance.put(
-      `${baseUrl}/update_notification_template/${id}`,
+      `${baseUrl.update_template}/${id}`,
       payload
     );
 
@@ -46,7 +47,7 @@ const updateTemplate = async (id: number, payload: any) => {
 const deleteTemplate = async (id: number) => {
   try {
     const res = await axiosInstance.delete(
-      `${baseUrl}/delete_notification_template/${id}`
+      `${baseUrl.delete_template}/${id}`
     );
 
     return res.data;

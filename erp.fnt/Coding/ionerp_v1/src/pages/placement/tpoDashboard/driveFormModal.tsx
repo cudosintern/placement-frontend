@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { X, Plus, Trash2, Loader2, Users } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/api";
-import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoint";
+import { ApiEndpoint } from "../../../utils/ApiEndpoint/placementapiEndpoint";
 import { DriveRecord, DriveMeta, EligibleBranch, DriveRound, ROUND_TYPE_CONFIG } from "./driveSchema";
 
 interface Props {
@@ -72,7 +72,7 @@ const DriveFormModal: React.FC<Props> = ({ meta, editDrive, onClose, onSaved }) 
     const batchYears = Array.from(new Set(allKeys.map((k) => k.split(":")[1])));
     setCountLoading(true);
     try {
-      const res = await axiosInstance.get(PlacementApiEndpoint.drive.eligibleCount, {
+      const res = await axiosInstance.get(ApiEndpoint.drive.eligibleCount, {
         params: { dept_ids: deptIds.join(","), batch_years: batchYears.join(",") },
       });
       const body = res.data as any;
@@ -165,8 +165,8 @@ const DriveFormModal: React.FC<Props> = ({ meta, editDrive, onClose, onSaved }) 
     setSaving(true);
     try {
       const res = isEdit
-        ? await axiosInstance.put(PlacementApiEndpoint.drive.save, payload)
-        : await axiosInstance.post(PlacementApiEndpoint.drive.save, payload);
+        ? await axiosInstance.put(ApiEndpoint.drive.save, payload)
+        : await axiosInstance.post(ApiEndpoint.drive.save, payload);
 
       const body = res.data as any;
       if (body?.status) {

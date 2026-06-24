@@ -12,6 +12,10 @@ export const Schema = z.object({
   notification_type: z
     .string()
     .min(1, { message: "Notification Type is required" }),
+
+  event_type_id: z
+    .string()
+    .min(1, { message: "Event Type is required" }),
 });
 
 export const SchemaFields = [

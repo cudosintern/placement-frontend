@@ -4,7 +4,7 @@ import { EMSROUTE } from "./emsRoute";
 // import { TRANSPORTROUTE } from "./transportRoute";
 // import { HOSTELROUTE } from "./hostelRoute";
 import { MAINROUTE } from "./mainRoute";
-import { PLACEMENTROUTE } from "./placementRoute";
+import PLACEMENTROUTE from "./placementRoute";
 
 export interface RouteItem {
   name: string;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import DataTable from "../../../../components/Table/DataTable";
-import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoint";
+import { ApiEndpoint } from "../../../../utils/ApiEndpoint/placementapiEndpoint";
 import axiosInstance from "../../../../utils/api";
 import { toast } from "react-toastify";
 import { RegistrationRecord, STATUS_LABELS } from "./registrationInterface";
@@ -196,7 +196,7 @@ const CompanyApprovalPage: React.FC = () => {
   const fetchRegistrations = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get(PlacementApiEndpoint.companyRegistration.list);
+      const response = await axiosInstance.get(ApiEndpoint.companyRegistration.list);
       const resData = response.data as any;
       if (resData && resData.data) {
         setData(resData.data);
@@ -228,7 +228,7 @@ const CompanyApprovalPage: React.FC = () => {
   const handleApprove = async (record: RegistrationRecord) => {
     try {
       const payload = { reg_id: record.reg_id, remarks: "Approved from Dashboard" };
-      const response = await axiosInstance.put(PlacementApiEndpoint.companyRegistration.approve, payload);
+      const response = await axiosInstance.put(ApiEndpoint.companyRegistration.approve, payload);
       const resData = response.data as any;
       if (resData?.status) {
         toast.success(resData.message || "Company approved successfully.");
@@ -251,7 +251,7 @@ const CompanyApprovalPage: React.FC = () => {
     if (!recordToReject) return;
     try {
       const payload = { reg_id: recordToReject.reg_id, remarks: reason };
-      const response = await axiosInstance.put(PlacementApiEndpoint.companyRegistration.reject, payload);
+      const response = await axiosInstance.put(ApiEndpoint.companyRegistration.reject, payload);
       const resData = response.data as any;
       if (resData?.status) {
         toast.success(resData.message || "Company rejected.");

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import DataTable from "../../../components/Table/DataTable";
-import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoint";
+import { ApiEndpoint } from "../../../utils/ApiEndpoint/placementapiEndpoint";
 import axiosInstance from "../../../utils/api";
 import { toast } from "react-toastify";
 import { RegistrationRecord, TpoDashboardColumnDefs } from "./tpoDashboardSchema";
@@ -40,7 +40,7 @@ const TpoDashboardPage: React.FC = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axiosInstance.get(PlacementApiEndpoint.companyRegistration.list);
+      const res = await axiosInstance.get(ApiEndpoint.companyRegistration.list);
       const body = res.data as any;
       setData(Array.isArray(body?.data) ? body.data : []);
     } catch {
@@ -70,7 +70,7 @@ const TpoDashboardPage: React.FC = () => {
   // ── Approve ──────────────────────────────────────────────────────────────
   const handleApprove = useCallback(async (record: RegistrationRecord) => {
     try {
-      const res  = await axiosInstance.put(PlacementApiEndpoint.companyRegistration.approve, {
+      const res  = await axiosInstance.put(ApiEndpoint.companyRegistration.approve, {
         reg_id: record.reg_id,
         remarks: "Approved by TPO",
       });
@@ -90,7 +90,7 @@ const TpoDashboardPage: React.FC = () => {
   const handleRejectConfirm = useCallback(async (reason: string) => {
     if (!rejectRecord) return;
     try {
-      const res  = await axiosInstance.put(PlacementApiEndpoint.companyRegistration.reject, {
+      const res  = await axiosInstance.put(ApiEndpoint.companyRegistration.reject, {
         reg_id:  rejectRecord.reg_id,
         remarks: reason,
       });

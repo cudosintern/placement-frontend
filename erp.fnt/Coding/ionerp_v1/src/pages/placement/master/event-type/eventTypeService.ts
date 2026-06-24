@@ -1,11 +1,14 @@
-import axiosInstance from "../../../../utils/api";
 
-const baseUrl = "/placement/event-type";
+import axiosInstance from "../../../../utils/api";
+import { ApiEndpoint } from "../../../../utils/ApiEndpoint/placementapiEndpoint";
+
+
+const baseUrl = ApiEndpoint.eventType;
 
 const getEventTypes = async () => {
   try {
     const res = await axiosInstance.get(
-      `${baseUrl}/get_event_types`
+      baseUrl.get_event_types
     );
 
     return res.data;
@@ -18,7 +21,7 @@ const getEventTypes = async () => {
 const addEventType = async (payload: any) => {
   try {
     const res = await axiosInstance.post(
-      `${baseUrl}/add_event_type`,
+      baseUrl.add_event_type,
       payload
     );
 
@@ -32,7 +35,7 @@ const addEventType = async (payload: any) => {
 const updateEventType = async (id: number, payload: any) => {
   try {
     const res = await axiosInstance.put(
-      `${baseUrl}/update_event_type/${id}`,
+      `${baseUrl.update_event_type}/${id}`,
       payload
     );
 

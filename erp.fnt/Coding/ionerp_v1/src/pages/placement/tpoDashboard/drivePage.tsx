@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/api";
-import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoint";
+import { ApiEndpoint } from "../../../utils/ApiEndpoint/placementapiEndpoint";
 import DataTable from "../../../components/Table/DataTable";
 import {
   DriveRecord,
@@ -52,7 +52,7 @@ const DrivePage: React.FC = () => {
   const fetchDrives = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axiosInstance.get(PlacementApiEndpoint.drive.list);
+      const res = await axiosInstance.get(ApiEndpoint.drive.list);
       const body = res.data as any;
       if (body?.status) {
         setDrives(Array.isArray(body.data?.drives) ? body.data.drives : []);
@@ -80,7 +80,7 @@ const DrivePage: React.FC = () => {
   const handleView = useCallback(async (row: DriveRecord) => {
     try {
       const res = await axiosInstance.get(
-        `${PlacementApiEndpoint.drive.detail}/${row.drive_id}`,
+        `${ApiEndpoint.drive.detail}/${row.drive_id}`,
       );
       const body = res.data as any;
       if (body?.status) {
@@ -109,7 +109,7 @@ const DrivePage: React.FC = () => {
       )
         return;
       try {
-        const res = await axiosInstance.put(PlacementApiEndpoint.drive.status, {
+        const res = await axiosInstance.put(ApiEndpoint.drive.status, {
           drive_id: driveId,
           status: newStatus,
         });
@@ -402,7 +402,6 @@ const DrivePage: React.FC = () => {
           headerFilter={true}
           pageSize={20}
           loading={loading}
-          rowHeight={36}
           getRowClass={(params: any) =>
             (params.node.rowIndex ?? 0) % 2 === 0 ? "dp-grid-row-even" : ""
           }

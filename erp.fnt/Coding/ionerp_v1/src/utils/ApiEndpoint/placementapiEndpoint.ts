@@ -25,5 +25,59 @@ export const ApiEndpoint = {
         download_resume: "placement/student_resume/download_resume",
     },
 
+    eventType: {
+        get_event_types: "placement/event-type/get_event_types",
+        add_event_type: "placement/event-type/add_event_type",
+        update_event_type: "placement/event-type/update_event_type",
+    },
+
+    companyRegistration: {
+        submit: "placement/company-registration/submit",
+        list: "placement/company-registration/list",
+        detail: "placement/company-registration/detail",
+        approve: "placement/company-registration/approve",
+        reject: "placement/company-registration/reject",
+        countries: "placement/company-registration/countries",
+        states: "placement/company-registration/states",
+        cities: "placement/company-registration/cities",
+        checkPincode: "placement/company-registration/check-pincode",
+    },
+
+    drive: {
+        meta: "placement/drive/meta",
+        list: "placement/drive/list",
+        detail: "placement/drive/detail",
+        save: "placement/drive/save",
+        status: "placement/drive/status",
+        eligibleCount: "placement/drive/eligible-count",
+    },
+
+    notification: {
+        get_templates: "placement/notification/get_notification_templates",
+        add_template: "placement/notification/add_notification_template",
+        update_template: "placement/notification/update_notification_template",
+        delete_template: "placement/notification/delete_notification_template",
+    },
+
+    notificationLog: {
+        get_logs: "placement/notification-log/get_notification_logs",
+    },
+
+    company: {
+        list: "placement/company/list",
+        save: "placement/company/save",
+        detail: "placement/company/detail",
+    },
+
+    companyContact: {
+        get_contacts: "placement/contact/get_contact_list",
+        add_contact: "placement/contact/add_contact",
+        update_contact: "placement/contact/update_contact",
+        delete_contact: "placement/contact/delete_contact",
+        get_designations: "placement/contact/get_designations",
+    },
+
 } as const;
+
+
 

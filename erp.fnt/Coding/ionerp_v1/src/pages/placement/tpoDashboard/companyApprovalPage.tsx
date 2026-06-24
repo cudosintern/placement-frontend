@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import DataTable from "../../../components/Table/DataTable";
-import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoint";
+import { ApiEndpoint } from "../../../utils/ApiEndpoint/placementapiEndpoint";
 import axiosInstance from "../../../utils/api";
 import { toast } from "react-toastify";
 import { RegistrationRecord } from "./tpoDashboardSchema";
@@ -175,7 +175,7 @@ const CompanyApprovalPage: React.FC = () => {
     setLoading(true);
     try {
       const res = await axiosInstance.get(
-        PlacementApiEndpoint.companyRegistration.list,
+        ApiEndpoint.companyRegistration.list,
       );
       const body = res.data as any;
       setData(Array.isArray(body?.data) ? body.data : []);
@@ -226,7 +226,7 @@ const CompanyApprovalPage: React.FC = () => {
         return;
       try {
         const res = await axiosInstance.put(
-          PlacementApiEndpoint.companyRegistration.approve,
+          ApiEndpoint.companyRegistration.approve,
           {
             reg_id: record.reg_id,
             remarks: "Approved by TPO",
@@ -252,7 +252,7 @@ const CompanyApprovalPage: React.FC = () => {
       if (!rejectRecord) return;
       try {
         const res = await axiosInstance.put(
-          PlacementApiEndpoint.companyRegistration.reject,
+          ApiEndpoint.companyRegistration.reject,
           {
             reg_id: rejectRecord.reg_id,
             remarks: reason,
@@ -642,7 +642,6 @@ const CompanyApprovalPage: React.FC = () => {
           headerFilter={true}
           pageSize={20}
           loading={isLoading}
-          rowHeight={36}
           getRowClass={(params) =>
             (params.node.rowIndex ?? 0) % 2 === 0 ? "ca-grid-row-even" : ""
           }

@@ -3,7 +3,7 @@ import { z } from "zod";
 export const Schema = z.object({
   company_id: z.string().min(1, { message: "Company is required" }),
   contact_name: z.string().min(1, { message: "Contact Name is required" }),
-  designation: z.string().min(1, { message: "Designation is required" }),
+  designation_id: z.string().min(1, { message: "Designation is required" }),
   email: z.string().email({ message: "Valid Email is required" }),
   mobile: z.string().min(10, { message: "Mobile Number is required" }),
   is_primary: z.any().optional(),
@@ -19,12 +19,7 @@ export const SchemaFields = [
         label: "Company",
         placeholder: "Select Company",
         required: true,
-         options: [
-            { label: "TATA", value: "TATA" },
-            { label: "Infosys", value: "Infosys" },
-            { label: "TCS", value: "TCS" },
-            { label: "Wipro", value: "Wipro" },
-  ],
+        options: [],
       },
       {
         type: "text",
@@ -34,17 +29,12 @@ export const SchemaFields = [
         required: true,
       },
       {
-      type: "select",
-        name: "designation",
+        type: "select",
+        name: "designation_id",
         label: "Designation",
         placeholder: "Select Designation",
         required: true,
-        options: [
-          { label: "Recruitment Manager", value: "Recruitment Manager" },
-          { label: "HR Manager", value: "HR Manager" },
-          { label: "Recruiter", value: "Recruiter" },
-          { label: "Talent Acquisition", value: "Talent Acquisition" },
-  ],
+        options: [],
       },
       {
         type: "text",
@@ -85,7 +75,7 @@ export const SchemaColumnDefs = [
   },
   {
     headerName: "Designation",
-    field: "designation",
+    field: "designation_name",
     sortable: true,
     filter: false,
   },

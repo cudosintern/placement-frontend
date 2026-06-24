@@ -4,6 +4,7 @@ import DepartmentPage from "../pages/ems/configuration/departmentDetail/departme
 import CompanyList from "../pages/placement/master/company/CompanyList";
 
 import { Outlet } from "react-router-dom";
+
 import CompanyContactPage from "../pages/placement/master/company-contact/companyContactPage";
 import ChangePasswordPage from "../pages/changepassword";
 import {
@@ -14,18 +15,15 @@ import {
 } from "../pages/placement/student/studentRoutes";
 import AvailableDrivesPage from "../pages/placement/drives/AvailableDrivesPage";
 import NotificationTemplatePage from "../pages/placement/master/notification-template/notificationTemplatePage";
-<<<<<<< HEAD
+import NotificationLogPage from "../pages/placement/master/notification-log/NotificationLogPage";
+import EventTypePage from "../pages/placement/master/event-type/eventTypePage";
 
 import CompanyRegistrationPage from "../pages/placement/master/companyRegistration/companyRegistrationPage";
 import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
 import DrivePage from "../pages/placement/tpoDashboard/drivePage";
 
 const PLACEMENTROUTE = [
-=======
-import NotificationLogPage from "../pages/placement/master/notification-log/NotificationLogPage";
-import EventTypePage from "../pages/placement/master/event-type/eventTypePage";
-export const PLACEMENTROUTE = [
->>>>>>> d8e3284 (implemented Event type)
+
   {
     name: "Home",
     href: "/",

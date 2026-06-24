@@ -1,6 +1,6 @@
 import { z } from "zod";
 import axiosInstance from "../../../../utils/api";
-import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoint";
+import { ApiEndpoint } from "../../../../utils/ApiEndpoint/placementapiEndpoint";
 
 export const Schema = z.object({
   company_name: z.string().min(1, { message: "Company Name is required" }),
@@ -65,7 +65,7 @@ export const SchemaFields = [
         loadOptions: async () => {
           try {
             const response = await axiosInstance.get(
-              PlacementApiEndpoint.companyRegistration.countries
+              ApiEndpoint.companyRegistration.countries
             );
             const resData = response.data as any;
             if (resData?.status && Array.isArray(resData.data)) {
@@ -91,7 +91,7 @@ export const SchemaFields = [
         loadOptions: async (countryName: any) => {
           try {
             const response = await axiosInstance.get(
-              `${PlacementApiEndpoint.companyRegistration.states}?country_name=${encodeURIComponent(
+              `${ApiEndpoint.companyRegistration.states}?country_name=${encodeURIComponent(
                 countryName
               )}`
             );
@@ -119,7 +119,7 @@ export const SchemaFields = [
         loadOptions: async (stateName: any) => {
           try {
             const response = await axiosInstance.get(
-              `${PlacementApiEndpoint.companyRegistration.cities}?state_name=${encodeURIComponent(
+              `${ApiEndpoint.companyRegistration.cities}?state_name=${encodeURIComponent(
                 stateName
               )}`
             );

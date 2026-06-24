@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import DynamicFormBuilder from "../../../../components/FormBuilder/DynamicFormBuilder";
 import { Schema, SchemaFields } from "./companyRegistrationSchema";
-import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoint";
+import { ApiEndpoint } from "../../../../utils/ApiEndpoint/placementapiEndpoint";
 import axiosInstance from "../../../../utils/api";
 import { toast } from "react-toastify";
 import { Building2, CheckCircle2, ClipboardList, MapPin, UserRound } from "lucide-react";
@@ -20,7 +20,7 @@ const CompanyRegistrationPage: React.FC = () => {
     const checkPincodeAvailability = async () => {
       try {
         const response = await axiosInstance.get(
-          PlacementApiEndpoint.companyRegistration.checkPincode
+          ApiEndpoint.companyRegistration.checkPincode
         );
         const resData = response.data as any;
         if (resData?.status && resData.data?.pincode_available) {
@@ -51,7 +51,7 @@ const CompanyRegistrationPage: React.FC = () => {
   const handleFormSubmit = async (data: any) => {
     try {
       const response = await axiosInstance.post(
-        PlacementApiEndpoint.companyRegistration.submit,
+        ApiEndpoint.companyRegistration.submit,
         data
       );
       const resData = response.data as any;

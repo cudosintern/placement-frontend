@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/api";
-import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoint";
+import { ApiEndpoint } from "../../../utils/ApiEndpoint/placementapiEndpoint";
 import {
   DriveRecord,
   DriveMeta,
@@ -110,7 +110,7 @@ const DriveFormPage: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await axiosInstance.get(PlacementApiEndpoint.drive.meta);
+        const res = await axiosInstance.get(ApiEndpoint.drive.meta);
         const body = res.data as any;
         if (body?.status) setMeta(body.data);
       } catch {
@@ -209,7 +209,7 @@ const DriveFormPage: React.FC = () => {
       setCountLoading(true);
       try {
         const res = await axiosInstance.get(
-          PlacementApiEndpoint.drive.eligibleCount,
+          ApiEndpoint.drive.eligibleCount,
           {
             params: {
               dept_ids: Array.from(deptIds).join(","),
@@ -361,8 +361,8 @@ const DriveFormPage: React.FC = () => {
     setSaving(true);
     try {
       const res = isEdit
-        ? await axiosInstance.put(PlacementApiEndpoint.drive.save, payload)
-        : await axiosInstance.post(PlacementApiEndpoint.drive.save, payload);
+        ? await axiosInstance.put(ApiEndpoint.drive.save, payload)
+        : await axiosInstance.post(ApiEndpoint.drive.save, payload);
 
       const body = res.data as any;
       if (body?.status) {

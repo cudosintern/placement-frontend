@@ -1,11 +1,12 @@
 import axiosInstance from "../../../../utils/api";
+import { ApiEndpoint } from "../../../../utils/ApiEndpoint/placementapiEndpoint";
 
-const baseUrl = "/placement/notification-log";
+const baseUrl = ApiEndpoint.notificationLog;
 
 const getNotificationLogs = async () => {
   try {
     const res = await axiosInstance.get(
-      `${baseUrl}/get_notification_logs`
+      baseUrl.get_logs
     );
 
     return res.data;

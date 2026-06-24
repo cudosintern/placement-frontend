@@ -92,33 +92,43 @@ const handleFormSubmit = async (data: any) => {
   }
 };
 
-  const columnDefsWithAction = [
-  ...SchemaColumnDefs,
-
-
-{
-  headerName: "Edit",
-  cellRenderer: (params: any) => (
-    <button
-      onClick={() => editTemplateHandler(params.data)}
-      className="bg-green-500 text-white px-2 py-1 rounded text-xs"
-    >
-      Edit
-    </button>
-  ),
-},
-  {
-  headerName: "Delete",
-  cellRenderer: (params: any) => (
-    <button
-      onClick={() => deleteTemplateHandler(params.data.id)}
-      className="bg-red-500 text-white px-2 py-1 rounded text-xs"
-    >
-      Delete
-    </button>
-  ),
-},
-];
+  const columnDefsWithAction = SchemaColumnDefs.map((col: any) => {
+    if (col.field === "event_type_id") {
+      return {
+        ...col,
+        cellRenderer: (params: any) => {
+          const match = eventTypeOptions.find(
+            (opt) => String(opt.value) === String(params.value)
+          );
+          return match ? match.label : params.value || "—";
+        },
+      };
+    }
+    return col;
+  }).concat([
+    {
+      headerName: "Edit",
+      cellRenderer: (params: any) => (
+        <button
+          onClick={() => editTemplateHandler(params.data)}
+          className="bg-green-500 text-white px-2 py-1 rounded text-xs"
+        >
+          Edit
+        </button>
+      ),
+    },
+    {
+      headerName: "Delete",
+      cellRenderer: (params: any) => (
+        <button
+          onClick={() => deleteTemplateHandler(params.data.id)}
+          className="bg-red-500 text-white px-2 py-1 rounded text-xs"
+        >
+          Delete
+        </button>
+      ),
+    },
+  ]);
 
   return (
     <div>
