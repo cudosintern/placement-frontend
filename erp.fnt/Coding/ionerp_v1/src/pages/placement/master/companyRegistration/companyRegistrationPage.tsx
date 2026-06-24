@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import DynamicFormBuilder from "../../../../components/FormBuilder/DynamicFormBuilder";
 import { Schema, SchemaFields } from "./companyRegistrationSchema";
-import { ApiEndpoint } from "../../../../utils/ApiEndpoint/placementapiEndpoint";
+import { ApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoint";
 import axiosInstance from "../../../../utils/api";
 import { toast } from "react-toastify";
 import { Building2, CheckCircle2, ClipboardList, MapPin, UserRound } from "lucide-react";

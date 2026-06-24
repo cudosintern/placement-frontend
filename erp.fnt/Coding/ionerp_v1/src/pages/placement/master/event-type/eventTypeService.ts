@@ -1,6 +1,6 @@
 
 import axiosInstance from "../../../../utils/api";
-import { ApiEndpoint } from "../../../../utils/ApiEndpoint/placementapiEndpoint";
+import { ApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoint";
 
 
 const baseUrl = ApiEndpoint.eventType;

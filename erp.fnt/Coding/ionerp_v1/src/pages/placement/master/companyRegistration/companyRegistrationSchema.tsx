@@ -1,6 +1,6 @@
 import { z } from "zod";
 import axiosInstance from "../../../../utils/api";
-import { ApiEndpoint } from "../../../../utils/ApiEndpoint/placementapiEndpoint";
+import { ApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoint";
 
 export const Schema = z.object({
   company_name: z.string().min(1, { message: "Company Name is required" }),

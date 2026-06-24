@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/api";
-import { ApiEndpoint } from "../../../utils/ApiEndpoint/placementapiEndpoint";
+import { ApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoint";
 import {
   DriveRecord,
   DriveMeta,
