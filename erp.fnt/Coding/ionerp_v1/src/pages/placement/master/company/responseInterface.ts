@@ -23,6 +23,23 @@ export interface CompanyResponse {
   isActive?: boolean;
   createdAt?: string; // ISO date string
   updatedAt?: string; // ISO date string
+  // Additional optional fields commonly useful for company records
+  company_contact_person?: string;
+  contact_person?: string;
+  company_contact_phone?: string;
+  contact_phone?: string;
+  company_contact_email?: string;
+  contact_email?: string;
+  company_website?: string;
+  website?: string;
+  company_industry?: string;
+  industry?: string;
+  company_established_year?: number | string;
+  established_year?: number | string;
+  company_employees?: number | string;
+  employees?: number | string;
+  company_linkedin?: string;
+  linkedin?: string;
 }
 
 export type CompanyListResponse = CompanyResponse[];
