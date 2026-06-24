@@ -128,6 +128,20 @@ export const ApiEndpoint = {
     sections: "/assessments/manage_cia_occasion/sections",
     courses: "/assessments/manage_cia_occasion/courses",
   },
+  plm: {
+    application_list: "plm/application_list",
+    application_update: "plm/application/update",
+    shortlist_create: "plm/shortlist/create",
+    waitlist_create: "plm/waitlist/create",
+    shortlist_withdraw: "plm/shortlist/withdraw",
+    waitlist_promote: "plm/waitlist/promote",
+    get_shortlist: "plm/shortlist/list",
+    get_waitlist: "plm/waitlist/list",
+    // override endpoints for manual approvals
+    override_list: "plm/override/list",
+    override_approve: "plm/override/approve",
+    override_reject: "plm/override/reject",
+  },
 
   survey: {
     stakeholder: {

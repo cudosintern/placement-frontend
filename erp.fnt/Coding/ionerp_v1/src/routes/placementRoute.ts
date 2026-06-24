@@ -14,18 +14,14 @@ import {
 } from "../pages/placement/student/studentRoutes";
 import AvailableDrivesPage from "../pages/placement/drives/AvailableDrivesPage";
 import NotificationTemplatePage from "../pages/placement/master/notification-template/notificationTemplatePage";
-<<<<<<< HEAD
+import NotificationLogPage from "../pages/placement/master/notification-log/NotificationLogPage";
+import EventTypePage from "../pages/placement/master/event-type/eventTypePage";
 
 import CompanyRegistrationPage from "../pages/placement/master/companyRegistration/companyRegistrationPage";
 import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
 import DrivePage from "../pages/placement/tpoDashboard/drivePage";
 
-const PLACEMENTROUTE = [
-=======
-import NotificationLogPage from "../pages/placement/master/notification-log/NotificationLogPage";
-import EventTypePage from "../pages/placement/master/event-type/eventTypePage";
 export const PLACEMENTROUTE = [
->>>>>>> d8e3284 (implemented Event type)
   {
     name: "Home",
     href: "/",
@@ -46,6 +42,35 @@ export const PLACEMENTROUTE = [
     element: Outlet,
     roles: [],
     subItems: [
+      {
+        name: "Placement Module",
+        href: "",
+        roles: [],
+        element: Outlet,
+        subItems: [
+          {
+            name: "Applications",
+            href: "plm/applications",
+            roles: [],
+            element: require("../pages/placement/plm/ApplicationList").default,
+            subItems: [],
+          },
+          {
+            name: "Shortlist",
+            href: "plm/shortlist",
+            roles: [],
+            element: require("../pages/placement/plm/ShortlistManagement").default,
+            subItems: [],
+          },
+          {
+            name: "Waitlist",
+            href: "plm/waitlist",
+            roles: [],
+            element: require("../pages/placement/plm/WaitlistManagement").default,
+            subItems: [],
+          },
+        ],
+      },
       {
         name: "Company Contact",
         href: "company-contact",
@@ -162,5 +187,5 @@ export const PLACEMENTROUTE = [
 ];
 
 
-export default PLACEMENTROUTE;
+
 
