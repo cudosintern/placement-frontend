@@ -1,5 +1,6 @@
-export const ApiEndpoint = {
+export const PlacementApiEndpoint = {
 
+    // ── Student Profile & Academic ────────────────────────────────────────────
     studentProfile: {
         get_students: "placement/student_profile/get_students",
         get_all_students_list: "placement/student_profile/get_all_students_list",
@@ -25,5 +26,41 @@ export const ApiEndpoint = {
         download_resume: "placement/student_resume/download_resume",
     },
 
+    // ── Company Registration (self-registration by company) ───────────────────
+    companyRegistration: {
+        submit: "placement/company-registration/submit",
+        list: "placement/company-registration/list",
+        detail: "placement/company-registration/detail",
+        approve: "placement/company-registration/approve",
+        reject: "placement/company-registration/reject",
+        countries: "placement/company-registration/countries",
+        states: "placement/company-registration/states",
+        cities: "placement/company-registration/cities",
+        checkPincode: "placement/company-registration/check-pincode",
+    },
+
+    // ── Company (TPO-managed company master) ──────────────────────────────────
+    company: {
+        list: "placement/company/list",
+        detail: "placement/company/detail",
+        save: "placement/company/save",
+        activate: "placement/company/activate",
+        deactivate: "placement/company/deactivate",
+    },
+
+    // ── Placement Drive ───────────────────────────────────────────────────────
+    drive: {
+        meta: "placement/drive/meta",
+        list: "placement/drive/list",
+        detail: "placement/drive/detail",
+        save: "placement/drive/save",
+        status: "placement/drive/status",
+        eligibleCount: "placement/drive/eligible-count",
+    },
+
 } as const;
+
+// Backward-compat alias — used by studentProfileService.ts and other files
+// that still import `ApiEndpoint` from this file.
+export const ApiEndpoint = PlacementApiEndpoint;
 

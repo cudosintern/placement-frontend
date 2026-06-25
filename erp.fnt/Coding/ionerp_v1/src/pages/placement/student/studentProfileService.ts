@@ -1,5 +1,5 @@
 import axiosInstance from "../../../utils/api";
-import { ApiEndpoint } from "../../../utils/ApiEndpoint/placementapiEndpoint";
+import { PlacementApiEndpoint as ApiEndpoint, PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoint";
 import {
   IEMStudentInfo,
   AllStudentRow,
@@ -439,4 +439,86 @@ export const getResumeBlobUrl = async (resumeId: number): Promise<string> => {
 
 /** @deprecated Use openResumePdf instead */
 export const getResumeDownloadUrl = (_resumeId: number): string => "";
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  PLACEMENT DRIVES (for AvailableDrivesPage)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface DriveEligibleBranch {
+  id: number;
+  drive_id: number;
+  dept_id: number;
+  dept_name: string;
+  dept_acronym: string;
+  batch_year: number;
+}
+
+export interface DriveRound {
+  round_id: number;
+  round_number: number;
+  round_name: string;
+  round_type: string;
+  is_eliminatory: boolean;
+  round_date: string | null;
+  duration_minutes: number | null;
+  description: string | null;
+}
+
+export interface DriveListItem {
+  drive_id: number;
+  drive_name: string;
+  company_id: number;
+  company_name: string;
+  job_role: string;
+  vacancy_count: number | null;
+  drive_type: string;
+  work_type: string;
+  location: string | null;
+  ctc_min: number | null;
+  ctc_max: number | null;
+  min_cgpa: number;
+  max_backlogs: number;
+  application_start: string | null;
+  application_deadline: string | null;
+  drive_date: string | null;
+  tier: number;
+  status: number;
+  status_label: string;
+  eligible_student_count: number;
+  applied_count: number;
+  shortlisted_count: number;
+  org_id: number;
+  // Populated by detail endpoint
+  job_description?: string;
+  eligible_branches?: DriveEligibleBranch[];
+  rounds?: DriveRound[];
+}
+
+/** Fetch active drives (status=2) for the Available Drives page. */
+export const getActiveDrives = async (): Promise<DriveListItem[]> => {
+  try {
+    const res = await axiosInstance.get(
+      `${PlacementApiEndpoint.drive.list}?status=2`
+    );
+    const raw = unwrap<{ drives: DriveListItem[] }>(res);
+    return Array.isArray(raw?.drives) ? raw.drives : [];
+  } catch (err) {
+    console.error("studentProfileService.getActiveDrives", err);
+    return [];
+  }
+};
+
+/** Fetch full drive detail including eligible_branches and rounds. */
+export const getDriveDetail = async (driveId: number): Promise<DriveListItem | null> => {
+  try {
+    const res = await axiosInstance.get(
+      `${PlacementApiEndpoint.drive.detail}/${driveId}`
+    );
+    return unwrap<DriveListItem>(res);
+  } catch (err) {
+    console.error("studentProfileService.getDriveDetail", err);
+    return null;
+  }
+};
+
 
