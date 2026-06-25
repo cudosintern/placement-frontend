@@ -77,7 +77,7 @@ export const SchemaColumnDefs = [
   },
  {
   headerName: "Event Type",
-  field: "event_type_id",
+  field: "event_type_name",
   sortable: true,
   filter: true,
 },

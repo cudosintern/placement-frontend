@@ -39,6 +39,7 @@ interface DataTableProps {
   quickFilterText?: string;
   autoHeight?: boolean;
   loading?: boolean;
+  rowHeight?: number;
 }
 
 const DataTable: React.FC<DataTableProps> = ({
@@ -71,6 +72,7 @@ const DataTable: React.FC<DataTableProps> = ({
   quickFilterText: externalQuickFilter,
   autoHeight = false,
   loading: externalLoading,
+  rowHeight,
 }) => {
   const [isPending, startTransition] = useTransition();
   const gridRef = useRef<any>(null);
@@ -206,7 +208,7 @@ const DataTable: React.FC<DataTableProps> = ({
           rowSelection={rowSelection === "multiple" ? "multiple" : "single"}
           headerHeight={wrapHeaders ? undefined : 40}
           domLayout={autoHeight ? "autoHeight" : "normal"}
-          rowHeight={35}
+          rowHeight={rowHeight ?? 35}
           paginationPageSize={pageSize}
           pagination={pagination}
           onGridReady={handleGridReady}

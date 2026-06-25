@@ -20,6 +20,7 @@ import EventTypePage from "../pages/placement/master/event-type/eventTypePage";
 import CompanyRegistrationPage from "../pages/placement/master/companyRegistration/companyRegistrationPage";
 import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
 import DrivePage from "../pages/placement/tpoDashboard/drivePage";
+import InterviewSchedulingPage from "../pages/placement/tpoDashboard/interview-scheduling/interviewSchedulingPage";
 
 export const PLACEMENTROUTE = [
   {
@@ -150,6 +151,13 @@ export const PLACEMENTROUTE = [
         href: "/tpo/placement-drive",
         roles: [],
         element: DrivePage,
+        subItems: [],
+      },
+      {
+        name: "Interview Scheduling",
+        href: "/tpo/interview-scheduling",
+        roles: [],
+        element: InterviewSchedulingPage,
         subItems: [],
       },
     ],

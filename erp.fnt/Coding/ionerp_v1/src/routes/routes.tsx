@@ -11,6 +11,7 @@ import CompanyRegistrationPage from "../pages/placement/master/companyRegistrati
 import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
 import DrivePage from "../pages/placement/tpoDashboard/drivePage";
 import DriveFormPage from "../pages/placement/tpoDashboard/driveFormPage";
+import InterviewSchedulingPage from "../pages/placement/tpoDashboard/interview-scheduling/interviewSchedulingPage";
 const ProtectedRoute: React.FC<{
   element: React.ReactElement;
   roles?: string[];
@@ -106,6 +107,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/tpo/placement-drive" element={<DrivePage />} />
         <Route path="/tpo/placement-drive/create" element={<DriveFormPage />} />
         <Route path="/tpo/placement-drive/edit" element={<DriveFormPage />} />
+        <Route path="/tpo/interview-scheduling" element={<InterviewSchedulingPage />} />
       </Route>
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
