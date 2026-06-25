@@ -48,7 +48,7 @@ const deleteContact = async (contactId: number) => {
 
 const getCompanies = async () => {
   try {
-    const res = await axiosInstance.get(companyUrl.list);
+    const res = await axiosInstance.get(companyUrl.list, { params: { status: 1 } });
     return res.data;
   } catch (err) {
     console.error("companyContactService.getCompanies", err);
