@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { X, Plus, Trash2, Loader2, Users } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/api";
-import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoint";
+import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementapiEndpoint";
 import { DriveRecord, DriveMeta, EligibleBranch, DriveRound, ROUND_TYPE_CONFIG } from "./driveSchema";
 
 interface Props {

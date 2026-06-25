@@ -186,6 +186,5 @@ export const PLACEMENTROUTE = [
   },
 ];
 
-
-
-
+export { PLACEMENTROUTE };
+export default PLACEMENTROUTE;
