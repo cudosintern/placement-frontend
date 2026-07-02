@@ -521,4 +521,86 @@ export const getDriveDetail = async (driveId: number): Promise<DriveListItem | n
   }
 };
 
+// ═══════════════════════════════════════════════════════════════════════════════
+//  STUDENT DRIVE APPLICATIONS  (plm_application)
+// ═══════════════════════════════════════════════════════════════════════════════
 
+export interface StudentApplication {
+  application_id: number;
+  drive_id:       number;
+  profile_id:     number;
+  resume_id:      number | null;
+  status:         "APPLIED" | "SHORTLISTED" | "WAITLISTED" | "IN_PROCESS" | "OFFERED" | "REJECTED" | "WITHDRAWN";
+  is_eligible:    number;
+  applied_at:     string | null;
+}
+
+/** Map a backend status string → frontend ApplyStatus used in AvailableDrivesPage */
+export const mapAppStatus = (
+  s: StudentApplication["status"]
+): "not_applied" | "applied" | "shortlisted" | "rejected" => {
+  if (s === "APPLIED" || s === "WAITLISTED" || s === "IN_PROCESS") return "applied";
+  if (s === "SHORTLISTED" || s === "OFFERED") return "shortlisted";
+  if (s === "REJECTED") return "rejected";
+  return "not_applied"; // WITHDRAWN
+};
+
+/**
+ * Apply to a drive.
+ * profile_id comes from plm_student_profile.profile_id (NOT iems_students.student_id).
+ * resume_id is optional — pass the student's active resume_id from plm_student_resume.
+ */
+export const applyToDrive = async (
+  driveId:   number,
+  profileId: number,
+  resumeId?: number | null,
+): Promise<StudentApplication | null> => {
+  try {
+    const res = await axiosInstance.post(PlacementApiEndpoint.studentDrive.apply, {
+      drive_id:   driveId,
+      profile_id: profileId,
+      resume_id:  resumeId ?? null,
+    });
+    return unwrap<StudentApplication>(res);
+  } catch (err) {
+    console.error("studentProfileService.applyToDrive", err);
+    return null;
+  }
+};
+
+/**
+ * Withdraw an application from a drive.
+ */
+export const withdrawFromDrive = async (
+  driveId:   number,
+  profileId: number,
+): Promise<StudentApplication | null> => {
+  try {
+    const res = await axiosInstance.delete(
+      `${PlacementApiEndpoint.studentDrive.apply}?drive_id=${driveId}&profile_id=${profileId}`
+    );
+    return unwrap<StudentApplication>(res);
+  } catch (err) {
+    console.error("studentProfileService.withdrawFromDrive", err);
+    return null;
+  }
+};
+
+/**
+ * Fetch all applications for a student profile.
+ * Used on page load to pre-populate Apply/Applied/Shortlisted badges.
+ */
+export const getMyApplications = async (
+  profileId: number,
+): Promise<StudentApplication[]> => {
+  try {
+    const res = await axiosInstance.get(
+      `${PlacementApiEndpoint.studentDrive.my_applications}?profile_id=${profileId}`
+    );
+    const data = unwrap<StudentApplication[]>(res);
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error("studentProfileService.getMyApplications", err);
+    return [];
+  }
+};

@@ -1,12 +1,16 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import * as profileService from "../student/studentProfileService";
+import * as profileService from "./studentProfileService";
 import {
   DriveListItem,
   DriveEligibleBranch,
   DriveRound,
-} from "../student/studentProfileService";
-import { AllStudentRow } from "../student/studentProfileTypes";
+  applyToDrive,
+  withdrawFromDrive,
+  getMyApplications,
+  mapAppStatus,
+} from "./studentProfileService";
+import { AllStudentRow } from "./studentProfileTypes";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -130,6 +134,19 @@ const AvailableDrivesPage: React.FC = () => {
   const [applySuccess, setApplySuccess] = useState<number | null>(null);
   const [withdrawing, setWithdrawing]   = useState<number | null>(null);
   const [withdrawSuccess, setWithdrawSuccess] = useState<number | null>(null);
+  const [applyError, setApplyError] = useState<string | null>(null);
+
+  // ── Load real application statuses from backend on student change ─────────
+  useEffect(() => {
+    const profileId = selectedStudent?.profile_id ?? null;
+    if (!profileId) return;
+    getMyApplications(profileId).then((apps) => {
+      const map: Record<number, ApplyStatus> = {};
+      apps.forEach((a) => { map[a.drive_id] = mapAppStatus(a.status); });
+      setApplyMap(map);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedStudent?.profile_id]);
 
   // ── Eligibility logic (based on dept_id + batch_year + cgpa + backlogs) ───
   const isEligible = useCallback((d: DriveListItem): boolean => {
@@ -187,30 +204,64 @@ const AvailableDrivesPage: React.FC = () => {
     (s) => s === "applied" || s === "shortlisted"
   ).length;
 
-  // ── Apply handler ─────────────────────────────────────────────────────────
-  const handleApply = (driveId: number) => {
+  // ── Apply handler (real API) ──────────────────────────────────────────────
+  const handleApply = async (driveId: number) => {
+    const profileId = selectedStudent?.profile_id;
+    const studentId = selectedStudent?.student_id;
+    if (!profileId) { openRegisterModal(); return; }
+
     setApplying(driveId);
-    setTimeout(() => {
-      setApplyMap((prev) => ({ ...prev, [driveId]: "applied" }));
+    setApplyError(null);
+
+    try {
+      // 1. Fetch the student's active resume first
+      let activeResumeId: number | null = null;
+      if (studentId) {
+        const resumes = await profileService.getResumes(studentId);
+        const active  = resumes.find((r) => r.is_active === 1 && r.status === 1);
+        activeResumeId = active?.resume_id ?? null;
+      }
+
+      // 2. Submit application with active resume_id (null if no resume uploaded yet)
+      const result = await applyToDrive(driveId, profileId, activeResumeId);
+      if (result) {
+        setApplyMap((prev) => ({ ...prev, [driveId]: mapAppStatus(result.status) }));
+        setApplySuccess(driveId);
+        setTimeout(() => setApplySuccess(null), 2500);
+      } else {
+        setApplyError("Failed to submit application. Please try again.");
+      }
+    } catch {
+      setApplyError("Failed to submit application. Please try again.");
+    } finally {
       setApplying(null);
-      setApplySuccess(driveId);
-      setTimeout(() => setApplySuccess(null), 2500);
-    }, 600);
+    }
   };
 
-  // ── Withdraw handler ──────────────────────────────────────────────────────
-  const handleWithdraw = (driveId: number, companyName: string) => {
+
+  // ── Withdraw handler (real API) ────────────────────────────────────────────
+  const handleWithdraw = async (driveId: number, companyName: string) => {
+    const profileId = selectedStudent?.profile_id;
+    if (!profileId) return;
     const confirmed = window.confirm(
       `Are you sure you want to withdraw your application for ${companyName}?\n\nThis action cannot be undone if rounds have already been scheduled.`
     );
     if (!confirmed) return;
     setWithdrawing(driveId);
-    setTimeout(() => {
-      setApplyMap((prev) => ({ ...prev, [driveId]: "not_applied" }));
+    try {
+      const result = await withdrawFromDrive(driveId, profileId);
+      if (result) {
+        setApplyMap((prev) => ({ ...prev, [driveId]: "not_applied" }));
+        setWithdrawSuccess(driveId);
+        setTimeout(() => setWithdrawSuccess(null), 2500);
+      } else {
+        setApplyError("Failed to withdraw application. Please contact the TPO.");
+      }
+    } catch {
+      setApplyError("Failed to withdraw application. Please contact the TPO.");
+    } finally {
       setWithdrawing(null);
-      setWithdrawSuccess(driveId);
-      setTimeout(() => setWithdrawSuccess(null), 2500);
-    }, 600);
+    }
   };
 
   // ── Not-registered modal ──────────────────────────────────────────────────
@@ -498,7 +549,8 @@ const AvailableDrivesPage: React.FC = () => {
 
             const expanded        = expandedId === d.drive_id;
             const days            = daysLeft(d.application_deadline);
-            const urgentDeadline  = days <= 5;
+            const isExpired       = d.application_deadline ? new Date(d.application_deadline) < new Date(new Date().toDateString()) : false;
+            const urgentDeadline  = !isExpired && days <= 5;
             const currentStatus   = applyMap[d.drive_id] ?? "not_applied";
             const statusCfg       = STATUS_CONFIG[currentStatus];
             const isApplying      = applying === d.drive_id;
@@ -509,13 +561,22 @@ const AvailableDrivesPage: React.FC = () => {
                 key={d.drive_id}
                 style={{
                   ...cardBase,
-                  border: `1px solid ${profileMode && eligible ? "#bfdbfe" : "#e5e7eb"}`,
+                  border: `1px solid ${isExpired ? "#e5e7eb" : profileMode && eligible ? "#bfdbfe" : "#e5e7eb"}`,
                   transition: "box-shadow 0.2s",
-                  opacity: profileMode && !eligible ? 0.88 : 1,
+                  opacity: isExpired ? 0.15 : profileMode && !eligible ? 0.88 : 1,
+                  pointerEvents: isExpired ? "none" : undefined,
                 }}
               >
+                {/* Expired deadline banner */}
+                {isExpired && (
+                  <div style={{ background: "#f1f5f9", borderBottom: "1px solid #cbd5e1", padding: "6px 20px", fontSize: 11, color: "#64748b", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                    <span>🔒</span>
+                    <span>Application deadline has passed — this drive is no longer accepting applications.</span>
+                  </div>
+                )}
+
                 {/* Not-eligible warning strip (profile mode only) */}
-                {profileMode && !eligible && (
+                {!isExpired && profileMode && !eligible && (
                   <div style={{ background: "#fff7ed", borderBottom: "1px solid #fed7aa", padding: "6px 20px", fontSize: 11, color: "#9a3412", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
                     <span>⚠️</span>
                     <span>
@@ -561,10 +622,11 @@ const AvailableDrivesPage: React.FC = () => {
                         <span>🏫 {d.drive_type}</span>
                         <span>💼 {d.work_type}</span>
                         {d.vacancy_count && <span>🧑‍💼 {d.vacancy_count} vacancies</span>}
-                        <span style={{ color: urgentDeadline ? "#c0392b" : "#555", fontWeight: urgentDeadline ? 700 : 400 }}>
-                          📅 Closes {fmtDate(d.application_deadline)}
-                          {urgentDeadline && days > 0 && <span style={{ marginLeft: 4 }}>({days} day{days !== 1 ? "s" : ""} left!)</span>}
-                          {days === 0 && <span style={{ marginLeft: 4 }}>(Closing today!)</span>}
+                        <span style={{ color: isExpired ? "#94a3b8" : urgentDeadline ? "#c0392b" : "#555", fontWeight: urgentDeadline ? 700 : 400 }}>
+                          📅 {isExpired ? "Closed" : "Closes"} {fmtDate(d.application_deadline)}
+                          {!isExpired && urgentDeadline && days > 0 && <span style={{ marginLeft: 4 }}>({days} day{days !== 1 ? "s" : ""} left!)</span>}
+                          {!isExpired && days === 0 && <span style={{ marginLeft: 4 }}>(Closing today!)</span>}
+                          {isExpired && <span style={{ marginLeft: 4, color: "#94a3b8", fontWeight: 600 }}>(Expired)</span>}
                         </span>
                       </div>
 

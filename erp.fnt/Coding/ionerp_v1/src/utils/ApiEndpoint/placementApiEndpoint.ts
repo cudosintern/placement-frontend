@@ -58,6 +58,12 @@ export const PlacementApiEndpoint = {
         eligibleCount: "placement/drive/eligible-count",
     },
 
+    // ── Student Drive (Apply / Withdraw / My Applications) ───────────────────
+    studentDrive: {
+        apply:           "placement/student/apply",
+        my_applications: "placement/student/my-applications",
+    },
+
 } as const;
 
 // Backward-compat alias — used by studentProfileService.ts and other files

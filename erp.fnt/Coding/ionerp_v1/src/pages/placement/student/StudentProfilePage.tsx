@@ -449,11 +449,12 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
   const [resumeUploading, setResumeUploading] = useState(false);
   const resumeFileRef = useRef<HTMLInputElement>(null);
 
-  // ── Inline PDF viewer state
-  const [pdfViewResumeId, setPdfViewResumeId] = useState<number | null>(null);
-  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
-  const [pdfLoading, setPdfLoading] = useState(false);
-  const prevBlobUrlRef = useRef<string | null>(null);
+  // ── PDF modal state
+  const [pdfLoading, setPdfLoading]     = useState<number | null>(null);
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
+  const [pdfModalUrl,  setPdfModalUrl]  = useState<string | null>(null);
+  const [pdfModalName, setPdfModalName] = useState("");
+  const pdfBlobRef = useRef<string | null>(null);
 
   // ── Load from API ────────────────────────────────────────────────────────────
   const loadAll = useCallback(async () => {
@@ -505,34 +506,26 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
     }
   };
 
-  // ── Inline PDF viewer helper ──────────────────────────────────────────────
-  const openInlinePdf = async (resumeId: number) => {
-    // Toggle off if same resume clicked again
-    if (pdfViewResumeId === resumeId) {
-      setPdfViewResumeId(null);
-      if (prevBlobUrlRef.current) { URL.revokeObjectURL(prevBlobUrlRef.current); prevBlobUrlRef.current = null; }
-      setPdfBlobUrl(null);
-      return;
-    }
-    setPdfLoading(true);
-    setPdfViewResumeId(resumeId);
+  // ── PDF modal helpers ─────────────────────────────────────────────────────
+  const openPdfModal = async (resumeId: number, fileName: string) => {
+    setPdfLoading(resumeId);
     try {
       const url = await profileService.getResumeBlobUrl(resumeId);
-      // Revoke previous blob URL to free memory
-      if (prevBlobUrlRef.current) URL.revokeObjectURL(prevBlobUrlRef.current);
-      prevBlobUrlRef.current = url;
-      setPdfBlobUrl(url);
+      if (pdfBlobRef.current) URL.revokeObjectURL(pdfBlobRef.current);
+      pdfBlobRef.current = url;
+      setPdfModalUrl(url);
+      setPdfModalName(fileName);
+      setPdfModalOpen(true);
     } catch {
-      toast.error("Failed to load resume preview.");
-      setPdfViewResumeId(null);
+      toast.error("Failed to load resume. Please try again.");
     }
-    setPdfLoading(false);
+    setPdfLoading(null);
   };
 
-  const closeInlinePdf = () => {
-    setPdfViewResumeId(null);
-    if (prevBlobUrlRef.current) { URL.revokeObjectURL(prevBlobUrlRef.current); prevBlobUrlRef.current = null; }
-    setPdfBlobUrl(null);
+  const closePdfModal = () => {
+    setPdfModalOpen(false);
+    setPdfModalUrl(null);
+    if (pdfBlobRef.current) { URL.revokeObjectURL(pdfBlobRef.current); pdfBlobRef.current = null; }
   };
 
   // ── Profile helpers ────────────────────────────────────────────────────────────
@@ -1091,6 +1084,7 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
 
   // ─── Render ───────────────────────────────────────────────────────────────────
   return (
+    <>
     <div style={{ maxWidth: 980, margin: "0 auto" }}>
 
       {/* ── Profile Header ── */}
@@ -1824,26 +1818,23 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
                         </div>
                         <div style={{ display: "flex", gap: 8 }}>
                           <button
-                            onClick={() => openInlinePdf(activeResume.resume_id)}
-                            disabled={pdfLoading && pdfViewResumeId === activeResume.resume_id}
+                            onClick={() => openPdfModal(activeResume.resume_id, activeResume.file_name)}
+                            disabled={pdfLoading === activeResume.resume_id}
                             style={{
                               padding: "7px 16px", fontSize: 12, fontWeight: 700,
-                              color: pdfViewResumeId === activeResume.resume_id ? "#fff" : "#17375e",
-                              background: pdfViewResumeId === activeResume.resume_id ? "#17375e" : "#fff",
-                              border: "1px solid #17375e", borderRadius: 4, cursor: "pointer",
+                              color: "#17375e",
+                              background: "#fff",
+                              border: "1px solid #17375e", borderRadius: 4,
+                              cursor: pdfLoading === activeResume.resume_id ? "not-allowed" : "pointer",
                               display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s",
+                              opacity: pdfLoading === activeResume.resume_id ? 0.6 : 1,
                             }}
                           >
-                            {pdfLoading && pdfViewResumeId === activeResume.resume_id
-                              ? "Loading…"
-                              : pdfViewResumeId === activeResume.resume_id
-                              ? "✕ Close Preview"
-                              : "👁 View PDF"}
+                            {pdfLoading === activeResume.resume_id ? "Loading…" : "👁 View PDF"}
                           </button>
                           <button
                             onClick={async () => {
                               if (!window.confirm("Delete this active resume?")) return;
-                              closeInlinePdf();
                               const ok = await profileService.deleteResume(activeResume.resume_id);
                               if (ok) { toast.success("Resume deleted."); await loadAll(); }
                               else toast.error("Failed to delete.");
@@ -1854,29 +1845,6 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
                           </button>
                         </div>
                       </div>
-
-                      {/* ── Inline PDF Viewer for Active Resume ── */}
-                      {pdfViewResumeId === activeResume.resume_id && (
-                        <div style={{ borderTop: "1px solid #c8d8f0" }}>
-                          <div style={{ background: "linear-gradient(135deg, #17375e 0%, #1e4d8c 100%)", padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <span style={{ fontSize: 16 }}>📄</span>
-                              <span style={{ color: "#fff", fontWeight: 700, fontSize: 13 }}>{activeResume.file_name}</span>
-                              <span style={{ background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>Active</span>
-                            </div>
-                            <button onClick={closeInlinePdf} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", color: "#fff", borderRadius: 4, padding: "4px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>✕ Close</button>
-                          </div>
-                          {pdfLoading ? (
-                            <div style={{ height: 500, display: "flex", alignItems: "center", justifyContent: "center", background: "#f9fafb", flexDirection: "column", gap: 12 }}>
-                              <div style={{ width: 36, height: 36, border: "4px solid #e5e7eb", borderTopColor: "#17375e", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-                              <span style={{ fontSize: 13, color: "#6b7280" }}>Loading resume…</span>
-                              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-                            </div>
-                          ) : pdfBlobUrl ? (
-                            <iframe src={pdfBlobUrl} title={activeResume.file_name} style={{ width: "100%", height: 680, border: "none", display: "block", background: "#525659" }} />
-                          ) : null}
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <div style={{ padding: "14px 16px", background: "#fffbeb", border: "1px dashed #f59e0b", borderRadius: 6, color: "#92400e", fontSize: 13, marginBottom: 24 }}>
@@ -1904,36 +1872,16 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
                               </div>
                               <div style={{ display: "flex", gap: 8 }}>
                                 <button
-                                  onClick={() => openInlinePdf(r.resume_id)}
-                                  disabled={pdfLoading && pdfViewResumeId === r.resume_id}
-                                  style={{ padding: "5px 12px", fontSize: 12, fontWeight: 600, color: pdfViewResumeId === r.resume_id ? "#fff" : "#17375e", background: pdfViewResumeId === r.resume_id ? "#17375e" : "#e8f0fb", border: "1px solid #b5cef5", borderRadius: 3, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, transition: "all 0.2s" }}
+                                  onClick={() => openPdfModal(r.resume_id, r.file_name)}
+                                  disabled={pdfLoading === r.resume_id}
+                                  style={{ padding: "5px 12px", fontSize: 12, fontWeight: 600, color: "#17375e", background: "#e8f0fb", border: "1px solid #b5cef5", borderRadius: 3, cursor: pdfLoading === r.resume_id ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 5, transition: "all 0.2s", opacity: pdfLoading === r.resume_id ? 0.6 : 1 }}
                                 >
-                                  {pdfLoading && pdfViewResumeId === r.resume_id ? "Loading…" : pdfViewResumeId === r.resume_id ? "✕ Close" : "👁 View PDF"}
+                                  {pdfLoading === r.resume_id ? "Loading…" : "👁 View PDF"}
                                 </button>
                                 <button onClick={async () => { const res = await profileService.setActiveResume(r.resume_id); if (res) { toast.success(`"${r.file_name}" is now the Active resume!`); await loadAll(); } else toast.error("Failed to set active."); }} style={{ padding: "5px 12px", fontSize: 12, fontWeight: 700, color: "#065f46", background: "#d1fae5", border: "1px solid #a7f3d0", borderRadius: 3, cursor: "pointer" }}>Set Active</button>
-                                <button onClick={async () => { if (!window.confirm(`Delete "${r.file_name}"?`)) return; if (pdfViewResumeId === r.resume_id) closeInlinePdf(); const ok = await profileService.deleteResume(r.resume_id); if (ok) { toast.success("Resume deleted."); await loadAll(); } else toast.error("Failed to delete."); }} style={{ padding: "5px 12px", fontSize: 12, fontWeight: 600, color: "#c0392b", background: "#fdf0ef", border: "1px solid #f5c6c2", borderRadius: 3, cursor: "pointer" }}>Delete</button>
+                                <button onClick={async () => { if (!window.confirm(`Delete "${r.file_name}"?`)) return; const ok = await profileService.deleteResume(r.resume_id); if (ok) { toast.success("Resume deleted."); await loadAll(); } else toast.error("Failed to delete."); }} style={{ padding: "5px 12px", fontSize: 12, fontWeight: 600, color: "#c0392b", background: "#fdf0ef", border: "1px solid #f5c6c2", borderRadius: 3, cursor: "pointer" }}>Delete</button>
                               </div>
                             </div>
-                            {pdfViewResumeId === r.resume_id && (
-                              <div style={{ borderTop: "1px solid #e0e0e0" }}>
-                                <div style={{ background: "linear-gradient(135deg, #374151 0%, #4b5563 100%)", padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                    <span style={{ fontSize: 14 }}>📄</span>
-                                    <span style={{ color: "#fff", fontWeight: 600, fontSize: 13 }}>{r.file_name}</span>
-                                  </div>
-                                  <button onClick={closeInlinePdf} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", color: "#fff", borderRadius: 4, padding: "4px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>✕ Close</button>
-                                </div>
-                                {pdfLoading ? (
-                                  <div style={{ height: 460, display: "flex", alignItems: "center", justifyContent: "center", background: "#f9fafb", flexDirection: "column", gap: 12 }}>
-                                    <div style={{ width: 32, height: 32, border: "4px solid #e5e7eb", borderTopColor: "#374151", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-                                    <span style={{ fontSize: 13, color: "#6b7280" }}>Loading resume…</span>
-                                    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-                                  </div>
-                                ) : pdfBlobUrl ? (
-                                  <iframe src={pdfBlobUrl} title={r.file_name} style={{ width: "100%", height: 640, border: "none", display: "block", background: "#525659" }} />
-                                ) : null}
-                              </div>
-                            )}
                           </div>
                         ))}
                       </div>
@@ -1946,6 +1894,67 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
         );
       })()}
     </div>
+
+      {/* ══ PDF Viewer Modal ══════════════════════════════════════════════════ */}
+      {pdfModalOpen && pdfModalUrl && (
+        <div
+          onClick={closePdfModal}
+          style={{
+            position: "fixed", inset: 0,
+            background: "rgba(0,0,0,0.88)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 99999,
+          }}
+        >
+          {/* Close button — only UI element */}
+          <button
+            onClick={closePdfModal}
+            title="Close"
+            style={{
+              position: "absolute", top: 18, right: 22,
+              width: 36, height: 36,
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.15)",
+              border: "1.5px solid rgba(255,255,255,0.35)",
+              color: "#fff",
+              fontSize: 18, lineHeight: 1,
+              cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              zIndex: 1,
+              transition: "background 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.28)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.15)")}
+          >
+            ✕
+          </button>
+
+          {/* PDF frame — clicking inside doesn't close the modal */}
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "88vw",
+              height: "94vh",
+              borderRadius: 6,
+              overflow: "hidden",
+              boxShadow: "0 24px 80px rgba(0,0,0,0.6)",
+            }}
+          >
+            <iframe
+              src={`${pdfModalUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+              title={pdfModalName}
+              style={{
+                width: "100%",
+                height: "calc(100% + 40px)",
+                border: "none",
+                display: "block",
+                marginTop: "-40px",        /* push toolbar out of the clipped container */
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

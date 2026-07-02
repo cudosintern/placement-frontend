@@ -12,7 +12,7 @@ import {
   StudentSkillWrapper,
   StudentCertificationWrapper,
 } from "../pages/placement/student/studentRoutes";
-import AvailableDrivesPage from "../pages/placement/drives/AvailableDrivesPage";
+import AvailableDrivesPage from "../pages/placement/student/AvailableDrivesPage";
 import NotificationTemplatePage from "../pages/placement/master/notification-template/notificationTemplatePage";
 import NotificationLogPage from "../pages/placement/master/notification-log/NotificationLogPage";
 import EventTypePage from "../pages/placement/master/event-type/eventTypePage";
