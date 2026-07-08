@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, Eye, Users } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/api";
 import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementapiEndpoint";
@@ -44,7 +44,7 @@ const DrivePage: React.FC = () => {
   // 0=All 1=Draft 2=Scheduled 3=Active 4=Closed 5=Cancelled
   const [activeTab, setActiveTab] = useState(0);
 
-  // Detail modal
+  // Detail modal state
   const [viewDrive, setViewDrive] = useState<DriveRecord | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
@@ -76,7 +76,7 @@ const DrivePage: React.FC = () => {
     return drives.filter((d) => d.status === STATUS_MAP[activeTab]);
   }, [drives, activeTab]);
 
-  // ── View detail ───────────────────────────────────────────────────────────
+  // ── View detail — opens the Drive Detail modal (original behaviour) ────────
   const handleView = useCallback(async (row: DriveRecord) => {
     try {
       const res = await axiosInstance.get(
@@ -92,38 +92,17 @@ const DrivePage: React.FC = () => {
     }
   }, []);
 
-  // ── Navigate to edit ──────────────────────────────────────────────────────
+  // ── Shortlisting — navigate to Drive Detail & Shortlisting page ─────────
+  const handleShortlisting = useCallback((row: DriveRecord) => {
+    navigate(`/tpo/placement-drive/${row.drive_id}`, { state: { drive: row } });
+  }, [navigate]);
+
+  // ── Navigate to edit (from modal) ──────────────────────────────────────────
   const handleEditFromDetail = (drive: DriveRecord) => {
     setDetailOpen(false);
     setViewDrive(null);
     navigate("/tpo/placement-drive/edit", { state: { editDrive: drive } });
   };
-
-  // ── Status change ─────────────────────────────────────────────────────────
-  const handleStatusChange = useCallback(
-    async (driveId: number, newStatus: number, currentLabel: string) => {
-      if (
-        !window.confirm(
-          `Change status from "${currentLabel}" to "${DRIVE_STATUS_CONFIG[newStatus]?.label}"?`,
-        )
-      )
-        return;
-      try {
-        const res = await axiosInstance.put(PlacementApiEndpoint.drive.status, {
-          drive_id: driveId,
-          status: newStatus,
-        });
-        const body = res.data as any;
-        if (body?.status) {
-          toast.success(body.message || "Status updated.");
-          fetchDrives();
-        } else toast.error(body?.message || "Failed to update status.");
-      } catch {
-        toast.error("Failed to update status.");
-      }
-    },
-    [fetchDrives],
-  );
 
   // ── Column defs ───────────────────────────────────────────────────────────
   const columnDefs = useMemo(
@@ -230,25 +209,75 @@ const DrivePage: React.FC = () => {
         },
       },
       {
-        headerName: "Action",
-        width: 70,
+        headerName: "Actions",
+        width: 170,
         flex: 0,
         sortable: false,
         filter: false,
         cellClass: "dp-grid-cell",
         cellRenderer: (params: any) => (
-          <div className="flex items-center h-full">
+          <div style={{ display: "flex", alignItems: "center", gap: 6, height: "100%" }}>
+            {/* Red eye / View button */}
             <button
-              className="text-xs text-blue-600 underline px-2 py-1 rounded hover:bg-blue-50"
+              title="View drive details"
               onClick={() => handleView(params.data)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 30,
+                height: 28,
+                padding: 0,
+                borderRadius: 6,
+                border: "none",
+                background: "#dc2626",
+                color: "#ffffff",
+                cursor: "pointer",
+                flexShrink: 0,
+                boxShadow: "0 1px 3px rgba(220,38,38,0.35)",
+              }}
             >
-              View
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, display: "block" }}>
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+
+            {/* Shortlisting button */}
+            <button
+              title="Open shortlisting page"
+              onClick={() => handleShortlisting(params.data)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "0 10px",
+                height: 28,
+                borderRadius: 6,
+                border: "1px solid #6366f1",
+                background: "#6366f1",
+                color: "#fff",
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+                boxShadow: "0 1px 3px rgba(99,102,241,0.35)",
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, display: "block" }}>
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              Shortlisting
             </button>
           </div>
         ),
       },
     ],
-    [handleView],
+    [handleView, handleShortlisting],
   );
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -324,10 +353,10 @@ const DrivePage: React.FC = () => {
           border-radius: 6px !important;
         }
         .dp-list-panel .ag-body-horizontal-scroll {
-          display: none !important;
+          display: block !important;
         }
         .dp-list-panel .ag-center-cols-viewport {
-          overflow-x: hidden !important;
+          overflow-x: auto !important;
         }
         .dp-grid-row-even {
           background: #fcfcfd !important;
@@ -409,7 +438,7 @@ const DrivePage: React.FC = () => {
         />
       </div>
 
-      {/* Detail modal */}
+      {/* Detail modal — restored (View button) */}
       {detailOpen && viewDrive && (
         <DriveDetailModal
           drive={viewDrive}
@@ -418,7 +447,28 @@ const DrivePage: React.FC = () => {
             setViewDrive(null);
           }}
           onEdit={handleEditFromDetail}
-          onStatusChange={handleStatusChange}
+          onStatusChange={async (driveId, newStatus, currentLabel) => {
+            if (
+              !window.confirm(
+                `Change status from "${currentLabel}" to "${DRIVE_STATUS_CONFIG[newStatus]?.label}"?`,
+              )
+            )
+              return;
+            try {
+              const res = await axiosInstance.put(
+                PlacementApiEndpoint.drive.status,
+                { drive_id: driveId, status: newStatus },
+              );
+              const body = res.data as any;
+              if (body?.status) {
+                toast.success(body.message || "Status updated.");
+                fetchDrives();
+                setDetailOpen(false);
+              } else toast.error(body?.message || "Failed to update status.");
+            } catch {
+              toast.error("Failed to update status.");
+            }
+          }}
         />
       )}
     </div>

@@ -13,6 +13,7 @@ import {
   StudentCertificationWrapper,
 } from "../pages/placement/student/studentRoutes";
 import AvailableDrivesPage from "../pages/placement/student/AvailableDrivesPage";
+import { PlacementStatusWrapper } from "../pages/placement/student/studentRoutes";
 import NotificationTemplatePage from "../pages/placement/master/notification-template/notificationTemplatePage";
 import NotificationLogPage from "../pages/placement/master/notification-log/NotificationLogPage";
 import EventTypePage from "../pages/placement/master/event-type/eventTypePage";
@@ -182,9 +183,15 @@ export const PLACEMENTROUTE = [
         element: AvailableDrivesPage,
         subItems: [],
       },
+      {
+        name: "Placement Status",
+        href: "student/placement-status",
+        roles: [],
+        element: PlacementStatusWrapper,
+        subItems: [],
+      },
     ],
   },
 ];
 
-export { PLACEMENTROUTE };
 export default PLACEMENTROUTE;

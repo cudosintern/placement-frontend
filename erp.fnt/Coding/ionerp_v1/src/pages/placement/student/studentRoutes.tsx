@@ -15,6 +15,7 @@ import StudentRegistrationPage from "./StudentRegistrationPage";
 import StudentProfilePage from "./StudentProfilePage";
 import StudentSkillPage from "./StudentSkillPage";
 import StudentCertificationPage from "./StudentCertificationPage";
+import PlacementStatusPage from "./PlacementStatusPage";
 
 // ─── Registration Page Wrapper ─────────────────────────────────────────────────
 
@@ -41,4 +42,10 @@ export const StudentSkillWrapper: React.FC = () => {
 
 export const StudentCertificationWrapper: React.FC = () => {
   return <StudentCertificationPage />;
+};
+
+// ─── Placement Status Page Wrapper ─────────────────────────────────────────────
+
+export const PlacementStatusWrapper: React.FC = () => {
+  return <PlacementStatusPage />;
 };

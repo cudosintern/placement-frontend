@@ -58,6 +58,15 @@ export const PlacementApiEndpoint = {
         eligibleCount: "placement/drive/eligible-count",
     },
 
+    // ── Drive Applications (Officer — Drive Detail & Shortlisting) ────────────
+    applications: {
+        list:            "placement/drive/applications",              // GET ?drive_id=X
+        shortlist:       "placement/drive/applications/shortlist",    // POST {drive_id, application_ids[]}
+        auto_shortlist:  "placement/drive/applications/auto-shortlist", // POST {drive_id} — auto by branch+CGPA
+        reject:          "placement/drive/applications/reject",       // POST {application_id, reason?}
+        withdraw:        "placement/drive/applications/withdraw",     // POST {application_id}
+    },
+
     // ── Student Drive (Apply / Withdraw / My Applications) ───────────────────
     studentDrive: {
         apply:           "placement/student/apply",
