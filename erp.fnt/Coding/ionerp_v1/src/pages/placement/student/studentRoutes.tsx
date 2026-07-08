@@ -7,6 +7,9 @@
  * - StudentProfileWrapper        →  /student/profile?student_id=<id>
  * - StudentSkillWrapper          →  /student/skills
  * - StudentCertificationWrapper  →  /student/certifications
+ *
+ * NOTE: PlacementStatusWrapper is intentionally excluded until PlacementStatusPage
+ * is committed to git (currently work-in-progress / not staged).
  */
 
 import React from "react";
@@ -15,7 +18,6 @@ import StudentRegistrationPage from "./StudentRegistrationPage";
 import StudentProfilePage from "./StudentProfilePage";
 import StudentSkillPage from "./StudentSkillPage";
 import StudentCertificationPage from "./StudentCertificationPage";
-import PlacementStatusPage from "./PlacementStatusPage";
 
 // ─── Registration Page Wrapper ─────────────────────────────────────────────────
 
@@ -44,8 +46,3 @@ export const StudentCertificationWrapper: React.FC = () => {
   return <StudentCertificationPage />;
 };
 
-// ─── Placement Status Page Wrapper ─────────────────────────────────────────────
-
-export const PlacementStatusWrapper: React.FC = () => {
-  return <PlacementStatusPage />;
-};
