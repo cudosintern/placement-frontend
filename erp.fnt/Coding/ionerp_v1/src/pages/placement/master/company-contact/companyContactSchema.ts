@@ -67,48 +67,42 @@ export const SchemaFields = [
 ];
 
 export const SchemaColumnDefs = [
-   {
+  {
     headerName: "Company",
     field: "company_name",
     sortable: true,
-    filter: false,
+    filter: true,
   },
   {
     headerName: "Contact Name",
-    field: "contact_name",
+    valueGetter: (params: any) =>
+      `${params.data.first_name || ""} ${params.data.last_name || ""}`.trim(),
     sortable: true,
-    filter: false,
+    filter: true,
   },
   {
     headerName: "Designation",
-    field: "designation",
+    field: "designation_name",
     sortable: true,
-    filter: false,
+    filter: true,
   },
   {
     headerName: "Email",
     field: "email",
     sortable: true,
-    filter: false,
-  },
-  {
-    headerName: "Contact Name",
-    valueGetter: (params: any) =>
-      `${params.data.first_name || ""} ${params.data.last_name || ""}`,
-  },
-  {
-    headerName: "Designation",
-    field: "designation_name",
+    filter: true,
   },
   {
     headerName: "Mobile",
     field: "phone",
+    sortable: true,
+    filter: true,
   },
   {
     headerName: "Primary",
     field: "is_primary",
     sortable: true,
-    filter: false,
+    filter: true,
     cellRenderer: (params: any) => {
       return params.value ? "✅ Primary" : "";
     },
