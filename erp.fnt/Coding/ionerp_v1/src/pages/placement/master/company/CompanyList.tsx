@@ -28,7 +28,7 @@ const SummaryCard: React.FC<{
     <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-white/5 rounded-full group-hover:scale-150 transition-all duration-500" />
     <div className="space-y-1 z-10">
       <p className="text-[10px] font-bold uppercase tracking-wider opacity-75">{label}</p>
-      <h3 className="text-3xl font-extrabold tracking-tight">{count}</h3>
+      <div className="text-3xl font-extrabold tracking-tight text-white !text-white" style={{ color: '#ffffff' }}>{count}</div>
     </div>
     <div className={`h-11 w-11 rounded-xl flex items-center justify-center ${iconBgClass} backdrop-blur-md z-10 shadow-inner group-hover:rotate-12 transition-transform duration-300`}>
       {icon}
