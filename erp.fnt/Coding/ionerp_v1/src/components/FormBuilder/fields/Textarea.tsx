@@ -51,7 +51,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                         id={name}
                         name={name}
                         ref={ref}
-                        value={value}
+                        value={value ?? ""}
                         disabled={disabled}
                         required={required}
                         maxLength={maxLength}
@@ -92,7 +92,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                         )}
                     </div>
                     <div className="text-xs text-gray-400">
-                        {value.length} of {maxLength}
+                        {(value || "").length} of {maxLength}
                     </div>
                 </div>
             </div>
