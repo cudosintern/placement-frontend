@@ -401,8 +401,8 @@ const CompanyList: React.FC = () => {
             onClose={closeModalHandler}
             formFields={SchemaFields}
             schema={Schema}
-            size={'lg'}
-            columnLayout={1}
+            size={'2xl'}
+            columnLayout={2}
             initialValues={editingData || {}}
           />
         )}
