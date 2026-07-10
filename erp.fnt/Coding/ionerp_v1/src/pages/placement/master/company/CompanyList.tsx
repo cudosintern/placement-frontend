@@ -13,7 +13,29 @@ import { CompanyResponse } from "./responseInterface";
 import { toast } from "react-toastify";
 import ModalContainer from "../../../../components/Modal/ModalContainer";
 import CompanyDetails from "./CompanyDetails";
-import { Eye, Edit2, Ban, CheckCircle } from "lucide-react";
+import { Eye, Edit2, Ban, CheckCircle, Building, Plus, XCircle, TrendingUp } from "lucide-react";
+
+// ── Summary Card Component ──────────────────────────────────────────────────
+const SummaryCard: React.FC<{
+  label: string;
+  count: number;
+  icon: React.ReactNode;
+  gradientClass: string;
+  iconBgClass: string;
+  shadowClass: string;
+}> = ({ label, count, icon, gradientClass, iconBgClass, shadowClass }) => (
+  <div className={`flex-grow sm:flex-1 min-w-[200px] bg-gradient-to-br ${gradientClass} text-white p-5 rounded-2xl ${shadowClass} hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex items-center justify-between border border-white/10 relative overflow-hidden group`}>
+    <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-white/5 rounded-full group-hover:scale-150 transition-all duration-500" />
+    <div className="space-y-1 z-10">
+      <p className="text-[10px] font-bold uppercase tracking-wider opacity-75">{label}</p>
+      <h3 className="text-2xl font-extrabold tracking-tight">{count}</h3>
+    </div>
+    <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${iconBgClass} backdrop-blur-md z-10 shadow-inner`}>
+      {icon}
+    </div>
+  </div>
+);
+
 
 const CompanyList: React.FC = () => {
   const [deleteId, setDeleteId] = React.useState<CompanyResponse | null>(null);
@@ -438,10 +460,72 @@ const CompanyList: React.FC = () => {
     [editingData, responseData],
   );
 
+  // Dynamic stats calculation
+  const totalComp = Array.isArray(responseData) ? responseData.length : defaultData.length;
+  const activeComp = Array.isArray(responseData) 
+    ? responseData.filter((c: any) => c.status === 1).length 
+    : defaultData.filter((c: any) => c.status === 1).length;
+  const disabledComp = Array.isArray(responseData) 
+    ? responseData.filter((c: any) => c.status === 0).length 
+    : defaultData.filter((c: any) => c.status === 0).length;
+  const uniqueInd = Array.isArray(responseData) 
+    ? new Set(responseData.map((c: any) => c.industry).filter(Boolean)).size 
+    : new Set(defaultData.map((c: any) => c.industry).filter(Boolean)).size;
+
   return (
     <>
-      <div>
-        <h3 className='text-lg leading-6 font-medium pb-5'>Company Master - List</h3>
+      <div className="space-y-6">
+        
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white">Company Directory</h2>
+            <p className="text-xs text-gray-400 mt-1">Manage corporate partners, industry sectors, recruiter contacts, and status logs.</p>
+          </div>
+          <button
+            onClick={OpenModalHandler}
+            className="flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm transition-all duration-150 active:scale-95 shadow-[0_8px_30px_rgb(99,102,241,0.2)]"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Add Company</span>
+          </button>
+        </div>
+
+        {/* Summary stats cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <SummaryCard
+            label="Total Partners"
+            count={totalComp}
+            icon={<Building className="h-5 w-5 text-white" />}
+            gradientClass="from-indigo-600 to-indigo-500"
+            iconBgClass="bg-white/20"
+            shadowClass="shadow-[0_10px_25px_-5px_rgba(79,70,229,0.25)]"
+          />
+          <SummaryCard
+            label="Active Partners"
+            count={activeComp}
+            icon={<CheckCircle className="h-5 w-5 text-white" />}
+            gradientClass="from-emerald-600 to-emerald-500"
+            iconBgClass="bg-white/20"
+            shadowClass="shadow-[0_10px_25px_-5px_rgba(16,185,129,0.25)]"
+          />
+          <SummaryCard
+            label="Disabled Partners"
+            count={disabledComp}
+            icon={<XCircle className="h-5 w-5 text-white" />}
+            gradientClass="from-rose-600 to-red-500"
+            iconBgClass="bg-white/20"
+            shadowClass="shadow-[0_10px_25px_-5px_rgba(239,68,68,0.25)]"
+          />
+          <SummaryCard
+            label="Industry Sectors"
+            count={uniqueInd}
+            icon={<TrendingUp className="h-5 w-5 text-white" />}
+            gradientClass="from-cyan-600 to-blue-500"
+            iconBgClass="bg-white/20"
+            shadowClass="shadow-[0_10px_25px_-5px_rgba(6,182,212,0.25)]"
+          />
+        </div>
 
         {isModalOpen && (
           <ModalWithForm
@@ -457,42 +541,63 @@ const CompanyList: React.FC = () => {
           />
         )}
 
-        <DataTable
-          columnDefs={columnDefs}
-          rowData={
-            Array.isArray(responseData) && responseData.length
-              ? responseData
-              : [
-                      {
-                        company_id: 1,
-                        company_name: "Demo Corp",
-                        company_code: "DC001",
-                        company_email: "info@democorp.com",
-                        company_phone: "1234567890",
-                        company_address: "123 Demo Street",
-                        company_contact_person: "Alice Johnson",
-                        company_website: "https://www.democorp.com",
-                        status: 1,
-                      },
-                      {
-                        company_id: 2,
-                        company_name: "Acme Ltd",
-                        company_code: "ACM02",
-                        company_email: "hello@acme.com",
-                        company_phone: "0987654321",
-                        company_address: "456 Acme Road",
-                        company_contact_person: "Bob Smith",
-                        company_website: "https://www.acme.com",
-                        status: 0,
-                      },
-                ]
-          }
-          showAddButton={true}
-          showExportButton={false}
-          addButtonHandler={OpenModalHandler}
-          headerFilter={true}
-          pageSize={20}
-        />
+        <div className="bg-white dark:bg-slate-950 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden shadow-sm">
+          <DataTable
+            columnDefs={columnDefs}
+            rowData={
+              Array.isArray(responseData) && responseData.length
+                ? responseData
+                : [
+                    {
+                      company_id: 1,
+                      company_name: "Infosys",
+                      industry: "IT / Software",
+                      website: "https://www.infosys.com",
+                      email: "info@infosys.com",
+                      phone: "080 2852 0261",
+                      address: "Electronics City, Hosur Road, Bengaluru, Karnataka 560100",
+                      contact_person: "Sudha Murty",
+                      contact_phone: "9876543210",
+                      contact_email: "sudha@infosys.com",
+                      description: "Infosys is a global leader in next-generation digital services and consulting.",
+                      status: 1,
+                    },
+                    {
+                      company_id: 2,
+                      company_name: "TCS",
+                      industry: "IT / Software",
+                      website: "https://www.tcs.com",
+                      email: "corporate@tcs.com",
+                      phone: "022 6778 9999",
+                      address: "TCS House, Raveline Street, Fort, Mumbai 400001",
+                      contact_person: "Rajesh Gopinathan",
+                      contact_phone: "9876543211",
+                      contact_email: "rajesh@tcs.com",
+                      description: "Tata Consultancy Services is an IT services, consulting and business solutions organization.",
+                      status: 1,
+                    },
+                    {
+                      company_id: 3,
+                      company_name: "Wipro",
+                      industry: "IT / Software",
+                      website: "https://www.wipro.com",
+                      email: "info@wipro.com",
+                      phone: "080 2844 0011",
+                      address: "Sarjapur Road, Doddakannelli, Bengaluru 560035",
+                      contact_person: "Rishad Premji",
+                      contact_phone: "9876543212",
+                      contact_email: "rishad@wipro.com",
+                      description: "Wipro Limited is a leading technology services and consulting company.",
+                      status: 1,
+                    },
+                  ]
+            }
+            showAddButton={false}
+            showExportButton={false}
+            headerFilter={true}
+            pageSize={20}
+          />
+        </div>
 
         <ConfirmDialog
           isOpen={deleteId !== null}
