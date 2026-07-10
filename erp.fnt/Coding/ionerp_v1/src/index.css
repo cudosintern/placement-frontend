@@ -204,7 +204,7 @@ main button {
   --ag-selected-row-background-color: #e2e8f0;
   --ag-odd-row-background-color: #fafafa;
   --ag-font-family: 'Roboto', 'Inter', sans-serif;
-  --ag-font-size: 13px;
+  --ag-font-size: 14px;
   border: none !important;
 }
 
@@ -274,9 +274,9 @@ main button {
 
 /* Row padding and text styles */
 .ag-row {
-  font-size: 13px !important;
+  font-size: 14px !important;
 }
 
 .ag-header-row {
-  font-size: 13px !important;
+  font-size: 14px !important;
 }
