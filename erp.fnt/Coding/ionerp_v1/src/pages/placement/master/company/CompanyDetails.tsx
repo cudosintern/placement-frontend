@@ -319,16 +319,16 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
   if (!company) return <div className="p-4 text-center text-gray-500">No company selected</div>;
 
   const name = company.company_name ?? (company as any).name ?? "-";
-  const code = company.company_code ?? (company as any).code ?? "-";
-  const compEmail = company.company_email ?? (company as any).email ?? "-";
-  const compPhone = company.company_phone ?? (company as any).phone ?? "-";
-  const address = company.company_address ?? (company as any).address ?? "-";
-  const website = company.company_website ?? (company as any).website ?? "";
-  const industry = company.company_industry ?? (company as any).industry ?? "Software";
-  const established =
-    company.company_established_year ?? (company as any).established_year ?? "-";
-  const employees = company.company_employees ?? (company as any).employees ?? "-";
-  const linkedin = company.company_linkedin ?? (company as any).linkedin ?? "";
+  const compType = company.company_type ?? (company as any).company_type ?? "Private Ltd.";
+  const compEmail = company.email ?? (company as any).email ?? "-";
+  const compPhone = company.phone ?? (company as any).phone ?? "-";
+  const address = company.address ?? (company as any).address ?? "-";
+  const website = company.website ?? (company as any).website ?? "";
+  const industry = company.industry ?? (company as any).industry ?? "Software";
+  const location = [company.city || (company as any).city, company.state || (company as any).state].filter(Boolean).join(", ") || company.country || (company as any).country || "India";
+  const pincode = company.pincode ?? (company as any).pincode ?? "-";
+  const description = company.description ?? (company as any).description ?? "";
+  const linkedin = (company as any).linkedin ?? "";
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 p-1 font-sans text-gray-700 dark:text-gray-200">
@@ -344,7 +344,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
           <div>
             <h4 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">{name}</h4>
             <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
-              Code: {code}
+              {compType}
             </span>
           </div>
         </div>
@@ -352,17 +352,17 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
         {/* Basic Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center space-x-3">
-            <Calendar className="text-indigo-500 h-6 w-6" />
+            <MapPin className="text-indigo-500 h-6 w-6" />
             <div>
-              <p className="text-[10px] uppercase font-bold text-gray-400">Established</p>
-              <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{established}</p>
+              <p className="text-[10px] uppercase font-bold text-gray-400">Location</p>
+              <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{location}</p>
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center space-x-3">
-            <Users className="text-indigo-500 h-6 w-6" />
+            <Briefcase className="text-indigo-500 h-6 w-6" />
             <div>
-              <p className="text-[10px] uppercase font-bold text-gray-400">Employees</p>
-              <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{employees}</p>
+              <p className="text-[10px] uppercase font-bold text-gray-400">Postal Code</p>
+              <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{pincode}</p>
             </div>
           </div>
         </div>
@@ -407,6 +407,18 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
             </div>
           </div>
         </div>
+
+        {/* About Company / Description */}
+        {description && (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-6 space-y-2 shadow-sm">
+            <h5 className="text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100 dark:border-slate-800 pb-2">
+              About Company
+            </h5>
+            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300 italic">
+              "{description}"
+            </p>
+          </div>
+        )}
 
         {/* Social / Web Links */}
         {(website || linkedin) && (

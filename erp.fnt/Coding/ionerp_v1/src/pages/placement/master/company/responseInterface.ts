@@ -40,6 +40,12 @@ export interface CompanyResponse {
   employees?: number | string;
   company_linkedin?: string;
   linkedin?: string;
+  company_type?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  description?: string;
 }
 
 export type CompanyListResponse = CompanyResponse[];
