@@ -23,13 +23,15 @@ const SummaryCard: React.FC<{
   icon: React.ReactNode;
   gradientClass: string;
   iconBgClass: string;
-}> = ({ label, count, icon, gradientClass, iconBgClass }) => (
-  <div className={`flex-1 min-w-[200px] bg-gradient-to-br ${gradientClass} text-white p-6 rounded-2xl shadow-sm hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 flex items-center justify-between border border-white/5`}>
-    <div className="space-y-1">
-      <p className="text-xs font-bold uppercase tracking-wider opacity-80">{label}</p>
+  shadowClass: string;
+}> = ({ label, count, icon, gradientClass, iconBgClass, shadowClass }) => (
+  <div className={`flex-1 min-w-[220px] bg-gradient-to-br ${gradientClass} text-white p-6 rounded-2xl ${shadowClass} hover:-translate-y-1.5 hover:shadow-lg transition-all duration-300 flex items-center justify-between border border-white/10 relative overflow-hidden group`}>
+    <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full group-hover:scale-150 transition-all duration-500" />
+    <div className="space-y-1 z-10">
+      <p className="text-xs font-bold uppercase tracking-wider opacity-75">{label}</p>
       <h3 className="text-3xl font-extrabold tracking-tight">{count}</h3>
     </div>
-    <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${iconBgClass} backdrop-blur-md`}>
+    <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${iconBgClass} backdrop-blur-md z-10 shadow-inner`}>
       {icon}
     </div>
   </div>
@@ -234,6 +236,7 @@ const TpoDashboardPage: React.FC = () => {
           icon={<Building className="h-5 w-5 text-white" />}
           gradientClass="from-indigo-600 to-indigo-500"
           iconBgClass="bg-white/20"
+          shadowClass="shadow-[0_10px_25px_-5px_rgba(79,70,229,0.3)]"
         />
         <SummaryCard
           label="Pending Approvals"
@@ -241,6 +244,7 @@ const TpoDashboardPage: React.FC = () => {
           icon={<Clock className="h-5 w-5 text-white" />}
           gradientClass="from-amber-500 to-orange-400"
           iconBgClass="bg-white/20"
+          shadowClass="shadow-[0_10px_25px_-5px_rgba(245,158,11,0.3)]"
         />
         <SummaryCard
           label="Approved Companies"
@@ -248,6 +252,7 @@ const TpoDashboardPage: React.FC = () => {
           icon={<CheckCircle className="h-5 w-5 text-white" />}
           gradientClass="from-emerald-600 to-teal-500"
           iconBgClass="bg-white/20"
+          shadowClass="shadow-[0_10px_25px_-5px_rgba(16,185,129,0.3)]"
         />
         <SummaryCard
           label="Rejected Records"
@@ -255,6 +260,7 @@ const TpoDashboardPage: React.FC = () => {
           icon={<XCircle className="h-5 w-5 text-white" />}
           gradientClass="from-rose-600 to-red-500"
           iconBgClass="bg-white/20"
+          shadowClass="shadow-[0_10px_25px_-5px_rgba(239,68,68,0.3)]"
         />
       </div>
 
