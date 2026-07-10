@@ -24,13 +24,13 @@ const SummaryCard: React.FC<{
   iconBgClass: string;
   shadowClass: string;
 }> = ({ label, count, icon, gradientClass, iconBgClass, shadowClass }) => (
-  <div className={`flex-grow sm:flex-1 min-w-[200px] bg-gradient-to-br ${gradientClass} text-white p-5 rounded-2xl ${shadowClass} hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex items-center justify-between border border-white/10 relative overflow-hidden group`}>
+  <div className={`flex-grow sm:flex-1 min-w-[200px] bg-gradient-to-br ${gradientClass} text-white p-6 rounded-3xl ${shadowClass} hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 flex items-center justify-between border border-white/10 relative overflow-hidden group`}>
     <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-white/5 rounded-full group-hover:scale-150 transition-all duration-500" />
     <div className="space-y-1 z-10">
       <p className="text-[10px] font-bold uppercase tracking-wider opacity-75">{label}</p>
-      <h3 className="text-2xl font-extrabold tracking-tight">{count}</h3>
+      <h3 className="text-3xl font-extrabold tracking-tight">{count}</h3>
     </div>
-    <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${iconBgClass} backdrop-blur-md z-10 shadow-inner`}>
+    <div className={`h-11 w-11 rounded-xl flex items-center justify-center ${iconBgClass} backdrop-blur-md z-10 shadow-inner group-hover:rotate-12 transition-transform duration-300`}>
       {icon}
     </div>
   </div>
@@ -477,16 +477,18 @@ const CompanyList: React.FC = () => {
       <div className="space-y-6">
         
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
-          <div>
-            <h2 className="text-xl font-bold text-gray-800 dark:text-white">Company Directory</h2>
-            <p className="text-xs text-gray-400 mt-1">Manage corporate partners, industry sectors, recruiter contacts, and status logs.</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 rounded-3xl shadow-lg border border-slate-800 relative overflow-hidden group">
+          <div className="absolute right-0 top-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute left-1/3 bottom-0 w-60 h-60 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="z-10 space-y-1">
+            <h2 className="text-2xl font-extrabold tracking-tight">Company Directory</h2>
+            <p className="text-xs text-indigo-200/70 font-medium">Manage corporate partners, industry sectors, recruiter contacts, and status logs.</p>
           </div>
           <button
             onClick={OpenModalHandler}
-            className="flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm transition-all duration-150 active:scale-95 shadow-[0_8px_30px_rgb(99,102,241,0.2)]"
+            className="z-10 flex items-center space-x-2 bg-white hover:bg-indigo-50 text-indigo-950 hover:text-indigo-900 text-sm font-bold px-5 py-3 rounded-2xl shadow-md hover:shadow-indigo-500/20 transition-all duration-200 active:scale-95 shadow-[0_8px_30px_rgb(99,102,241,0.25)]"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4 text-indigo-600" />
             <span>Add Company</span>
           </button>
         </div>
@@ -541,7 +543,7 @@ const CompanyList: React.FC = () => {
           />
         )}
 
-        <div className="bg-white dark:bg-slate-950 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-slate-950 rounded-3xl border border-gray-100 dark:border-slate-800 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <DataTable
             columnDefs={columnDefs}
             rowData={
