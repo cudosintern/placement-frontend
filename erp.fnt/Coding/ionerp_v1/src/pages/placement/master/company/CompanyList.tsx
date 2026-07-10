@@ -8,12 +8,10 @@ import { Schema, SchemaColumnDefs, SchemaFields } from "./companySchema";
 import { ApiEndpoint } from "../../../../utils/ApiEndpoint/emsapiEndpoint";
 import { useAxios } from "../../../../hooks/useAxios";
 import { CompanyResponse } from "./responseInterface";
-import { GoPencil } from "react-icons/go";
-import { MdOutlineDoNotDisturbAlt } from "react-icons/md";
-import { FaCheckCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
 import ModalContainer from "../../../../components/Modal/ModalContainer";
 import CompanyDetails from "./CompanyDetails";
+import { Eye, Edit2, Ban, CheckCircle } from "lucide-react";
 
 const CompanyList: React.FC = () => {
   const [deleteId, setDeleteId] = React.useState<CompanyResponse | null>(null);
@@ -222,6 +220,31 @@ const CompanyList: React.FC = () => {
         minWidth: 100,
       })),
       {
+        headerName: "Status",
+        field: "status",
+        sortable: true,
+        filter: true,
+        cellRenderer: (params: any) => {
+          const isActive = params.value === 1;
+          return (
+            <div className="flex items-center h-full">
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                  isActive
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : "bg-red-50 text-red-700 border border-red-200"
+                }`}
+              >
+                <span className={`h-1.5 w-1.5 rounded-full mr-1.5 ${isActive ? "bg-green-500" : "bg-red-500"}`} />
+                {isActive ? "Active" : "Disabled"}
+              </span>
+            </div>
+          );
+        },
+        width: 120,
+        flex: 0,
+      },
+      {
         headerName: "Action",
         field: "action",
         cellRenderer: (params: any) => {
@@ -229,40 +252,44 @@ const CompanyList: React.FC = () => {
           return (
             <div className='flex space-x-2 items-center h-full'>
               <button
-                className='text-sm text-blue-600 underline px-2 py-1 rounded'
+                className='flex items-center space-x-1 border border-indigo-200 hover:bg-indigo-50 text-indigo-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95'
                 onClick={() => setViewCompany(params.data)}
-                title='View'
+                title='View Details'
               >
-                View
+                <Eye className="h-3.5 w-3.5" />
+                <span>View</span>
               </button>
               <button
-                className='text-sm text-yellow-700 px-2 py-1 rounded border'
+                className='flex items-center space-x-1 border border-amber-200 hover:bg-amber-50 text-amber-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95'
                 onClick={() => handleEdit(params.data)}
-                title='Edit'
+                title='Edit Company'
               >
-                Edit
+                <Edit2 className="h-3.5 w-3.5" />
+                <span>Edit</span>
               </button>
               {isActive ? (
                 <button
-                  className='text-sm text-red-600 px-2 py-1 rounded border'
+                  className='flex items-center space-x-1 border border-red-200 hover:bg-red-50 text-red-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95'
                   onClick={() => openStatusDialog(params.data)}
-                  title='Change Status'
+                  title='Disable Company'
                 >
-                  Deactivate
+                  <Ban className="h-3.5 w-3.5" />
+                  <span>Disable</span>
                 </button>
               ) : (
                 <button
-                  className='text-sm text-green-600 px-2 py-1 rounded border'
+                  className='flex items-center space-x-1 border border-green-200 hover:bg-green-50 text-green-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95'
                   onClick={() => openStatusDialog(params.data)}
-                  title='Change Status'
+                  title='Enable Company'
                 >
-                  Activate
+                  <CheckCircle className="h-3.5 w-3.5" />
+                  <span>Enable</span>
                 </button>
               )}
             </div>
           );
         },
-        width: 220,
+        width: 280,
         cellStyle: { textAlign: "center" },
         filter: false,
         editable: false,
@@ -404,7 +431,7 @@ const CompanyList: React.FC = () => {
           title='Confirm'
           message={confirmMessage}
         />
-        <ModalContainer isOpen={!!viewCompany} onClose={() => setViewCompany(null)} title={'Company Details'} size={'md'}>
+        <ModalContainer isOpen={!!viewCompany} onClose={() => setViewCompany(null)} title={'Company Details'} size={'5xl'}>
           <CompanyDetails company={viewCompany} />
         </ModalContainer>
 

@@ -1,73 +1,663 @@
-import React from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { CompanyResponse } from "./responseInterface";
+import axiosInstance from "../../../../utils/api";
+import { ApiEndpoint } from "../../../../utils/ApiEndpoint/emsapiEndpoint";
+import { toast } from "react-toastify";
+import ModalContainer from "../../../../components/Modal/ModalContainer";
+import {
+  Building,
+  Mail,
+  Phone,
+  Globe,
+  MapPin,
+  Linkedin,
+  Calendar,
+  Users,
+  Briefcase,
+  Plus,
+  Trash2,
+  Edit2,
+  CheckCircle,
+  User,
+  Star,
+} from "lucide-react";
 
 type Props = {
   company: CompanyResponse | null;
 };
 
-const CompanyDetails: React.FC<Props> = ({ company }) => {
-  if (!company) return <div>No company selected</div>;
+interface Contact {
+  contact_id: number;
+  company_id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  designation_id: number;
+  designation_name?: string;
+  is_primary: number;
+  status: number;
+}
 
-  const name = (company as any).company_name ?? (company as any).name ?? "-";
-  const code = (company as any).company_code ?? (company as any).code ?? "-";
-  const email = (company as any).company_email ?? (company as any).email ?? "-";
-  const phone = (company as any).company_phone ?? (company as any).phone ?? "-";
-  const address = (company as any).company_address ?? (company as any).address ?? "-";
-  const contactPerson =
-    (company as any).company_contact_person ?? (company as any).contact_person ?? "-";
-  const contactPhone =
-    (company as any).company_contact_phone ?? (company as any).contact_phone ?? "-";
-  const contactEmail =
-    (company as any).company_contact_email ?? (company as any).contact_email ?? "-";
-  const website = (company as any).company_website ?? (company as any).website ?? "-";
-  const industry = (company as any).company_industry ?? (company as any).industry ?? "-";
+interface Designation {
+  designation_id: number;
+  designation_name: string;
+}
+
+const CompanyDetails: React.FC<Props> = ({ company }) => {
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [designations, setDesignations] = useState<Designation[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Form states for nested add/edit contact
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [emailVal, setEmailVal] = useState("");
+  const [phoneVal, setPhoneVal] = useState("");
+  const [designationId, setDesignationId] = useState("");
+  const [isPrimary, setIsPrimary] = useState(false);
+
+  const useMock = process.env.REACT_APP_BYPASS_LOGIN === "true";
+
+  const fetchDesignations = useCallback(async () => {
+    try {
+      if (useMock) {
+        setDesignations([
+          { designation_id: 1, designation_name: "HoD" },
+          { designation_id: 2, designation_name: "Assistant Professor" },
+          { designation_id: 3, designation_name: "Principal" },
+          { designation_id: 4, designation_name: "Training & Placement Officer" },
+          { designation_id: 5, designation_name: "HR Manager" },
+          { designation_id: 6, designation_name: "Talent Acquisition Specialist" },
+        ]);
+        return;
+      }
+      const res: any = await axiosInstance.get(ApiEndpoint.placementContact.get_designations);
+      setDesignations(res.data?.data || []);
+    } catch (err) {
+      console.error("Failed to load designations", err);
+    }
+  }, [useMock]);
+
+  const fetchContacts = useCallback(async () => {
+    if (!company) return;
+    const cid = company.company_id ?? (company as any).id;
+    setLoading(true);
+    try {
+      if (useMock) {
+        const raw = localStorage.getItem("placement_contact_mock");
+        let allContacts: Contact[] = [];
+        if (raw) {
+          allContacts = JSON.parse(raw);
+        } else {
+          // default mock contacts
+          allContacts = [
+            {
+              contact_id: 1,
+              company_id: 1,
+              first_name: "Akshata",
+              last_name: "S",
+              email: "aksh@gmail.com",
+              phone: "1234567897",
+              designation_id: 1,
+              designation_name: "HoD",
+              is_primary: 1,
+              status: 1,
+            },
+            {
+              contact_id: 2,
+              company_id: 2,
+              first_name: "Radha",
+              last_name: "P",
+              email: "radhaaa@gmail.com",
+              phone: "1234567844",
+              designation_id: 2,
+              designation_name: "Assistant Professor",
+              is_primary: 1,
+              status: 1,
+            },
+            {
+              contact_id: 3,
+              company_id: 1,
+              first_name: "Govinda",
+              last_name: "R",
+              email: "govinda@gmail.com",
+              phone: "1099454298",
+              designation_id: 1,
+              designation_name: "HoD",
+              is_primary: 0,
+              status: 1,
+            }
+          ];
+          localStorage.setItem("placement_contact_mock", JSON.stringify(allContacts));
+        }
+        setContacts(allContacts.filter((c) => c.company_id === cid && c.status === 1));
+        setLoading(false);
+        return;
+      }
+      const res: any = await axiosInstance.get(
+        `${ApiEndpoint.placementContact.get_contact_list}?company_id=${cid}`
+      );
+      setContacts(res.data?.data || []);
+    } catch (err) {
+      console.error("Failed to fetch contacts", err);
+      toast.error("Failed to load contacts.");
+    } finally {
+      setLoading(false);
+    }
+  }, [company, useMock]);
+
+  useEffect(() => {
+    if (company) {
+      fetchDesignations();
+      fetchContacts();
+    }
+  }, [company, fetchDesignations, fetchContacts]);
+
+  const openAddForm = () => {
+    setEditingContact(null);
+    setFirstName("");
+    setLastName("");
+    setEmailVal("");
+    setPhoneVal("");
+    setDesignationId(designations[0]?.designation_id.toString() || "");
+    setIsPrimary(false);
+    setIsFormOpen(true);
+  };
+
+  const openEditForm = (contact: Contact) => {
+    setEditingContact(contact);
+    setFirstName(contact.first_name);
+    setLastName(contact.last_name || "");
+    setEmailVal(contact.email || "");
+    setPhoneVal(contact.phone || "");
+    setDesignationId(contact.designation_id.toString());
+    setIsPrimary(contact.is_primary === 1);
+    setIsFormOpen(true);
+  };
+
+  const handleSaveContact = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!firstName.trim()) {
+      toast.error("First Name is required");
+      return;
+    }
+    const cid = company?.company_id ?? (company as any).id;
+    const payload = {
+      company_id: cid,
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
+      email: emailVal.trim(),
+      phone: phoneVal.trim(),
+      designation_id: Number(designationId),
+      is_primary: isPrimary ? 1 : 0,
+      status: 1,
+    };
+
+    try {
+      if (useMock) {
+        const raw = localStorage.getItem("placement_contact_mock");
+        let allContacts: Contact[] = raw ? JSON.parse(raw) : [];
+
+        // Primary contact logic: unset other primary contacts for this company
+        if (payload.is_primary === 1) {
+          allContacts = allContacts.map((c) =>
+            c.company_id === cid ? { ...c, is_primary: 0 } : c
+          );
+        }
+
+        const desName =
+          designations.find((d) => d.designation_id === Number(designationId))
+            ?.designation_name || "N/A";
+
+        if (editingContact) {
+          allContacts = allContacts.map((c) =>
+            c.contact_id === editingContact.contact_id
+              ? { ...c, ...payload, designation_name: desName }
+              : c
+          );
+          toast.success("Contact updated successfully (mock)");
+        } else {
+          const newContact: Contact = {
+            ...payload,
+            contact_id: Math.floor(Math.random() * 10000) + 200,
+            designation_name: desName,
+          };
+          allContacts.push(newContact);
+          toast.success("Contact added successfully (mock)");
+        }
+        localStorage.setItem("placement_contact_mock", JSON.stringify(allContacts));
+        setIsFormOpen(false);
+        fetchContacts();
+        return;
+      }
+
+      if (editingContact) {
+        await axiosInstance.put(ApiEndpoint.placementContact.update_contact, {
+          ...payload,
+          contact_id: editingContact.contact_id,
+        });
+        toast.success("Contact updated successfully!");
+      } else {
+        await axiosInstance.post(ApiEndpoint.placementContact.add_contact, payload);
+        toast.success("Contact added successfully!");
+      }
+      setIsFormOpen(false);
+      fetchContacts();
+    } catch (err: any) {
+      console.error("Failed to save contact", err);
+      toast.error(err.response?.data?.message || "Failed to save contact.");
+    }
+  };
+
+  const handleMakePrimary = async (contact: Contact) => {
+    const cid = company?.company_id ?? (company as any).id;
+    try {
+      if (useMock) {
+        const raw = localStorage.getItem("placement_contact_mock");
+        let allContacts: Contact[] = raw ? JSON.parse(raw) : [];
+        allContacts = allContacts.map((c) => {
+          if (c.company_id === cid) {
+            return {
+              ...c,
+              is_primary: c.contact_id === contact.contact_id ? 1 : 0,
+            };
+          }
+          return c;
+        });
+        localStorage.setItem("placement_contact_mock", JSON.stringify(allContacts));
+        toast.success("Contact marked as primary (mock)");
+        fetchContacts();
+        return;
+      }
+
+      await axiosInstance.put(ApiEndpoint.placementContact.update_contact, {
+        contact_id: contact.contact_id,
+        company_id: cid,
+        is_primary: 1,
+      });
+      toast.success("Contact marked as primary!");
+      fetchContacts();
+    } catch (err: any) {
+      console.error("Failed to set primary contact", err);
+      toast.error(err.response?.data?.message || "Failed to set primary contact.");
+    }
+  };
+
+  const handleDeleteContact = async (contact: Contact) => {
+    if (!window.confirm("Are you sure you want to delete this contact?")) return;
+    try {
+      if (useMock) {
+        const raw = localStorage.getItem("placement_contact_mock");
+        let allContacts: Contact[] = raw ? JSON.parse(raw) : [];
+        allContacts = allContacts.filter((c) => c.contact_id !== contact.contact_id);
+        localStorage.setItem("placement_contact_mock", JSON.stringify(allContacts));
+        toast.success("Contact deleted (mock)");
+        fetchContacts();
+        return;
+      }
+
+      // Deactivate contact first
+      await axiosInstance.put(ApiEndpoint.placementContact.update_contact, {
+        contact_id: contact.contact_id,
+        status: 0,
+      });
+      // Perform soft delete/delete API
+      await axiosInstance.delete(ApiEndpoint.placementContact.delete_contact, {
+        data: { contact_id: contact.contact_id },
+      } as any);
+      toast.success("Contact deleted successfully!");
+      fetchContacts();
+    } catch (err: any) {
+      console.error("Failed to delete contact", err);
+      toast.error(err.response?.data?.message || "Failed to delete contact.");
+    }
+  };
+
+  if (!company) return <div className="p-4 text-center text-gray-500">No company selected</div>;
+
+  const name = company.company_name ?? (company as any).name ?? "-";
+  const code = company.company_code ?? (company as any).code ?? "-";
+  const compEmail = company.company_email ?? (company as any).email ?? "-";
+  const compPhone = company.company_phone ?? (company as any).phone ?? "-";
+  const address = company.company_address ?? (company as any).address ?? "-";
+  const website = company.company_website ?? (company as any).website ?? "";
+  const industry = company.company_industry ?? (company as any).industry ?? "Software";
   const established =
-    (company as any).company_established_year ?? (company as any).established_year ?? "-";
-  const employees = (company as any).company_employees ?? (company as any).employees ?? "-";
-  const linkedin = (company as any).company_linkedin ?? (company as any).linkedin ?? "-";
+    company.company_established_year ?? (company as any).established_year ?? "-";
+  const employees = company.company_employees ?? (company as any).employees ?? "-";
+  const linkedin = company.company_linkedin ?? (company as any).linkedin ?? "";
 
   return (
-    <div>
-      <h3>Company Details</h3>
-      <p>
-        <strong>Name:</strong> {name}
-      </p>
-      <p>
-        <strong>Code:</strong> {code}
-      </p>
-      <p>
-        <strong>Email:</strong> {email}
-      </p>
-      <p>
-        <strong>Phone:</strong> {phone}
-      </p>
-      <p>
-        <strong>Address:</strong> {address}
-      </p>
-      <p>
-        <strong>Contact Person:</strong> {contactPerson}
-      </p>
-      <p>
-        <strong>Contact Phone:</strong> {contactPhone}
-      </p>
-      <p>
-        <strong>Contact Email:</strong> {contactEmail}
-      </p>
-      <p>
-        <strong>Website:</strong> {website}
-      </p>
-      <p>
-        <strong>Industry:</strong> {industry}
-      </p>
-      <p>
-        <strong>Established:</strong> {established}
-      </p>
-      <p>
-        <strong>Employees:</strong> {employees}
-      </p>
-      <p>
-        <strong>LinkedIn:</strong> {linkedin}
-      </p>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 p-1 font-sans text-gray-700 dark:text-gray-200">
+      
+      {/* ─── LEFT PANE: COMPANY DETAILS ────────────────────────────────────────── */}
+      <div className="lg:col-span-5 space-y-6">
+        
+        {/* Profile Card Header */}
+        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 p-6 rounded-2xl border border-indigo-100/50 dark:border-slate-700 flex items-center space-x-4 shadow-sm">
+          <div className="h-16 w-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center text-white text-3xl font-extrabold shadow-md">
+            {name.charAt(0)}
+          </div>
+          <div>
+            <h4 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">{name}</h4>
+            <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+              Code: {code}
+            </span>
+          </div>
+        </div>
+
+        {/* Basic Stats Grid */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center space-x-3">
+            <Calendar className="text-indigo-500 h-6 w-6" />
+            <div>
+              <p className="text-[10px] uppercase font-bold text-gray-400">Established</p>
+              <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{established}</p>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center space-x-3">
+            <Users className="text-indigo-500 h-6 w-6" />
+            <div>
+              <p className="text-[10px] uppercase font-bold text-gray-400">Employees</p>
+              <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{employees}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Informational Lists */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-6 space-y-4 shadow-sm">
+          <h5 className="text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100 dark:border-slate-800 pb-2">
+            Company Info
+          </h5>
+          
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3 text-sm">
+              <Briefcase className="text-gray-400 mt-0.5 h-5 w-5" />
+              <div>
+                <p className="text-xs text-gray-400">Industry</p>
+                <p className="font-medium">{industry}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3 text-sm">
+              <Mail className="text-gray-400 mt-0.5 h-5 w-5" />
+              <div>
+                <p className="text-xs text-gray-400">Email Address</p>
+                <p className="font-medium break-all">{compEmail}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3 text-sm">
+              <Phone className="text-gray-400 mt-0.5 h-5 w-5" />
+              <div>
+                <p className="text-xs text-gray-400">Phone</p>
+                <p className="font-medium">{compPhone}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3 text-sm">
+              <MapPin className="text-gray-400 mt-0.5 h-5 w-5" />
+              <div>
+                <p className="text-xs text-gray-400">Address</p>
+                <p className="font-medium whitespace-pre-line leading-relaxed">{address}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Social / Web Links */}
+        {(website || linkedin) && (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-6 space-y-3.5 shadow-sm">
+            {website && (
+              <a
+                href={website.startsWith("http") ? website : `https://${website}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 transition-colors"
+              >
+                <span className="flex items-center space-x-2 text-sm font-semibold">
+                  <Globe className="h-5 w-5 text-gray-400" />
+                  <span>Official Website</span>
+                </span>
+                <span className="text-xs underline text-indigo-500">Visit Site</span>
+              </a>
+            )}
+
+            {linkedin && (
+              <a
+                href={linkedin}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 transition-colors"
+              >
+                <span className="flex items-center space-x-2 text-sm font-semibold">
+                  <Linkedin className="h-5 w-5 text-gray-400" />
+                  <span>LinkedIn Profile</span>
+                </span>
+                <span className="text-xs underline text-indigo-500">View LinkedIn</span>
+              </a>
+            )}
+          </div>
+        )}
+
+      </div>
+
+      {/* ─── RIGHT PANE: CONTACT MANAGEMENT ────────────────────────────────────────── */}
+      <div className="lg:col-span-7 space-y-6">
+        
+        {/* Contacts Header */}
+        <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm">
+          <h4 className="text-lg font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+            <User className="text-indigo-600 h-5 w-5" />
+            <span>Recruiter Contacts</span>
+          </h4>
+          <button
+            onClick={openAddForm}
+            className="flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-sm transition-all duration-150 active:scale-95"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Add Contact</span>
+          </button>
+        </div>
+
+        {/* Contacts Grid/List */}
+        {loading ? (
+          <div className="flex justify-center items-center h-48 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+          </div>
+        ) : contacts.length === 0 ? (
+          <div className="text-center p-12 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm space-y-2">
+            <User className="h-12 w-12 text-gray-300 mx-auto" />
+            <h5 className="font-bold text-gray-800 dark:text-gray-100 text-base">No Recruiter Contacts</h5>
+            <p className="text-xs text-gray-400 max-w-xs mx-auto">
+              Please click the Add Contact button above to register recruiter contact details for this company.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {contacts.map((contact) => (
+              <div
+                key={contact.contact_id}
+                className={`bg-white dark:bg-slate-900 p-5 rounded-2xl border transition-all shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${
+                  contact.is_primary === 1
+                    ? "border-green-400 bg-green-50/10 dark:bg-green-950/5"
+                    : "border-gray-100 dark:border-slate-800 hover:border-indigo-300"
+                }`}
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-gray-900 dark:text-white text-base">
+                      {contact.first_name} {contact.last_name || ""}
+                    </span>
+                    {contact.is_primary === 1 ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300">
+                        Primary Contact
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => handleMakePrimary(contact)}
+                        className="inline-flex items-center text-[10px] font-bold text-indigo-500 hover:text-indigo-700 underline transition-colors"
+                      >
+                        Make Primary
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    <p className="flex items-center gap-1.5">
+                      <Briefcase className="h-3.5 w-3.5 text-gray-400" />
+                      <span>{contact.designation_name || "No Designation"}</span>
+                    </p>
+                    <p className="flex items-center gap-1.5 break-all">
+                      <Mail className="h-3.5 w-3.5 text-gray-400" />
+                      <span>{contact.email || "No Email"}</span>
+                    </p>
+                    <p className="flex items-center gap-1.5">
+                      <Phone className="h-3.5 w-3.5 text-gray-400" />
+                      <span>{contact.phone || "No Phone"}</span>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Contact Actions */}
+                <div className="flex items-center gap-2.5 w-full md:w-auto justify-end border-t md:border-t-0 border-gray-100 pt-3 md:pt-0">
+                  <button
+                    onClick={() => openEditForm(contact)}
+                    className="flex items-center gap-1 border border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-950/20 text-amber-600 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                  >
+                    <Edit2 className="h-3.5 w-3.5" />
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    onClick={() => handleDeleteContact(contact)}
+                    className="flex items-center gap-1 border border-red-200 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+      </div>
+
+      {/* ─── NESTED MODAL: CONTACT FORM ─────────────────────────────────────────── */}
+      <ModalContainer
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title={editingContact ? "Edit Recruiter Contact" : "Add Recruiter Contact"}
+        size="md"
+      >
+        <form onSubmit={handleSaveContact} className="space-y-4 text-sm font-sans">
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
+                First Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+                placeholder="e.g. John"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
+                Last Name
+              </label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+                placeholder="e.g. Doe"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={emailVal}
+              onChange={(e) => setEmailVal(e.target.value)}
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+              placeholder="e.g. recruiter@company.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
+              Mobile / Phone Number
+            </label>
+            <input
+              type="tel"
+              value={phoneVal}
+              onChange={(e) => setPhoneVal(e.target.value)}
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+              placeholder="e.g. +91 98765 43210"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
+              Designation
+            </label>
+            <select
+              value={designationId}
+              onChange={(e) => setDesignationId(e.target.value)}
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition cursor-pointer"
+            >
+              {designations.map((d) => (
+                <option key={d.designation_id} value={d.designation_id}>
+                  {d.designation_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center space-x-2 pt-2">
+            <input
+              type="checkbox"
+              id="isPrimary"
+              checked={isPrimary}
+              onChange={(e) => setIsPrimary(e.target.checked)}
+              className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer"
+            />
+            <label htmlFor="isPrimary" className="text-xs font-semibold text-gray-600 dark:text-gray-300 cursor-pointer select-none">
+              Mark as Primary Contact for this company
+            </label>
+          </div>
+
+          <div className="flex items-center justify-end space-x-2 pt-4 border-t border-gray-150">
+            <button
+              type="button"
+              onClick={() => setIsFormOpen(false)}
+              className="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all duration-150 active:scale-95"
+            >
+              {editingContact ? "Save Changes" : "Register Contact"}
+            </button>
+          </div>
+
+        </form>
+      </ModalContainer>
+
     </div>
   );
 };
