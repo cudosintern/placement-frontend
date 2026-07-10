@@ -337,13 +337,14 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
       <div className="lg:col-span-5 space-y-6">
         
         {/* Profile Card Header */}
-        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 p-6 rounded-2xl border border-indigo-100/50 dark:border-slate-700 flex items-center space-x-4 shadow-sm">
-          <div className="h-16 w-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center text-white text-3xl font-extrabold shadow-md">
+        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 rounded-3xl border border-slate-800 flex items-center space-x-4 shadow-md relative overflow-hidden group">
+          <div className="absolute right-0 top-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-xl pointer-events-none" />
+          <div className="h-16 w-16 bg-white/10 text-white rounded-2xl flex items-center justify-center text-3xl font-extrabold shadow-inner border border-white/20">
             {name.charAt(0)}
           </div>
           <div>
-            <h4 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">{name}</h4>
-            <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+            <h4 className="text-xl font-bold text-white leading-tight">{name}</h4>
+            <span className="inline-block mt-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-white/15 text-indigo-200 border border-white/10">
               {compType}
             </span>
           </div>
@@ -351,15 +352,15 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
 
         {/* Basic Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center space-x-3">
-            <MapPin className="text-indigo-500 h-6 w-6" />
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center space-x-3 hover:border-indigo-100 transition-colors">
+            <MapPin className="text-indigo-500 h-5 w-5" />
             <div>
               <p className="text-[10px] uppercase font-bold text-gray-400">Location</p>
               <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{location}</p>
             </div>
           </div>
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center space-x-3">
-            <Briefcase className="text-indigo-500 h-6 w-6" />
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center space-x-3 hover:border-indigo-100 transition-colors">
+            <Briefcase className="text-indigo-500 h-5 w-5" />
             <div>
               <p className="text-[10px] uppercase font-bold text-gray-400">Postal Code</p>
               <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{pincode}</p>
@@ -368,7 +369,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
         </div>
 
         {/* Informational Lists */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-6 space-y-4 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 p-6 space-y-4 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
           <h5 className="text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100 dark:border-slate-800 pb-2">
             Company Info
           </h5>
@@ -410,8 +411,8 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
 
         {/* About Company / Description */}
         {description && (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-6 space-y-2 shadow-sm">
-            <h5 className="text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100 dark:border-slate-800 pb-2">
+          <div className="bg-indigo-50/20 dark:bg-slate-900/30 rounded-3xl border border-indigo-50/50 dark:border-slate-800/80 p-6 space-y-2.5 shadow-[0_4px_20px_rgba(0,0,0,0.01)] relative overflow-hidden">
+            <h5 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 pb-1.5 border-b border-indigo-50/30 dark:border-slate-800/60">
               About Company
             </h5>
             <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300 italic">
@@ -422,19 +423,19 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
 
         {/* Social / Web Links */}
         {(website || linkedin) && (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-6 space-y-3.5 shadow-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 p-6 space-y-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
             {website && (
               <a
                 href={website.startsWith("http") ? website : `https://${website}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 transition-colors"
+                className="flex items-center justify-between p-3 rounded-2xl border border-gray-100 dark:border-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 transition-colors"
               >
                 <span className="flex items-center space-x-2 text-sm font-semibold">
                   <Globe className="h-5 w-5 text-gray-400" />
                   <span>Official Website</span>
                 </span>
-                <span className="text-xs underline text-indigo-500">Visit Site</span>
+                <span className="text-xs underline text-indigo-500 font-bold">Visit Site</span>
               </a>
             )}
 
@@ -443,13 +444,13 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
                 href={linkedin}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 transition-colors"
+                className="flex items-center justify-between p-3 rounded-2xl border border-gray-100 dark:border-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 transition-colors"
               >
                 <span className="flex items-center space-x-2 text-sm font-semibold">
                   <Linkedin className="h-5 w-5 text-gray-400" />
                   <span>LinkedIn Profile</span>
                 </span>
-                <span className="text-xs underline text-indigo-500">View LinkedIn</span>
+                <span className="text-xs underline text-indigo-500 font-bold">View LinkedIn</span>
               </a>
             )}
           </div>
@@ -461,14 +462,14 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
       <div className="lg:col-span-7 space-y-6">
         
         {/* Contacts Header */}
-        <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm">
+        <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
           <h4 className="text-lg font-bold text-gray-900 dark:text-white flex items-center space-x-2">
             <User className="text-indigo-600 h-5 w-5" />
             <span>Recruiter Contacts</span>
           </h4>
           <button
             onClick={openAddForm}
-            className="flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-sm transition-all duration-150 active:scale-95"
+            className="flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-4 py-2.5 rounded-2xl shadow-sm transition-all duration-150 active:scale-95 shadow-[0_8px_25px_-5px_rgba(79,70,229,0.25)]"
           >
             <Plus className="h-4 w-4" />
             <span>Add Contact</span>
@@ -477,11 +478,11 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
 
         {/* Contacts Grid/List */}
         {loading ? (
-          <div className="flex justify-center items-center h-48 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
+          <div className="flex justify-center items-center h-48 bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
           </div>
         ) : contacts.length === 0 ? (
-          <div className="text-center p-12 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm space-y-2">
+          <div className="text-center p-12 bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.02)] space-y-2">
             <User className="h-12 w-12 text-gray-300 mx-auto" />
             <h5 className="font-bold text-gray-800 dark:text-gray-100 text-base">No Recruiter Contacts</h5>
             <p className="text-xs text-gray-400 max-w-xs mx-auto">
@@ -493,59 +494,70 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
             {contacts.map((contact) => (
               <div
                 key={contact.contact_id}
-                className={`bg-white dark:bg-slate-900 p-5 rounded-2xl border transition-all shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${
+                className={`bg-white dark:bg-slate-900 p-5 rounded-3xl border transition-all shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden group ${
                   contact.is_primary === 1
-                    ? "border-green-400 bg-green-50/10 dark:bg-green-950/5"
-                    : "border-gray-100 dark:border-slate-800 hover:border-indigo-300"
+                    ? "border-emerald-500/80 bg-emerald-50/5 dark:bg-emerald-950/5 shadow-[0_8px_30px_rgb(16,185,129,0.02)]"
+                    : "border-gray-100 dark:border-slate-800 hover:border-indigo-200"
                 }`}
               >
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-gray-900 dark:text-white text-base">
-                      {contact.first_name} {contact.last_name || ""}
-                    </span>
-                    {contact.is_primary === 1 ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300">
-                        Primary Contact
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => handleMakePrimary(contact)}
-                        className="inline-flex items-center text-[10px] font-bold text-indigo-500 hover:text-indigo-700 underline transition-colors"
-                      >
-                        Make Primary
-                      </button>
-                    )}
+                <div className="flex items-start space-x-4">
+                  {/* Circular Avatar */}
+                  <div className="h-10 w-10 bg-indigo-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-extrabold text-sm shadow-inner shrink-0">
+                    {contact.first_name.charAt(0).toUpperCase()}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 text-xs text-gray-500 dark:text-gray-400">
-                    <p className="flex items-center gap-1.5">
-                      <Briefcase className="h-3.5 w-3.5 text-gray-400" />
-                      <span>{contact.designation_name || "No Designation"}</span>
-                    </p>
-                    <p className="flex items-center gap-1.5 break-all">
-                      <Mail className="h-3.5 w-3.5 text-gray-400" />
-                      <span>{contact.email || "No Email"}</span>
-                    </p>
-                    <p className="flex items-center gap-1.5">
-                      <Phone className="h-3.5 w-3.5 text-gray-400" />
-                      <span>{contact.phone || "No Phone"}</span>
-                    </p>
+                  <div className="space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-bold text-gray-900 dark:text-white text-base">
+                        {contact.first_name} {contact.last_name || ""}
+                      </span>
+                      {contact.is_primary === 1 ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50">
+                          <span className="relative flex h-1.5 w-1.5 mr-1.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                          </span>
+                          Primary Contact
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => handleMakePrimary(contact)}
+                          className="inline-flex items-center text-[10px] font-bold text-indigo-500 hover:text-indigo-700 underline transition-colors"
+                        >
+                          Make Primary
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-1.5 text-xs text-gray-500 dark:text-gray-400">
+                      <p className="flex items-center gap-1.5">
+                        <Briefcase className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                        <span className="truncate">{contact.designation_name || "No Designation"}</span>
+                      </p>
+                      <p className="flex items-center gap-1.5 break-all">
+                        <Mail className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                        <span className="truncate">{contact.email || "No Email"}</span>
+                      </p>
+                      <p className="flex items-center gap-1.5">
+                        <Phone className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                        <span>{contact.phone || "No Phone"}</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
 
                 {/* Contact Actions */}
-                <div className="flex items-center gap-2.5 w-full md:w-auto justify-end border-t md:border-t-0 border-gray-100 pt-3 md:pt-0">
+                <div className="flex items-center gap-2.5 w-full md:w-auto justify-end border-t md:border-t-0 border-gray-100 dark:border-slate-800/80 pt-3 md:pt-0 shrink-0 z-10">
                   <button
                     onClick={() => openEditForm(contact)}
-                    className="flex items-center gap-1 border border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-950/20 text-amber-600 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                    className="flex items-center gap-1 border border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-950/20 text-amber-600 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors"
                   >
                     <Edit2 className="h-3.5 w-3.5" />
                     <span>Edit</span>
                   </button>
                   <button
                     onClick={() => handleDeleteContact(contact)}
-                    className="flex items-center gap-1 border border-red-200 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                    className="flex items-center gap-1 border border-red-200 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                     <span>Delete</span>
@@ -577,7 +589,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
                 required
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+                className="w-full rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-950 transition text-gray-900 dark:text-gray-100"
                 placeholder="e.g. John"
               />
             </div>
@@ -589,7 +601,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+                className="w-full rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-950 transition text-gray-900 dark:text-gray-100"
                 placeholder="e.g. Doe"
               />
             </div>
@@ -603,7 +615,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
               type="email"
               value={emailVal}
               onChange={(e) => setEmailVal(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+              className="w-full rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-950 transition text-gray-900 dark:text-gray-100"
               placeholder="e.g. recruiter@company.com"
             />
           </div>
@@ -616,7 +628,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
               type="tel"
               value={phoneVal}
               onChange={(e) => setPhoneVal(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+              className="w-full rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-950 transition text-gray-900 dark:text-gray-100"
               placeholder="e.g. +91 98765 43210"
             />
           </div>
@@ -628,7 +640,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
             <select
               value={designationId}
               onChange={(e) => setDesignationId(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition cursor-pointer"
+              className="w-full rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-950 transition cursor-pointer text-gray-900 dark:text-gray-100"
             >
               {designations.map((d) => (
                 <option key={d.designation_id} value={d.designation_id}>
@@ -651,17 +663,17 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
             </label>
           </div>
 
-          <div className="flex items-center justify-end space-x-2 pt-4 border-t border-gray-150">
+          <div className="flex items-center justify-end space-x-2 pt-4 border-t border-gray-150 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setIsFormOpen(false)}
-              className="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold transition-colors"
+              className="border border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-900 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-xl text-xs font-bold transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all duration-150 active:scale-95"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all duration-150 active:scale-95 shadow-[0_8px_25px_-5px_rgba(79,70,229,0.25)]"
             >
               {editingContact ? "Save Changes" : "Register Contact"}
             </button>
