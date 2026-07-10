@@ -6,27 +6,36 @@ import { toast } from "react-toastify";
 import { RegistrationRecord, TpoDashboardColumnDefs } from "./tpoDashboardSchema";
 import RegistrationDetailModal from "./registrationDetailModal";
 import RejectReasonModal from "./rejectReasonModal";
+import {
+  Building,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Eye,
+  Check,
+  X,
+} from "lucide-react";
 
-// ── Status config ──────────────────────────────────────────────────────────
-const STATUS_CONFIG: Record<number, { label: string; className: string }> = {
-  0: { label: "Pending",  className: "bg-yellow-100 text-yellow-800 border border-yellow-300" },
-  1: { label: "Approved", className: "bg-green-100  text-green-800  border border-green-300" },
-  2: { label: "Rejected", className: "bg-red-100    text-red-800    border border-red-300" },
-};
-
-// ── Summary Card ───────────────────────────────────────────────────────────
+// ── Summary Card Component ──────────────────────────────────────────────────
 const SummaryCard: React.FC<{
   label: string;
   count: number;
-  colorClass: string;
-}> = ({ label, count, colorClass }) => (
-  <div className={`rounded-lg border p-4 flex flex-col items-center justify-center ${colorClass} min-w-[100px]`}>
-    <span className="text-2xl font-bold">{count}</span>
-    <span className="text-xs font-medium mt-1">{label}</span>
+  icon: React.ReactNode;
+  gradientClass: string;
+  iconBgClass: string;
+}> = ({ label, count, icon, gradientClass, iconBgClass }) => (
+  <div className={`flex-1 min-w-[200px] bg-gradient-to-br ${gradientClass} text-white p-6 rounded-2xl shadow-sm hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 flex items-center justify-between border border-white/5`}>
+    <div className="space-y-1">
+      <p className="text-xs font-bold uppercase tracking-wider opacity-80">{label}</p>
+      <h3 className="text-3xl font-extrabold tracking-tight">{count}</h3>
+    </div>
+    <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${iconBgClass} backdrop-blur-md`}>
+      {icon}
+    </div>
   </div>
 );
 
-// ── Main Page ──────────────────────────────────────────────────────────────
+// ── Main Page Component ─────────────────────────────────────────────────────
 const TpoDashboardPage: React.FC = () => {
   const [data, setData]         = useState<RegistrationRecord[]>([]);
   const [isLoading, setLoading] = useState(false);
@@ -51,7 +60,9 @@ const TpoDashboardPage: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // ── Filter by tab ────────────────────────────────────────────────────────
   const filteredData = useMemo(() => {
@@ -70,7 +81,7 @@ const TpoDashboardPage: React.FC = () => {
   // ── Approve ──────────────────────────────────────────────────────────────
   const handleApprove = useCallback(async (record: RegistrationRecord) => {
     try {
-      const res  = await axiosInstance.put(PlacementApiEndpoint.companyRegistration.approve, {
+      const res = await axiosInstance.put(PlacementApiEndpoint.companyRegistration.approve, {
         reg_id: record.reg_id,
         remarks: "Approved by TPO",
       });
@@ -90,7 +101,7 @@ const TpoDashboardPage: React.FC = () => {
   const handleRejectConfirm = useCallback(async (reason: string) => {
     if (!rejectRecord) return;
     try {
-      const res  = await axiosInstance.put(PlacementApiEndpoint.companyRegistration.reject, {
+      const res = await axiosInstance.put(PlacementApiEndpoint.companyRegistration.reject, {
         reg_id:  rejectRecord.reg_id,
         remarks: reason,
       });
@@ -114,16 +125,38 @@ const TpoDashboardPage: React.FC = () => {
     {
       headerName: "Status",
       field: "status",
-      width: 120,
+      width: 130,
       flex: 0,
       sortable: true,
       filter: false,
       cellRenderer: (params: any) => {
-        const cfg = STATUS_CONFIG[params.data?.status] ?? { label: "Unknown", className: "bg-gray-100 text-gray-700" };
+        const statusVal = params.data?.status;
+        const isActive = statusVal === 1;
+        const isPending = statusVal === 0;
+        const isRejected = statusVal === 2;
+
+        let colorClasses = "bg-gray-50 text-gray-700 border-gray-200 dark:bg-slate-800 dark:text-gray-300 dark:border-slate-700";
+        if (isPending) colorClasses = "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/50";
+        if (isActive) colorClasses = "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-900/50";
+        if (isRejected) colorClasses = "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/50";
+
+        let indicatorClass = "bg-gray-500";
+        if (isPending) indicatorClass = "bg-amber-500";
+        if (isActive) indicatorClass = "bg-green-500";
+        if (isRejected) indicatorClass = "bg-red-500";
+
+        let statusLabel = "Unknown";
+        if (isPending) statusLabel = "Pending";
+        if (isActive) statusLabel = "Approved";
+        if (isRejected) statusLabel = "Rejected";
+
         return (
-          <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${cfg.className}`}>
-            {cfg.label}
-          </span>
+          <div className="flex items-center h-full">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${colorClasses}`}>
+              <span className={`h-1.5 w-1.5 rounded-full mr-1.5 ${indicatorClass}`} />
+              {statusLabel}
+            </span>
+          </div>
         );
       },
     },
@@ -131,7 +164,7 @@ const TpoDashboardPage: React.FC = () => {
     {
       headerName: "Action",
       field: "action",
-      width: 230,
+      width: 250,
       flex: 0,
       sortable: false,
       filter: false,
@@ -140,26 +173,32 @@ const TpoDashboardPage: React.FC = () => {
         if (!row) return null;
         const isPending = row.status === 0;
         return (
-          <div className="flex items-center space-x-1 h-full">
+          <div className="flex items-center space-x-2 h-full">
             <button
-              className="text-xs text-blue-600 underline px-2 py-1 rounded hover:bg-blue-50"
+              className="flex items-center space-x-1 border border-indigo-200 hover:bg-indigo-50 dark:hover:bg-slate-800 text-indigo-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95"
               onClick={() => setViewRecord(row)}
+              title="View Details"
             >
-              View
+              <Eye className="h-3.5 w-3.5" />
+              <span>View</span>
             </button>
             {isPending && (
               <>
                 <button
-                  className="text-xs text-green-700 px-2 py-1 rounded border border-green-300 hover:bg-green-50"
+                  className="flex items-center space-x-1 border border-green-200 hover:bg-green-50 dark:hover:bg-slate-800 text-green-700 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95"
                   onClick={() => handleApprove(row)}
+                  title="Approve"
                 >
-                  Approve
+                  <Check className="h-3.5 w-3.5" />
+                  <span>Approve</span>
                 </button>
                 <button
-                  className="text-xs text-red-700 px-2 py-1 rounded border border-red-300 hover:bg-red-50"
+                  className="flex items-center space-x-1 border border-red-200 hover:bg-red-50 dark:hover:bg-slate-800 text-red-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95"
                   onClick={() => setRejectRecord(row)}
+                  title="Reject"
                 >
-                  Reject
+                  <X className="h-3.5 w-3.5" />
+                  <span>Reject</span>
                 </button>
               </>
             )}
@@ -171,36 +210,64 @@ const TpoDashboardPage: React.FC = () => {
 
   // ── Tabs config ──────────────────────────────────────────────────────────
   const tabs = [
-    { label: "All",      value: 0 },
-    { label: "Pending",  value: 1 },
-    { label: "Approved", value: 2 },
-    { label: "Rejected", value: 3 },
+    { label: "All Registrations", value: 0 },
+    { label: "Pending",           value: 1 },
+    { label: "Approved",          value: 2 },
+    { label: "Rejected",          value: 3 },
   ];
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="p-6">
+    <div className="p-6 space-y-6">
+      
       {/* Page title */}
-      <h2 className="text-xl font-bold text-gray-800 mb-5">TPO Dashboard</h2>
-
-      {/* Summary cards */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <SummaryCard label="Total"    count={total}    colorClass="bg-blue-50 border-blue-200 text-blue-900" />
-        <SummaryCard label="Pending"  count={pending}  colorClass="bg-yellow-50 border-yellow-200 text-yellow-900" />
-        <SummaryCard label="Approved" count={approved} colorClass="bg-green-50 border-green-200 text-green-900" />
-        <SummaryCard label="Rejected" count={rejected} colorClass="bg-red-50 border-red-200 text-red-900" />
+      <div>
+        <h2 className="text-xl font-bold text-gray-800 dark:text-white">TPO Approval Dashboard</h2>
+        <p className="text-xs text-gray-400 mt-1">Review and approve self-registered companies requesting access to the placement module.</p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex space-x-1 border-b border-gray-200 mb-4">
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <SummaryCard
+          label="Total Registrations"
+          count={total}
+          icon={<Building className="h-5 w-5 text-white" />}
+          gradientClass="from-indigo-600 to-indigo-500"
+          iconBgClass="bg-white/20"
+        />
+        <SummaryCard
+          label="Pending Approvals"
+          count={pending}
+          icon={<Clock className="h-5 w-5 text-white" />}
+          gradientClass="from-amber-500 to-orange-400"
+          iconBgClass="bg-white/20"
+        />
+        <SummaryCard
+          label="Approved Companies"
+          count={approved}
+          icon={<CheckCircle className="h-5 w-5 text-white" />}
+          gradientClass="from-emerald-600 to-teal-500"
+          iconBgClass="bg-white/20"
+        />
+        <SummaryCard
+          label="Rejected Records"
+          count={rejected}
+          icon={<XCircle className="h-5 w-5 text-white" />}
+          gradientClass="from-rose-600 to-red-500"
+          iconBgClass="bg-white/20"
+        />
+      </div>
+
+      {/* Tabs list */}
+      <div className="flex space-x-2 bg-gray-100/80 dark:bg-slate-900 p-1.5 rounded-xl max-w-xl border border-gray-150/40">
         {tabs.map((tab) => (
           <button
             key={tab.value}
             onClick={() => setTab(tab.value)}
-            className={`pb-2 px-4 text-sm font-medium border-b-2 transition-colors ${
+            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all duration-200 ${
               activeTab === tab.value
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                ? "bg-white dark:bg-slate-800 text-indigo-600 shadow-sm border border-gray-100 dark:border-slate-700"
+                : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             }`}
           >
             {tab.label}
@@ -208,16 +275,18 @@ const TpoDashboardPage: React.FC = () => {
         ))}
       </div>
 
-      {/* DataTable — same pattern as CompanyList */}
-      <DataTable
-        columnDefs={columnDefs}
-        rowData={filteredData}
-        showAddButton={false}
-        showExportButton={false}
-        headerFilter={true}
-        pageSize={20}
-        loading={isLoading}
-      />
+      {/* DataTable */}
+      <div className="bg-white dark:bg-slate-950 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden shadow-sm">
+        <DataTable
+          columnDefs={columnDefs}
+          rowData={filteredData}
+          showAddButton={false}
+          showExportButton={false}
+          headerFilter={true}
+          pageSize={20}
+          loading={isLoading}
+        />
+      </div>
 
       {/* View Detail Modal */}
       <RegistrationDetailModal
