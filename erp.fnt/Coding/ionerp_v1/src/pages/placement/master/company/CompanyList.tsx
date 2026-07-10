@@ -310,13 +310,18 @@ const CompanyList: React.FC = () => {
           return (
             <div className="flex items-center h-full">
               <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${
                   isActive
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50"
+                    : "bg-rose-50 text-rose-700 border border-rose-200/50"
                 }`}
               >
-                <span className={`h-1.5 w-1.5 rounded-full mr-1.5 ${isActive ? "bg-green-500" : "bg-red-500"}`} />
+                <span className="relative flex h-1.5 w-1.5 mr-1.5">
+                  {isActive && (
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  )}
+                  <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${isActive ? "bg-emerald-500" : "bg-rose-500"}`}></span>
+                </span>
                 {isActive ? "Active" : "Disabled"}
               </span>
             </div>
@@ -331,47 +336,43 @@ const CompanyList: React.FC = () => {
         cellRenderer: (params: any) => {
           const isActive = params.data?.status === 1;
           return (
-            <div className='flex space-x-2 items-center h-full'>
+            <div className="flex items-center justify-center space-x-2.5 h-full w-full">
               <button
-                className='flex items-center space-x-1 border border-indigo-200 hover:bg-indigo-50 text-indigo-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95'
+                className="p-2 border border-indigo-100 hover:bg-indigo-50 text-indigo-600 rounded-full transition-all duration-150 active:scale-90"
                 onClick={() => setViewCompany(params.data)}
-                title='View Details'
+                title="View Details"
               >
-                <Eye className="h-3.5 w-3.5" />
-                <span>View</span>
+                <Eye className="h-4 w-4" />
               </button>
               <button
-                className='flex items-center space-x-1 border border-amber-200 hover:bg-amber-50 text-amber-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95'
+                className="p-2 border border-amber-100 hover:bg-amber-50 text-amber-600 rounded-full transition-all duration-150 active:scale-90"
                 onClick={() => handleEdit(params.data)}
-                title='Edit Company'
+                title="Edit Company"
               >
-                <Edit2 className="h-3.5 w-3.5" />
-                <span>Edit</span>
+                <Edit2 className="h-4 w-4" />
               </button>
               {isActive ? (
                 <button
-                  className='flex items-center space-x-1 border border-red-200 hover:bg-red-50 text-red-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95'
+                  className="p-2 border border-red-100 hover:bg-red-50 text-red-500 rounded-full transition-all duration-150 active:scale-90"
                   onClick={() => openStatusDialog(params.data)}
-                  title='Disable Company'
+                  title="Disable Company"
                 >
-                  <Ban className="h-3.5 w-3.5" />
-                  <span>Disable</span>
+                  <Ban className="h-4 w-4" />
                 </button>
               ) : (
                 <button
-                  className='flex items-center space-x-1 border border-green-200 hover:bg-green-50 text-green-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95'
+                  className="p-2 border border-emerald-100 hover:bg-emerald-50 text-emerald-600 rounded-full transition-all duration-150 active:scale-90"
                   onClick={() => openStatusDialog(params.data)}
-                  title='Enable Company'
+                  title="Enable Company"
                 >
-                  <CheckCircle className="h-3.5 w-3.5" />
-                  <span>Enable</span>
+                  <CheckCircle className="h-4 w-4" />
                 </button>
               )}
             </div>
           );
         },
-        width: 280,
-        cellStyle: { textAlign: "center" },
+        width: 160,
+        cellStyle: { display: "flex", alignItems: "center", justifyContent: "center" },
         filter: false,
         editable: false,
         sortable: false,
