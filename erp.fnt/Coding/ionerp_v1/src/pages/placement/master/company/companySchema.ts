@@ -30,10 +30,19 @@ export const SchemaFields = [
         required: true,
       },
       {
-        type: "text",
+        type: "select",
         name: "industry",
         label: "Industry",
         required: false,
+        options: [
+          { label: "Select Industry", value: "" },
+          { label: "IT / Software", value: "IT / Software" },
+          { label: "Manufacturing", value: "Manufacturing" },
+          { label: "Finance / Banking", value: "Finance / Banking" },
+          { label: "Healthcare", value: "Healthcare" },
+          { label: "Education", value: "Education" },
+          { label: "Other", value: "Other" },
+        ],
       },
       {
         type: "text",
