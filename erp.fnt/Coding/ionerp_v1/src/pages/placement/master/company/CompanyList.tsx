@@ -6,6 +6,8 @@ import StatusDialog from "../../../../components/Dialog/StatusDialog";
 import DataTable from "../../../../components/Table/DataTable";
 import { Schema, SchemaColumnDefs, SchemaFields } from "./companySchema";
 import { ApiEndpoint } from "../../../../utils/ApiEndpoint/emsapiEndpoint";
+import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoint";
+import axiosInstance from "../../../../utils/api";
 import { useAxios } from "../../../../hooks/useAxios";
 import { CompanyResponse } from "./responseInterface";
 import { toast } from "react-toastify";
@@ -24,8 +26,8 @@ const CompanyList: React.FC = () => {
   const { responseData, setResponseData, addItem, editStateItem, addStateItem, refetch } = useAxios<
     {},
     any
-  >(ApiEndpoint.company.company_list, {
-    method: "post",
+  >(PlacementApiEndpoint.company.list, {
+    method: "get",
     loader: true,
     payload: {},
     shouldFetch: true,
@@ -116,17 +118,14 @@ const CompanyList: React.FC = () => {
 
   const confirmDelete = useCallback(async () => {
     if (!deleteId) return;
-    const deletePayload = {
-      flag: "company",
-      record_id: (deleteId as any).company_id ?? deleteId.id,
-      status: (deleteId as any).status === 1 ? 0 : 1,
-    } as any;
-    console.debug("CompanyList.confirmDelete: deleteId, payload, responseData", deleteId, deletePayload, responseData);
+    const idKey = (deleteId as any).company_id ? "company_id" : "id";
+    const idVal = (deleteId as any)[idKey];
+    const desiredStatus = (deleteId as any).status === 1 ? 0 : 1;
+
+    console.debug("CompanyList.confirmDelete: deleteId, desiredStatus, responseData", deleteId, desiredStatus, responseData);
       if (useMock) {
         // simulate toggle locally by updating responseData or the default data
-        const idKey = (deleteId as any).company_id ? "company_id" : "id";
-        const idVal = (deleteId as any)[idKey];
-        const updated = { ...(deleteId as any), status: (deleteId as any).status === 1 ? 0 : 1 } as any;
+        const updated = { ...(deleteId as any), status: desiredStatus } as any;
         const source = Array.isArray(responseData) && responseData.length ? responseData.slice() : defaultData.slice();
         const newData = source.map((item: any) => (item[idKey] === idVal ? { ...item, ...updated } : item));
         setResponseData(newData as any);
@@ -139,25 +138,31 @@ const CompanyList: React.FC = () => {
         return;
       }
 
-      const response = await addItem(deletePayload, ApiEndpoint.master_soft_delete);
-      if (!response) return;
+      try {
+        const endpoint = desiredStatus === 1
+          ? PlacementApiEndpoint.company.activate
+          : PlacementApiEndpoint.company.deactivate;
 
-      // If API returned updated item, update local state immediately
-      const returned = response as any;
-      const idKey = (deleteId as any).company_id ? "company_id" : "id";
-      const idVal = (deleteId as any)[idKey];
-      if (returned) {
-        console.debug("CompanyList.confirmDelete: API returned, updating local state", returned);
-        const source = Array.isArray(responseData) && responseData.length ? responseData.slice() : defaultData.slice();
-        const newData = source.map((item: any) => (item[idKey] === idVal ? { ...item, ...returned } : item));
-        setResponseData(newData as any);
-      } else {
-        // fallback to refetch if no returned payload
-        console.debug("CompanyList.confirmDelete: API returned no payload, refetching");
-        refetch();
+        const res: any = await axiosInstance.put(endpoint, {
+          company_id: idVal,
+          status: desiredStatus
+        });
+
+        if (res.data?.status) {
+          toast.success(res.data?.message || "Status updated successfully!");
+          const returned = res.data?.data as any;
+          const source = Array.isArray(responseData) && responseData.length ? responseData.slice() : defaultData.slice();
+          const newData = source.map((item: any) => (item[idKey] === idVal ? { ...item, ...returned, status: desiredStatus } : item));
+          setResponseData(newData as any);
+        } else {
+          refetch();
+        }
+      } catch (err: any) {
+        console.error("Failed to toggle status", err);
+        toast.error(err.response?.data?.message || "Failed to update status.");
       }
       setDeleteId(null);
-  }, [addItem, deleteId, refetch]);
+  }, [deleteId, responseData, defaultData, useMock, refetch]);
 
   const openStatusDialog = (item: CompanyResponse) => {
     setStatusTarget(item);
@@ -169,13 +174,7 @@ const CompanyList: React.FC = () => {
       const idKey = (statusTarget as any).company_id ? "company_id" : "id";
       const idVal = (statusTarget as any)[idKey];
 
-      const payload = {
-        flag: "company",
-        record_id: idVal,
-        status: desiredStatus,
-      } as any;
-
-      console.debug("CompanyList.handleStatusChange: desiredStatus, statusTarget, payload, responseData", desiredStatus, statusTarget, payload, responseData);
+      console.debug("CompanyList.handleStatusChange: desiredStatus, statusTarget, responseData", desiredStatus, statusTarget, responseData);
 
       if (useMock) {
         const updated = { ...(statusTarget as any), status: desiredStatus } as any;
@@ -191,24 +190,34 @@ const CompanyList: React.FC = () => {
         return;
       }
 
-      const response = await addItem(payload, ApiEndpoint.master_soft_delete);
-      if (!response) return;
-
-      // If API returned updated item, use it; otherwise, optimistically apply desiredStatus.
-      const returned = response as any;
-      const source = Array.isArray(responseData) && responseData.length ? responseData.slice() : defaultData.slice();
-      const newData = source.map((item: any) =>
-        item[idKey] === idVal ? { ...(item as any), ...(returned ?? {}), status: (returned?.status ?? desiredStatus) } : item,
-      );
-      console.debug("CompanyList.handleStatusChange: applying API/optimistic update", newData);
-      setResponseData(newData as any);
-      // persist when in mock mode
       try {
-        if (useMock) localStorage.setItem(LS_KEY, JSON.stringify(newData));
-      } catch (e) {}
+        const endpoint = desiredStatus === 1
+          ? PlacementApiEndpoint.company.activate
+          : PlacementApiEndpoint.company.deactivate;
+
+        const res: any = await axiosInstance.put(endpoint, {
+          company_id: idVal,
+          status: desiredStatus
+        });
+
+        if (res.data?.status) {
+          toast.success(res.data?.message || "Status updated successfully!");
+          const returned = res.data?.data as any;
+          const source = Array.isArray(responseData) && responseData.length ? responseData.slice() : defaultData.slice();
+          const newData = source.map((item: any) =>
+            item[idKey] === idVal ? { ...(item as any), ...(returned ?? {}), status: desiredStatus } : item,
+          );
+          setResponseData(newData as any);
+        } else {
+          refetch();
+        }
+      } catch (err: any) {
+        console.error("Failed to update status", err);
+        toast.error(err.response?.data?.message || "Failed to update status.");
+      }
       setStatusTarget(null);
     },
-    [addItem, defaultData, refetch, responseData, statusTarget, useMock],
+    [defaultData, refetch, responseData, statusTarget, useMock],
   );
 
   const columnDefs = useMemo(() => {
@@ -338,34 +347,45 @@ const CompanyList: React.FC = () => {
         return;
       }
 
-      const response = await addItem(updatePayload as any, ApiEndpoint.company.save_company);
-      if (!response) return;
+      try {
+        let res: any;
+        if (editingData) {
+          // Edit: PUT request
+          res = await axiosInstance.put(PlacementApiEndpoint.company.save, updatePayload);
+          toast.success("Company updated successfully!");
+        } else {
+          // Add: POST request
+          res = await axiosInstance.post(PlacementApiEndpoint.company.save, updatePayload);
+          toast.success("Company registered successfully!");
+        }
 
-      // Update local state so UI reflects the change immediately
-      const idKey = (editingData as any)?.company_id ? "company_id" : "id";
-      const idVal = editingData ? (editingData as any)[idKey] : null;
-      const returned = response as any;
-      if (editingData) {
-        // editing existing
-        if (Array.isArray(responseData)) {
-          const newData = responseData.map((item: any) =>
-            item[idKey] === idVal ? { ...item, ...(returned ?? {}) } : item,
-          );
-          setResponseData(newData as any);
+        const returned = res.data?.data as any;
+        const idKey = editingData?.company_id ? "company_id" : "id";
+        const idVal = editingData ? editingData[idKey] : null;
+
+        if (editingData) {
+          if (Array.isArray(responseData)) {
+            const newData = responseData.map((item: any) =>
+              item[idKey] === idVal ? { ...item, ...(returned ?? {}) } : item,
+            );
+            setResponseData(newData as any);
+          } else {
+            setResponseData([returned] as any);
+          }
         } else {
-          setResponseData([returned] as any);
+          if (Array.isArray(responseData) && responseData.length) {
+            setResponseData([...(responseData as any), returned] as any);
+          } else {
+            setResponseData([returned] as any);
+          }
         }
-      } else {
-        // adding new
-        if (Array.isArray(responseData) && responseData.length) {
-          setResponseData([...(responseData as any), returned] as any);
-        } else {
-          setResponseData([returned] as any);
-        }
+      } catch (err: any) {
+        console.error("Failed to save company", err);
+        toast.error(err.response?.data?.message || "Failed to save company.");
       }
       closeModalHandler();
     },
-    [addItem, addStateItem, editStateItem, editingData],
+    [editingData, responseData],
   );
 
   return (
