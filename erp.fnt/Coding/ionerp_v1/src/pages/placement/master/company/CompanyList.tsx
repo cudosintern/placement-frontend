@@ -61,12 +61,18 @@ const CompanyList: React.FC = () => {
       {
         company_id: 1,
         company_name: "Infosys",
+        company_type: "MNC",
         industry: "IT / Software",
         website: "https://www.infosys.com",
         email: "info@infosys.com",
         phone: "080 2852 0261",
-        address: "Electronics City, Hosur Road, Bengaluru, Karnataka 560100",
+        address: "Electronics City, Hosur Road",
+        city: "Bengaluru",
+        state: "Karnataka",
+        country: "India",
+        pincode: "560100",
         contact_person: "Sudha Murty",
+        contact_designation: "HR Lead",
         contact_phone: "9876543210",
         contact_email: "sudha@infosys.com",
         description: "Infosys is a global leader in next-generation digital services and consulting.",
@@ -75,12 +81,18 @@ const CompanyList: React.FC = () => {
       {
         company_id: 2,
         company_name: "TCS",
+        company_type: "MNC",
         industry: "IT / Software",
         website: "https://www.tcs.com",
         email: "corporate@tcs.com",
         phone: "022 6778 9999",
-        address: "TCS House, Raveline Street, Fort, Mumbai 400001",
+        address: "TCS House, Raveline Street, Fort",
+        city: "Mumbai",
+        state: "Maharashtra",
+        country: "India",
+        pincode: "400001",
         contact_person: "Rajesh Gopinathan",
+        contact_designation: "Recruiter Manager",
         contact_phone: "9876543211",
         contact_email: "rajesh@tcs.com",
         description: "Tata Consultancy Services is an IT services, consulting and business solutions organization.",
@@ -89,12 +101,18 @@ const CompanyList: React.FC = () => {
       {
         company_id: 3,
         company_name: "Wipro",
+        company_type: "MNC",
         industry: "IT / Software",
         website: "https://www.wipro.com",
         email: "info@wipro.com",
         phone: "080 2844 0011",
-        address: "Sarjapur Road, Doddakannelli, Bengaluru 560035",
+        address: "Sarjapur Road, Doddakannelli",
+        city: "Bengaluru",
+        state: "Karnataka",
+        country: "India",
+        pincode: "560035",
         contact_person: "Rishad Premji",
+        contact_designation: "Talent Acquisition Head",
         contact_phone: "9876543212",
         contact_email: "rishad@wipro.com",
         description: "Wipro Limited is a leading technology services and consulting company.",
@@ -103,12 +121,18 @@ const CompanyList: React.FC = () => {
       {
         company_id: 4,
         company_name: "Accenture",
+        company_type: "MNC",
         industry: "IT / Software",
         website: "https://www.accenture.com",
         email: "india@accenture.com",
         phone: "080 4106 0000",
-        address: "Electronics City Phase 1, Bengaluru 560100",
+        address: "Electronics City Phase 1",
+        city: "Bengaluru",
+        state: "Karnataka",
+        country: "India",
+        pincode: "560100",
         contact_person: "Julie Sweet",
+        contact_designation: "HR Specialist",
         contact_phone: "9876543213",
         contact_email: "julie@accenture.com",
         description: "Accenture is a leading global professional services company.",
@@ -117,12 +141,18 @@ const CompanyList: React.FC = () => {
       {
         company_id: 5,
         company_name: "L&T",
+        company_type: "Public Ltd",
         industry: "Manufacturing",
         website: "https://www.larsentoubro.com",
         email: "info@larsentoubro.com",
         phone: "022 6752 5656",
-        address: "L&T House, Ballard Estate, Mumbai 400001",
+        address: "L&T House, Ballard Estate",
+        city: "Mumbai",
+        state: "Maharashtra",
+        country: "India",
+        pincode: "400001",
         contact_person: "A. M. Naik",
+        contact_designation: "Corporate HR Lead",
         contact_phone: "9876543214",
         contact_email: "naik@larsentoubro.com",
         description: "Larsen & Toubro Limited is an Indian multinational conglomerate company.",
@@ -131,12 +161,18 @@ const CompanyList: React.FC = () => {
       {
         company_id: 6,
         company_name: "HDFC Bank",
+        company_type: "Public Ltd",
         industry: "Finance / Banking",
         website: "https://www.hdfcbank.com",
         email: "banking@hdfcbank.com",
         phone: "022 6060 6161",
-        address: "Senapati Bapat Marg, Lower Parel, Mumbai 400013",
+        address: "Senapati Bapat Marg, Lower Parel",
+        city: "Mumbai",
+        state: "Maharashtra",
+        country: "India",
+        pincode: "400013",
         contact_person: "Sashidhar Jagdishan",
+        contact_designation: "HR Officer",
         contact_phone: "9876543215",
         contact_email: "sashi@hdfcbank.com",
         description: "HDFC Bank Limited is an Indian banking and financial services company.",
@@ -532,13 +568,13 @@ const CompanyList: React.FC = () => {
 
         {isModalOpen && (
           <ModalWithForm
-            title={'Company'}
+            title={editingData ? 'Edit Company' : 'Add Company'}
             isOpen={isModalOpen}
             onSubmit={handleFormSubmit}
             onClose={closeModalHandler}
             formFields={SchemaFields}
             schema={Schema}
-            size={'2xl'}
+            size={'4xl'}
             columnLayout={2}
             initialValues={editingData || {}}
           />
@@ -547,54 +583,7 @@ const CompanyList: React.FC = () => {
         <div className="bg-white dark:bg-slate-950 rounded-3xl border border-gray-100 dark:border-slate-800 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <DataTable
             columnDefs={columnDefs}
-            rowData={
-              Array.isArray(responseData) && responseData.length
-                ? responseData
-                : [
-                    {
-                      company_id: 1,
-                      company_name: "Infosys",
-                      industry: "IT / Software",
-                      website: "https://www.infosys.com",
-                      email: "info@infosys.com",
-                      phone: "080 2852 0261",
-                      address: "Electronics City, Hosur Road, Bengaluru, Karnataka 560100",
-                      contact_person: "Sudha Murty",
-                      contact_phone: "9876543210",
-                      contact_email: "sudha@infosys.com",
-                      description: "Infosys is a global leader in next-generation digital services and consulting.",
-                      status: 1,
-                    },
-                    {
-                      company_id: 2,
-                      company_name: "TCS",
-                      industry: "IT / Software",
-                      website: "https://www.tcs.com",
-                      email: "corporate@tcs.com",
-                      phone: "022 6778 9999",
-                      address: "TCS House, Raveline Street, Fort, Mumbai 400001",
-                      contact_person: "Rajesh Gopinathan",
-                      contact_phone: "9876543211",
-                      contact_email: "rajesh@tcs.com",
-                      description: "Tata Consultancy Services is an IT services, consulting and business solutions organization.",
-                      status: 1,
-                    },
-                    {
-                      company_id: 3,
-                      company_name: "Wipro",
-                      industry: "IT / Software",
-                      website: "https://www.wipro.com",
-                      email: "info@wipro.com",
-                      phone: "080 2844 0011",
-                      address: "Sarjapur Road, Doddakannelli, Bengaluru 560035",
-                      contact_person: "Rishad Premji",
-                      contact_phone: "9876543212",
-                      contact_email: "rishad@wipro.com",
-                      description: "Wipro Limited is a leading technology services and consulting company.",
-                      status: 1,
-                    },
-                  ]
-            }
+            rowData={Array.isArray(responseData) && responseData.length ? responseData : defaultData}
             showAddButton={false}
             showExportButton={false}
             headerFilter={true}

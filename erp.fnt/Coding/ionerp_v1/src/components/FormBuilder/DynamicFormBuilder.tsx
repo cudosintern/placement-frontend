@@ -25,6 +25,7 @@ import FileUploadComponent from "./fields/FileUpload";
 import { QRCodeCanvas } from "qrcode.react";
 import ImageDisplay from "./fields/ImageDisplay";
 import YearPicker from "./fields/YearPicker";
+import RichTextEditor from "./fields/RichTextEditor";
 
 export interface Field {
   type:
@@ -63,6 +64,7 @@ export interface Field {
   onSelect?: (value: any) => void;
   onChange?: (value: any) => void;
   onBlur?: () => void;
+  accept?: string;
 }
 
 export interface FieldGroup {
@@ -191,6 +193,7 @@ const DynamicFormBuilder = forwardRef<DynamicFormHandle, DynamicFormProps>((prop
   }, {} as { [key: string]: any });
 
   const prevDependencyMapRef = React.useRef<{ [key: string]: any }>({});
+  const isFirstRunRef = React.useRef(true);
 
   React.useEffect(() => {
     fields.forEach((group) => {
@@ -199,8 +202,8 @@ const DynamicFormBuilder = forwardRef<DynamicFormHandle, DynamicFormProps>((prop
           const dependencyValue = dependencyMap[field.dependsOn || ""];
           const prevDependencyValue = prevDependencyMapRef.current[field.dependsOn || ""];
 
-          // Reset the child field value if the dependency changed
-          if (field.dependsOn && dependencyValue !== prevDependencyValue) {
+          // Reset the child field value if the dependency changed (and it's not the initial mount)
+          if (!isFirstRunRef.current && field.dependsOn && dependencyValue !== prevDependencyValue) {
             setValue(field.name, field.type === "multiselect" ? [] : "");
           }
 
@@ -223,6 +226,7 @@ const DynamicFormBuilder = forwardRef<DynamicFormHandle, DynamicFormProps>((prop
       });
     });
     prevDependencyMapRef.current = { ...dependencyMap };
+    isFirstRunRef.current = false;
   }, [JSON.stringify(dependencyMap), fields, setValue]);
 
   React.useEffect(() => {
@@ -315,10 +319,12 @@ const DynamicFormBuilder = forwardRef<DynamicFormHandle, DynamicFormProps>((prop
         return <ToggleSwitch {...commonProps} />;
       case "textarea":
         return <Textarea {...commonProps} />;
+      case "editor":
+        return <RichTextEditor {...commonProps} />;
       case "time":
         return <TimePickerComponent {...commonProps} />;
       case "file":
-        return <FileUploadComponent {...commonProps} />;
+        return <FileUploadComponent {...commonProps} accept={field.accept} />;
       case "qrcode":
         return (
           <div>

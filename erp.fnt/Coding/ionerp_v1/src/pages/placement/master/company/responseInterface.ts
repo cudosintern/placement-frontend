@@ -30,6 +30,8 @@ export interface CompanyResponse {
   contact_phone?: string;
   company_contact_email?: string;
   contact_email?: string;
+  company_contact_designation?: string;
+  contact_designation?: string;
   company_website?: string;
   website?: string;
   company_industry?: string;

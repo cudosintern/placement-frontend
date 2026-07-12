@@ -11,6 +11,7 @@ import {
   StudentProfileWrapper,
   StudentSkillWrapper,
   StudentCertificationWrapper,
+  StudentOffersWrapper,
 } from "../pages/placement/student/studentRoutes";
 import AvailableDrivesPage from "../pages/placement/drives/AvailableDrivesPage";
 import NotificationTemplatePage from "../pages/placement/master/notification-template/notificationTemplatePage";
@@ -21,6 +22,8 @@ import CompanyRegistrationPage from "../pages/placement/master/companyRegistrati
 import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
 import DrivePage from "../pages/placement/tpoDashboard/drivePage";
 import InterviewSchedulingPage from "../pages/placement/tpoDashboard/interview-scheduling/interviewSchedulingPage";
+import InterviewSlotsPage from "../pages/placement/tpoDashboard/interview-scheduling/interviewSlotsPage";
+import OfferManagementPage from "../pages/placement/tpoDashboard/offer-management/OfferManagementPage";
 
 export const PLACEMENTROUTE = [
   {
@@ -96,7 +99,7 @@ export const PLACEMENTROUTE = [
 },
 
 {
-  name: "Event Type",
+  name: "Notification Event Type",
   href: "event-type",
   roles: [],
   element: EventTypePage,
@@ -160,6 +163,20 @@ export const PLACEMENTROUTE = [
         element: InterviewSchedulingPage,
         subItems: [],
       },
+      {
+        name: "Interview Slots",
+        href: "/tpo/interview-slots",
+        roles: [],
+        element: InterviewSlotsPage,
+        subItems: [],
+      },
+      {
+        name: "Offer Management",
+        href: "/tpo/offer-management",
+        roles: [],
+        element: OfferManagementPage,
+        subItems: [],
+      },
     ],
   },
   {
@@ -188,6 +205,13 @@ export const PLACEMENTROUTE = [
         href: "drives/available",
         roles: [],
         element: AvailableDrivesPage,
+        subItems: [],
+      },
+      {
+        name: "My Offers",
+        href: "student/offers",
+        roles: [],
+        element: StudentOffersWrapper,
         subItems: [],
       },
     ],

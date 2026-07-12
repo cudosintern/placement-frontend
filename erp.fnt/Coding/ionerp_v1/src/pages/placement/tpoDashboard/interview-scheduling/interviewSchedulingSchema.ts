@@ -8,9 +8,9 @@ export const Schema = z
     venue_type: z.string().min(1, "Venue Type is required"),
     venue_details: z.string().optional().nullable(),
     meeting_link: z.string().optional().nullable(),
-    interview_date: z.string().min(1, "Interview Date is required"),
-    start_time: z.string().min(1, "Start Time is required"),
-    end_time: z.string().min(1, "End Time is required"),
+    interview_date: z.union([z.string(), z.date()]),
+    start_time: z.union([z.string(), z.date()]),
+    end_time: z.union([z.string(), z.date()]),
   })
   .refine(
     (data) => {
@@ -27,7 +27,16 @@ export const Schema = z
   .refine(
     (data) => {
       if (data.start_time && data.end_time) {
-        return data.start_time < data.end_time;
+        const getStr = (val: any) => {
+          if (val instanceof Date) {
+            const h = String(val.getHours()).padStart(2, "0");
+            const m = String(val.getMinutes()).padStart(2, "0");
+            const s = String(val.getSeconds()).padStart(2, "0");
+            return `${h}:${m}:${s}`;
+          }
+          return String(val);
+        };
+        return getStr(data.start_time) < getStr(data.end_time);
       }
       return true;
     },
@@ -97,7 +106,7 @@ export const SchemaFields = [
         required: false,
       },
       {
-        type: "date",
+        type: "singledate",
         name: "interview_date",
         label: "Date",
         required: true,

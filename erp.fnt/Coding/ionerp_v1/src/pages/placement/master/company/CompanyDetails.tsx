@@ -149,12 +149,63 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
     }
   }, [company, useMock]);
 
+  const [detailedCompany, setDetailedCompany] = useState<any>(null);
+
+  const fetchDetailedCompany = useCallback(async () => {
+    if (!company) return;
+    const cid = company.company_id ?? (company as any).id;
+    try {
+      if (useMock) {
+        let mockDrives = 0;
+        let mockOffers = 0;
+        let mockInterviewers = 0;
+
+        if (Number(cid) === 1) {
+          mockDrives = 3;
+          mockOffers = 12;
+          mockInterviewers = 4;
+        } else if (Number(cid) === 2) {
+          mockDrives = 2;
+          mockOffers = 8;
+          mockInterviewers = 3;
+        } else if (Number(cid) === 3) {
+          mockDrives = 4;
+          mockOffers = 15;
+          mockInterviewers = 5;
+        } else {
+          mockDrives = Math.floor(Math.random() * 3) + 1;
+          mockOffers = Math.floor(Math.random() * 10) + 2;
+          mockInterviewers = Math.floor(Math.random() * 4) + 1;
+        }
+
+        setDetailedCompany({
+          ...company,
+          drives_created: mockDrives,
+          offers_given: mockOffers,
+          interviewers_count: mockInterviewers,
+        });
+        return;
+      }
+
+      const res: any = await axiosInstance.get(`/placement/company/detail/${cid}`);
+      if (res.data?.status) {
+        setDetailedCompany(res.data.data);
+      } else {
+        setDetailedCompany(company);
+      }
+    } catch (err) {
+      console.error("Failed to fetch detailed company stats", err);
+      setDetailedCompany(company);
+    }
+  }, [company, useMock]);
+
   useEffect(() => {
     if (company) {
       fetchDesignations();
       fetchContacts();
+      fetchDetailedCompany();
     }
-  }, [company, fetchDesignations, fetchContacts]);
+  }, [company, fetchDesignations, fetchContacts, fetchDetailedCompany]);
 
   const openAddForm = () => {
     setEditingContact(null);
@@ -330,84 +381,144 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
   const description = company.description ?? (company as any).description ?? "";
   const linkedin = (company as any).linkedin ?? "";
 
+  const drivesCreated = detailedCompany?.drives_created ?? 0;
+  const offersGiven = detailedCompany?.offers_given ?? 0;
+  const interviewersCount = detailedCompany?.interviewers_count ?? 0;
+
+  const contactPersonName = company?.contact_person ?? (company as any)?.contact_person;
+  const displayContacts = [...contacts];
+
+  if (contacts.length === 0 && contactPersonName && contactPersonName.trim() !== "") {
+    displayContacts.push({
+      contact_id: -1,
+      company_id: company?.company_id ?? (company as any)?.id ?? 0,
+      first_name: contactPersonName,
+      last_name: "",
+      email: company?.contact_email ?? (company as any)?.contact_email ?? "",
+      phone: company?.contact_phone ?? (company as any)?.contact_phone ?? "",
+      designation_id: 0,
+      designation_name: company?.contact_designation ?? (company as any)?.contact_designation ?? "Primary Recruiter",
+      is_primary: 1,
+      status: 1,
+    });
+  }
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 p-1 font-sans text-gray-700 dark:text-gray-200">
+    <div className="space-y-6 p-1 font-sans text-gray-700 dark:text-gray-200">
       
-      {/* ─── LEFT PANE: COMPANY DETAILS ────────────────────────────────────────── */}
-      <div className="lg:col-span-5 space-y-6">
+      {/* ─── STATS BAR ────────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        {/* Drives Stats Card */}
+        <div className="bg-gradient-to-br from-indigo-500/10 to-indigo-600/5 dark:from-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 p-5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.01)] flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Drives Created</p>
+            <div className="text-3xl font-black text-indigo-950 dark:text-indigo-200">{drivesCreated}</div>
+          </div>
+          <div className="h-11 w-11 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <Building className="h-5 w-5" />
+          </div>
+        </div>
+
+        {/* Offers Stats Card */}
+        <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 dark:from-emerald-950/40 border border-emerald-100 dark:border-emerald-900/60 p-5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.01)] flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Offers Extended</p>
+            <div className="text-3xl font-black text-emerald-950 dark:text-emerald-200">{offersGiven}</div>
+          </div>
+          <div className="h-11 w-11 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <CheckCircle className="h-5 w-5" />
+          </div>
+        </div>
+
+        {/* Interviewers Stats Card */}
+        <div className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 dark:from-amber-950/40 border border-amber-100 dark:border-amber-900/60 p-5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.01)] flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Active Interviewers</p>
+            <div className="text-3xl font-black text-amber-950 dark:text-amber-200">{interviewersCount}</div>
+          </div>
+          <div className="h-11 w-11 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <Users className="h-5 w-5" />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* Profile Card Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 rounded-3xl border border-slate-800 flex items-center space-x-4 shadow-md relative overflow-hidden group">
-          <div className="absolute right-0 top-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-xl pointer-events-none" />
-          <div className="h-16 w-16 bg-white/10 text-white rounded-2xl flex items-center justify-center text-3xl font-extrabold shadow-inner border border-white/20">
-            {name.charAt(0)}
-          </div>
-          <div>
-            <h4 className="text-xl font-bold text-white leading-tight">{name}</h4>
-            <span className="inline-block mt-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-white/15 text-indigo-200 border border-white/10">
-              {compType}
-            </span>
-          </div>
-        </div>
-
-        {/* Basic Stats Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center space-x-3 hover:border-indigo-100 transition-colors">
-            <MapPin className="text-indigo-500 h-5 w-5" />
-            <div>
-              <p className="text-[10px] uppercase font-bold text-gray-400">Location</p>
-              <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{location}</p>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center space-x-3 hover:border-indigo-100 transition-colors">
-            <Briefcase className="text-indigo-500 h-5 w-5" />
-            <div>
-              <p className="text-[10px] uppercase font-bold text-gray-400">Postal Code</p>
-              <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{pincode}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Informational Lists */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 p-6 space-y-4 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
-          <h5 className="text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100 dark:border-slate-800 pb-2">
-            Company Info
-          </h5>
+        {/* ─── LEFT PANE: COMPANY DETAILS ────────────────────────────────────────── */}
+        <div className="lg:col-span-5 space-y-6">
           
-          <div className="space-y-4">
-            <div className="flex items-start space-x-3 text-sm">
-              <Briefcase className="text-gray-400 mt-0.5 h-5 w-5" />
+          {/* Profile Card Header */}
+          <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 rounded-3xl border border-slate-800 flex items-center space-x-4 shadow-md relative overflow-hidden group">
+            <div className="absolute right-0 top-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-xl pointer-events-none" />
+            <div className="h-16 w-16 bg-white/10 text-white rounded-2xl flex items-center justify-center text-3xl font-extrabold shadow-inner border border-white/20">
+              {name.charAt(0)}
+            </div>
+            <div>
+              <h4 className="text-xl font-bold text-white leading-tight">{name}</h4>
+              <span className="inline-block mt-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-white/15 text-indigo-200 border border-white/10">
+                {compType}
+              </span>
+            </div>
+          </div>
+
+          {/* Basic Stats Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center space-x-3 hover:border-indigo-100 transition-colors">
+              <MapPin className="text-indigo-500 h-5 w-5" />
               <div>
-                <p className="text-xs text-gray-400">Industry</p>
-                <p className="font-medium">{industry}</p>
+                <p className="text-[10px] uppercase font-bold text-gray-400">Location</p>
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{location}</p>
               </div>
             </div>
-
-            <div className="flex items-start space-x-3 text-sm">
-              <Mail className="text-gray-400 mt-0.5 h-5 w-5" />
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center space-x-3 hover:border-indigo-100 transition-colors">
+              <Briefcase className="text-indigo-500 h-5 w-5" />
               <div>
-                <p className="text-xs text-gray-400">Email Address</p>
-                <p className="font-medium break-all">{compEmail}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3 text-sm">
-              <Phone className="text-gray-400 mt-0.5 h-5 w-5" />
-              <div>
-                <p className="text-xs text-gray-400">Phone</p>
-                <p className="font-medium">{compPhone}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3 text-sm">
-              <MapPin className="text-gray-400 mt-0.5 h-5 w-5" />
-              <div>
-                <p className="text-xs text-gray-400">Address</p>
-                <p className="font-medium whitespace-pre-line leading-relaxed">{address}</p>
+                <p className="text-[10px] uppercase font-bold text-gray-400">Postal Code</p>
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{pincode}</p>
               </div>
             </div>
           </div>
-        </div>
+
+          {/* Informational Lists */}
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 p-6 space-y-4 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+            <h5 className="text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100 dark:border-slate-800 pb-2">
+              Company Info
+            </h5>
+            
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3 text-sm">
+                <Briefcase className="text-gray-400 mt-0.5 h-5 w-5" />
+                <div>
+                  <p className="text-xs text-gray-400">Industry</p>
+                  <p className="font-medium">{industry}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-3 text-sm">
+                <Mail className="text-gray-400 mt-0.5 h-5 w-5" />
+                <div>
+                  <p className="text-xs text-gray-400">Email Address</p>
+                  <p className="font-medium break-all">{compEmail}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-3 text-sm">
+                <Phone className="text-gray-400 mt-0.5 h-5 w-5" />
+                <div>
+                  <p className="text-xs text-gray-400">Phone</p>
+                  <p className="font-medium">{compPhone}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-3 text-sm">
+                <MapPin className="text-gray-400 mt-0.5 h-5 w-5" />
+                <div>
+                  <p className="text-xs text-gray-400">Address</p>
+                  <p className="font-medium whitespace-pre-line leading-relaxed">{address}</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
         {/* About Company / Description */}
         {description && (
@@ -481,7 +592,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
           <div className="flex justify-center items-center h-48 bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
           </div>
-        ) : contacts.length === 0 ? (
+        ) : displayContacts.length === 0 ? (
           <div className="text-center p-12 bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.02)] space-y-2">
             <User className="h-12 w-12 text-gray-300 mx-auto" />
             <h5 className="font-bold text-gray-800 dark:text-gray-100 text-base">No Recruiter Contacts</h5>
@@ -491,7 +602,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
           </div>
         ) : (
           <div className="space-y-4">
-            {contacts.map((contact) => (
+            {displayContacts.map((contact) => (
               <div
                 key={contact.contact_id}
                 className={`bg-white dark:bg-slate-900 p-5 rounded-3xl border transition-all shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden group ${
@@ -505,7 +616,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
                   <div className="h-10 w-10 bg-indigo-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-extrabold text-sm shadow-inner shrink-0">
                     {contact.first_name.charAt(0).toUpperCase()}
                   </div>
-
+ 
                   <div className="space-y-1.5">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-bold text-gray-900 dark:text-white text-base">
@@ -528,7 +639,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
                         </button>
                       )}
                     </div>
-
+ 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-1.5 text-xs text-gray-500 dark:text-gray-400">
                       <p className="flex items-center gap-1.5">
                         <Briefcase className="h-3.5 w-3.5 text-gray-400 shrink-0" />
@@ -545,7 +656,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
                     </div>
                   </div>
                 </div>
-
+ 
                 {/* Contact Actions */}
                 <div className="flex items-center gap-2.5 w-full md:w-auto justify-end border-t md:border-t-0 border-gray-100 dark:border-slate-800/80 pt-3 md:pt-0 shrink-0 z-10">
                   <button
@@ -555,13 +666,15 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
                     <Edit2 className="h-3.5 w-3.5" />
                     <span>Edit</span>
                   </button>
-                  <button
-                    onClick={() => handleDeleteContact(contact)}
-                    className="flex items-center gap-1 border border-red-200 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    <span>Delete</span>
-                  </button>
+                  {contact.contact_id !== -1 && (
+                    <button
+                      onClick={() => handleDeleteContact(contact)}
+                      className="flex items-center gap-1 border border-red-200 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      <span>Delete</span>
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -682,6 +795,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
         </form>
       </ModalContainer>
 
+      </div>
     </div>
   );
 };

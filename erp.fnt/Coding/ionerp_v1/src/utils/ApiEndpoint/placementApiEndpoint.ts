@@ -40,6 +40,19 @@ export const PlacementApiEndpoint = {
     get_schedules: "placement/interview/get_schedules",
     get_schedule: "placement/interview/get_schedule",
     delete_schedule: "placement/interview/delete_schedule",
+    get_slots: "placement/interview/slots",
+    assign_slot: "placement/interview/slots",
+    update_slot: "placement/interview/slots/update",
+    delete_slot: "placement/interview/slots/delete",
+    eligible_students: "placement/interview/slots/eligible-students",
+    submit_result: "placement/interview/slots/result/submit",
+  },
+  // Phase 5: Offer Management
+  offer: {
+    list: "placement/offer/list",
+    save: "placement/offer/save",
+    update: "placement/offer/update",
+    delete: "placement/offer/delete",
   },
 } as const;
 

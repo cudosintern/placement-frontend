@@ -15,6 +15,7 @@ import StudentRegistrationPage from "./StudentRegistrationPage";
 import StudentProfilePage from "./StudentProfilePage";
 import StudentSkillPage from "./StudentSkillPage";
 import StudentCertificationPage from "./StudentCertificationPage";
+import StudentOffersPage from "./StudentOffersPage";
 
 // ─── Registration Page Wrapper ─────────────────────────────────────────────────
 
@@ -41,4 +42,13 @@ export const StudentSkillWrapper: React.FC = () => {
 
 export const StudentCertificationWrapper: React.FC = () => {
   return <StudentCertificationPage />;
+};
+
+// ─── Offers Page Wrapper ───────────────────────────────────────────────────────
+
+export const StudentOffersWrapper: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const studentId = Number(searchParams.get("student_id")) || 103;
+
+  return <StudentOffersPage studentId={studentId} />;
 };

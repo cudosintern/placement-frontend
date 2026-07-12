@@ -26,7 +26,7 @@ export const SchemaFields = [
         required: true,
       },
       {
-        type: "textarea",
+        type: "editor",
         name: "notification_message",
         label: "Notification Message",
         placeholder: "Enter Notification Message",
