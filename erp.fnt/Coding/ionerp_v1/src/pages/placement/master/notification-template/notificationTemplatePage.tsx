@@ -120,6 +120,16 @@ const handleFormSubmit = async (data: any) => {
 },
 ];
 
+  const templatesWithEventName = templates.map((template: any) => {
+    const eventType = eventTypeOptions.find(
+      (option: any) => option.value === String(template.event_type_id)
+    );
+    return {
+      ...template,
+      event_type_name: eventType ? eventType.label : template.event_type_id,
+    };
+  });
+
   return (
     <div>
       {isModalOpen && (
@@ -153,7 +163,7 @@ const handleFormSubmit = async (data: any) => {
 
       <DataTable
         columnDefs={columnDefsWithAction}
-        rowData={templates}
+        rowData={templatesWithEventName}
         showAddButton={true}
         addButtonHandler={OpenModalHandler}
         showExportButton={false}

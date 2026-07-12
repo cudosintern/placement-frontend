@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as profileService from "./studentProfileService";
 import { StudentResume } from "./studentProfileService";
+import StudentOffersPage from "./StudentOffersPage";
 import {
   AllStudentRow,
   StudentProfile,
@@ -394,7 +395,7 @@ const CertForm: React.FC<{
 //  MAIN PROFILE PAGE
 // ═══════════════════════════════════════════════════════════════════════════════
 
-type TabKey = "register" | "skills" | "certifications" | "resume";
+type TabKey = "register" | "skills" | "certifications" | "resume" | "offers";
 
 const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
   const navigate = useNavigate();
@@ -1038,6 +1039,7 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
     { key: "skills", label: `Skills (${skills.length})` },
     { key: "certifications", label: `Certifications (${certs.length})` },
     { key: "resume", label: `Resume (${resumes.length})` },
+    { key: "offers", label: "My Placement Offers" },
   ];
 
   const tabBtnStyle = (isActive: boolean): React.CSSProperties => ({
@@ -1893,6 +1895,11 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
           </div>
         );
       })()}
+      {tab === "offers" && (
+        <div style={{ marginTop: 20 }}>
+          <StudentOffersPage studentId={studentId} />
+        </div>
+      )}
     </div>
 
       {/* ══ PDF Viewer Modal ══════════════════════════════════════════════════ */}

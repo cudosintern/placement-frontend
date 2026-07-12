@@ -4,31 +4,42 @@ export const Schema = z.object({
   company_name: z.string().min(1, {
     message: "Company Name is required",
   }),
-  company_code: z.string().min(1, {
-    message: "Company Code is required",
-  }),
-  company_email: z.string().email({
-    message: "Valid Email is required",
-  }),
-  company_phone: z.string().min(10, {
-    message: "Phone Number is required",
-  }),
-  company_address: z.string().min(1, {
-    message: "Address is required",
-  }),
-  company_contact_person: z.string().optional(),
-  company_contact_phone: z.string().optional(),
-  company_contact_email: z.string().optional(),
-  company_website: z.string().optional(),
-  company_industry: z.string().optional(),
-  company_established_year: z.union([z.string(), z.number()]).optional(),
-  company_employees: z.union([z.string(), z.number()]).optional(),
-  company_linkedin: z.string().optional(),
+  company_type: z.string().optional().nullable(),
+  industry: z.string().optional().nullable(),
+  website: z.string().optional().nullable(),
+  email: z
+    .string()
+    .email({
+      message: "Valid Email is required",
+    })
+    .or(z.literal(""))
+    .optional()
+    .nullable(),
+  phone: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  
+  address: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+  state: z.string().optional().nullable(),
+  country: z.string().optional().nullable(),
+  pincode: z.string().optional().nullable(),
+
+  contact_person: z.string().optional().nullable(),
+  contact_designation: z.string().optional().nullable(),
+  contact_phone: z.string().optional().nullable(),
+  contact_email: z
+    .string()
+    .email({
+      message: "Valid Contact Email is required",
+    })
+    .or(z.literal(""))
+    .optional()
+    .nullable(),
 });
 
 export const SchemaFields = [
   {
-    group: "",
+    group: "Company Profile",
     fields: [
       {
         type: "text",
@@ -37,76 +48,137 @@ export const SchemaFields = [
         required: true,
       },
       {
-        type: "text",
-        name: "company_code",
-        label: "Company Code",
-        required: true,
-      },
-      {
-        type: "text",
-        name: "company_email",
-        label: "Email",
-        required: true,
-      },
-      {
-        type: "text",
-        name: "company_phone",
-        label: "Phone",
-        required: true,
-      },
-      {
-        type: "text",
-        name: "company_address",
-        label: "Address",
-        required: true,
-      },
-      {
-        type: "text",
-        name: "company_contact_person",
-        label: "Contact Person",
+        type: "select",
+        name: "company_type",
+        label: "Company Type",
         required: false,
+        options: [
+          { label: "Select Company Type", value: "" },
+          { label: "Private Ltd", value: "Private Ltd" },
+          { label: "Public Ltd", value: "Public Ltd" },
+          { label: "Partnership", value: "Partnership" },
+          { label: "Proprietorship", value: "Proprietorship" },
+          { label: "MNC", value: "MNC" },
+          { label: "Startup", value: "Startup" },
+          { label: "Government", value: "Government" },
+        ],
       },
       {
-        type: "text",
-        name: "company_contact_phone",
-        label: "Contact Phone",
-        required: false,
-      },
-      {
-        type: "text",
-        name: "company_contact_email",
-        label: "Contact Email",
-        required: false,
-      },
-      {
-        type: "text",
-        name: "company_website",
-        label: "Website",
-        required: false,
-      },
-      {
-        type: "text",
-        name: "company_industry",
+        type: "select",
+        name: "industry",
         label: "Industry",
         required: false,
-      },
-      {
-        type: "number",
-        name: "company_established_year",
-        label: "Established Year",
-        required: false,
-      },
-      {
-        type: "number",
-        name: "company_employees",
-        label: "Employees",
-        required: false,
+        options: [
+          { label: "Select Industry", value: "" },
+          { label: "IT / Software", value: "IT / Software" },
+          { label: "Manufacturing", value: "Manufacturing" },
+          { label: "Finance / Banking", value: "Finance / Banking" },
+          { label: "Healthcare", value: "Healthcare" },
+          { label: "Education", value: "Education" },
+          { label: "Consulting", value: "Consulting" },
+          { label: "Other", value: "Other" },
+        ],
       },
       {
         type: "text",
-        name: "company_linkedin",
-        label: "LinkedIn",
+        name: "website",
+        label: "Website URL",
         required: false,
+        placeholder: "e.g. www.example.com",
+      },
+      {
+        type: "text",
+        name: "email",
+        label: "Email Address",
+        required: false,
+        placeholder: "e.g. contact@example.com",
+      },
+      {
+        type: "text",
+        name: "phone",
+        label: "Phone Number",
+        required: false,
+        placeholder: "e.g. +91 9876543210",
+      },
+      {
+        type: "textarea",
+        name: "description",
+        label: "Company Description / About",
+        required: false,
+        placeholder: "Brief description of the organization's business, culture, etc.",
+      },
+    ],
+  },
+  {
+    group: "Address Details",
+    fields: [
+      {
+        type: "text",
+        name: "address",
+        label: "Street Address",
+        required: false,
+        placeholder: "e.g. Electronics City Phase 1",
+      },
+      {
+        type: "text",
+        name: "city",
+        label: "City",
+        required: false,
+        placeholder: "e.g. Bangalore",
+      },
+      {
+        type: "text",
+        name: "state",
+        label: "State / Region",
+        required: false,
+        placeholder: "e.g. Karnataka",
+      },
+      {
+        type: "text",
+        name: "country",
+        label: "Country",
+        required: false,
+        placeholder: "e.g. India",
+      },
+      {
+        type: "text",
+        name: "pincode",
+        label: "ZIP / Postal Code",
+        required: false,
+        placeholder: "e.g. 560100",
+      },
+    ],
+  },
+  {
+    group: "Primary Recruiter Contact",
+    fields: [
+      {
+        type: "text",
+        name: "contact_person",
+        label: "Contact Name",
+        required: false,
+        placeholder: "e.g. Sudha Murty",
+      },
+      {
+        type: "text",
+        name: "contact_designation",
+        label: "Contact Designation",
+        required: false,
+        placeholder: "e.g. TA Lead / HR Manager",
+      },
+      {
+        type: "text",
+        name: "contact_phone",
+        label: "Contact Phone Number",
+        required: false,
+        placeholder: "e.g. 9876543210",
+      },
+      {
+        type: "text",
+        name: "contact_email",
+        label: "Contact Email Address",
+        required: false,
+        placeholder: "e.g. recruiter@example.com",
       },
     ],
   },
@@ -120,32 +192,32 @@ export const SchemaColumnDefs = [
     filter: true,
   },
   {
-    headerName: "Company Code",
-    field: "company_code",
+    headerName: "Industry",
+    field: "industry",
     sortable: true,
     filter: true,
   },
   {
     headerName: "Email",
-    field: "company_email",
+    field: "email",
     sortable: true,
     filter: true,
   },
   {
     headerName: "Phone",
-    field: "company_phone",
+    field: "phone",
     sortable: true,
     filter: true,
   },
   {
     headerName: "Contact Person",
-    field: "company_contact_person",
+    field: "contact_person",
     sortable: true,
     filter: true,
   },
   {
     headerName: "Website",
-    field: "company_website",
+    field: "website",
     sortable: true,
     filter: true,
   },

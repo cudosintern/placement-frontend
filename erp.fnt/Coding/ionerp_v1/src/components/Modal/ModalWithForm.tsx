@@ -10,7 +10,7 @@ interface ModalWithFormProps {
   title: string;
   formFields: any[];
   schema: ZodSchema;
-  size?: "sm" | "md" | "lg" | "xl" | "full";
+  size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full";
   columnLayout?: 1 | 2 | 3 | 4;
   initialValues?: any;
   onValidDataChange?: (data: string, setValue: (name: string, value: any) => void) => void;
@@ -53,7 +53,11 @@ const ModalWithForm: React.FC<ModalWithFormProps> = ({
     md: "max-w-md",
     lg: "max-w-lg",
     xl: "max-w-xl",
-    full: "max-w-full", // Add this line
+    "2xl": "max-w-2xl",
+    "3xl": "max-w-3xl",
+    "4xl": "max-w-4xl",
+    "5xl": "max-w-5xl",
+    full: "max-w-full",
   };
 
   // console.log('Initial Values:', initialValues);

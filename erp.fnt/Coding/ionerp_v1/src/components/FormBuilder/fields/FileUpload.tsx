@@ -1,26 +1,21 @@
 import React, { forwardRef, useState } from "react";
+import { toast } from "react-toastify";
 
 // Define a custom validation for file types
-const fileValidation = (file: File) => {
-  const validTypes = [
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // Excel
-    "text/csv", // CSV
-  ];
+const fileValidation = (file: File, accept?: string) => {
+  if (!accept) return true;
 
-  const validExtensions = [".png", ".jpeg", ".jpg"];
+  const allowedExtensions = accept.split(",").map(ext => ext.trim().toLowerCase());
+  const fileName = file.name.toLowerCase();
 
-  // Check MIME type first for Excel and CSV
-  if (validTypes.includes(file.type)) {
-    return true;
-  }
+  const matches = allowedExtensions.some(ext => {
+    if (ext.startsWith(".")) {
+      return fileName.endsWith(ext);
+    }
+    return file.type === ext || (ext.endsWith("/*") && file.type.startsWith(ext.slice(0, -2)));
+  });
 
-  // Check extension for images (png, jpeg, jpg)
-  const extension = file.name.split(".").pop()?.toLowerCase();
-  if (validExtensions.includes(`.${extension}`)) {
-    return true;
-  }
-
-  return false; // Invalid file type
+  return matches;
 };
 
 interface FileUploadComponentProps {
@@ -59,10 +54,10 @@ const FileUploadComponent = forwardRef<
       const file = event.target.files?.[0];
       if (file) {
         // Validate the file type
-        if (!fileValidation(file)) {
-          console.error(
-            "Invalid file type. Please upload a CSV, Excel, or image file."
-          );
+        if (!fileValidation(file, accept)) {
+          toast.error(`Invalid file type. Please upload a file matching: ${accept}`);
+          event.target.value = ""; // Clear file input
+          setPreview(null);
           return;
         }
 
@@ -71,6 +66,8 @@ const FileUploadComponent = forwardRef<
           const reader = new FileReader();
           reader.onloadend = () => setPreview(reader.result as string); // Set preview when file is loaded
           reader.readAsDataURL(file);
+        } else {
+          setPreview(null);
         }
 
         onFileAccepted?.(file);
