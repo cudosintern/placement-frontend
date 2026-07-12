@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Eye, Users } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/api";
-import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementapiEndpoint";
+import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoint";
 import DataTable from "../../../components/Table/DataTable";
 import {
   DriveRecord,
