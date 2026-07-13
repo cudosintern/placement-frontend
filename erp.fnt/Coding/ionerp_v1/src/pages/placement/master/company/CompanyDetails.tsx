@@ -71,6 +71,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
           { designation_id: 4, designation_name: "Training & Placement Officer" },
           { designation_id: 5, designation_name: "HR Manager" },
           { designation_id: 6, designation_name: "Talent Acquisition Specialist" },
+          { designation_id: 7, designation_name: "Interviewer" },
         ]);
         return;
       }
@@ -127,6 +128,18 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
               phone: "1099454298",
               designation_id: 1,
               designation_name: "HoD",
+              is_primary: 0,
+              status: 1,
+            },
+            {
+              contact_id: 4,
+              company_id: 1,
+              first_name: "Vikram",
+              last_name: "Sharma",
+              email: "vikram.sharma@google.com",
+              phone: "9876543211",
+              designation_id: 7,
+              designation_name: "Interviewer",
               is_primary: 0,
               status: 1,
             }
