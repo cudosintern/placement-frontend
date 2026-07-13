@@ -6,7 +6,7 @@ import StatusDialog from "../../../../components/Dialog/StatusDialog";
 import DataTable from "../../../../components/Table/DataTable";
 import { Schema, SchemaColumnDefs, SchemaFields } from "./companySchema";
 import { ApiEndpoint } from "../../../../utils/ApiEndpoint/emsapiEndpoint";
-import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoint";
+import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoints";
 import axiosInstance from "../../../../utils/api";
 import { useAxios } from "../../../../hooks/useAxios";
 import { CompanyResponse } from "./responseInterface";

@@ -1,4 +1,4 @@
-// placementApiEndpoint.ts
+// placementApiEndpoints.ts
 // All API endpoint constants for the Placement Module.
 
 export const PlacementApiEndpoint = {

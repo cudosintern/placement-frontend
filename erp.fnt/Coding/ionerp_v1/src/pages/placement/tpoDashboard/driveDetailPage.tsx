@@ -42,7 +42,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/api";
-import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoint";
+import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoints";
 import { DriveRecord, DRIVE_STATUS_CONFIG, TIER_CONFIG } from "./driveSchema";
 
 // ─── Types ────────────────────────────────────────────────────────────────────

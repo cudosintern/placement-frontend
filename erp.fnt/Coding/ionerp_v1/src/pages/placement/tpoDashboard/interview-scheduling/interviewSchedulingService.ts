@@ -1,5 +1,5 @@
 import axiosInstance from "../../../../utils/api";
-import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoint";
+import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoints";
 
 const getDrives = async () => {
   try {

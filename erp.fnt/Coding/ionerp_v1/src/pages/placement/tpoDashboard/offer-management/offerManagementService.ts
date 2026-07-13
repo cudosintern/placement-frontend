@@ -1,5 +1,5 @@
 import axiosInstance from "../../../../utils/api";
-import { PlacementApiEndpoint, ApiEndpoint as PlmApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoint";
+import { PlacementApiEndpoint, ApiEndpoint as PlmApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoints";
 import { ApiEndpoint as EmsApiEndpoint } from "../../../../utils/ApiEndpoint/emsapiEndpoint";
 
 const STORAGE_KEY = "plm_offers_mock";
