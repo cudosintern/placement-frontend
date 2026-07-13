@@ -86,16 +86,9 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
     if (!company) return;
     const cid = company.company_id ?? (company as any).id;
     setLoading(true);
-    try {
-      const res: any = await axiosInstance.get(
-        `${ApiEndpoint.placementContact.get_contact_list}?company_id=${cid}`
-      );
-      if (res.data?.status === false) {
-        throw new Error(res.data?.message || "Not found in database");
-      }
-      setContacts(res.data?.data || []);
-    } catch (err) {
-      console.warn("Failed to fetch contacts from DB, using mock fallback", err);
+    const isMockCompany = useMock && !["1", "2", "3"].includes(String(cid));
+
+    if (isMockCompany) {
       const raw = localStorage.getItem("placement_contact_mock");
       let allContacts: Contact[] = [];
       if (raw) {
@@ -157,47 +150,72 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
         ];
         localStorage.setItem("placement_contact_mock", JSON.stringify(allContacts));
       }
+      
+      // Seed a realistic contact for this mock company if not present
+      if (!allContacts.some((c) => c.company_id === Number(cid))) {
+        const contactName = company?.contact_person || (company as any)?.contact_person || "Amit Sharma";
+        const contactEmail = company?.contact_email || (company as any)?.contact_email || "amit.sharma@tcs.com";
+        const contactPhone = company?.contact_phone || (company as any)?.contact_phone || "9876543210";
+        const contactDesg = company?.contact_designation || (company as any)?.contact_designation || "HR Manager";
+        allContacts.push({
+          contact_id: Math.floor(Math.random() * 100000) + 500,
+          company_id: Number(cid),
+          first_name: contactName.split(" ")[0] || "Amit",
+          last_name: contactName.split(" ").slice(1).join(" ") || "Sharma",
+          email: contactEmail,
+          phone: contactPhone,
+          designation_id: 5,
+          designation_name: contactDesg,
+          is_primary: 1,
+          status: 1,
+          is_active: 1,
+        });
+        localStorage.setItem("placement_contact_mock", JSON.stringify(allContacts));
+      }
+      
       setContacts(allContacts.filter((c) => c.company_id === Number(cid)));
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res: any = await axiosInstance.get(
+        `${ApiEndpoint.placementContact.get_contact_list}?company_id=${cid}`
+      );
+      setContacts(res.data?.data || []);
+    } catch (err) {
+      console.error("Failed to fetch contacts", err);
+      toast.error("Failed to load contacts.");
     } finally {
       setLoading(false);
     }
-  }, [company]);
+  }, [company, useMock]);
 
   const [detailedCompany, setDetailedCompany] = useState<any>(null);
 
   const fetchDetailedCompany = useCallback(async () => {
     if (!company) return;
     const cid = company.company_id ?? (company as any).id;
-    try {
-      const res: any = await axiosInstance.get(`/placement/company/detail/${cid}`);
-      if (res.data?.status) {
-        setDetailedCompany(res.data.data);
-      } else {
-        throw new Error("Details not found in DB");
-      }
-    } catch (err) {
-      console.warn("Failed to fetch detailed company stats from DB, using mock fallback", err);
+    const isMockCompany = useMock && !["1", "2", "3"].includes(String(cid));
+
+    if (isMockCompany) {
       let mockDrives = 0;
       let mockOffers = 0;
       let mockInterviewers = 0;
 
-      if (Number(cid) === 1) {
-        mockDrives = 3;
-        mockOffers = 12;
-        mockInterviewers = 4;
-      } else if (Number(cid) === 2) {
+      const nameLower = (company.company_name || (company as any).name || "").toLowerCase();
+      if (nameLower.includes("consultancy") || nameLower.includes("tata") || nameLower.includes("tcs")) {
         mockDrives = 2;
-        mockOffers = 8;
-        mockInterviewers = 3;
-      } else if (Number(cid) === 3) {
-        mockDrives = 4;
-        mockOffers = 15;
-        mockInterviewers = 5;
+        mockOffers = 4;
+        mockInterviewers = 1;
+      } else if (nameLower.includes("limited") || nameLower.includes("wipro")) {
+        mockDrives = 1;
+        mockOffers = 3;
+        mockInterviewers = 1;
       } else {
-        // Seed realistic statistics
         mockDrives = Math.floor(Math.random() * 3) + 1;
-        mockOffers = Math.floor(Math.random() * 10) + 2;
-        mockInterviewers = Math.floor(Math.random() * 4) + 1;
+        mockOffers = Math.floor(Math.random() * 8) + 1;
+        mockInterviewers = 1;
       }
 
       setDetailedCompany({
@@ -206,8 +224,21 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
         offers_given: mockOffers,
         interviewers_count: mockInterviewers,
       });
+      return;
     }
-  }, [company]);
+
+    try {
+      const res: any = await axiosInstance.get(`/placement/company/detail/${cid}`);
+      if (res.data?.status) {
+        setDetailedCompany(res.data.data);
+      } else {
+        setDetailedCompany(company);
+      }
+    } catch (err) {
+      console.error("Failed to fetch detailed company stats", err);
+      setDetailedCompany(company);
+    }
+  }, [company, useMock]);
 
   useEffect(() => {
     if (company) {
