@@ -326,10 +326,6 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
   const description = company.description ?? (company as any).description ?? "";
   const linkedin = (company as any).linkedin ?? "";
 
-  const drivesCreated = detailedCompany?.drives_created ?? 0;
-  const offersGiven = detailedCompany?.offers_given ?? 0;
-  const interviewersCount = detailedCompany?.interviewers_count ?? 0;
-
   const availableRoles = Array.from(
     new Set(
       contacts
@@ -365,6 +361,10 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
     if (selectedRoles.length === 0) return true;
     return c.designation_name && selectedRoles.includes(c.designation_name);
   });
+
+  const drivesCreated = detailedCompany?.drives_created || (useMock ? (Number(company?.company_id ?? (company as any).id) === 1 ? 3 : Number(company?.company_id ?? (company as any).id) === 2 ? 2 : 4) : 0);
+  const offersGiven = detailedCompany?.offers_given || (useMock ? (Number(company?.company_id ?? (company as any).id) === 1 ? 12 : Number(company?.company_id ?? (company as any).id) === 2 ? 8 : 15) : 0);
+  const interviewersCount = displayContacts.length;
 
   const isCompanyInactive = company?.status === 0;
 
