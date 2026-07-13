@@ -20,6 +20,7 @@ import {
   CheckCircle,
   User,
   Star,
+  Info,
 } from "lucide-react";
 
 type Props = {
@@ -264,6 +265,8 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
     return c.designation_name && selectedRoles.includes(c.designation_name);
   });
 
+  const isCompanyInactive = company?.status === 0;
+
   return (
     <div className="space-y-6 p-1 font-sans text-gray-700 dark:text-gray-200">
       
@@ -440,13 +443,26 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
             <span>Recruiter Contacts</span>
           </h4>
           <button
+            disabled={isCompanyInactive}
             onClick={openAddForm}
-            className="flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-4 py-2.5 rounded-2xl shadow-sm transition-all duration-150 active:scale-95 shadow-[0_8px_25px_-5px_rgba(79,70,229,0.25)]"
+            className={`flex items-center space-x-1.5 text-sm font-bold px-4 py-2.5 rounded-2xl shadow-sm transition-all duration-150 active:scale-95 ${
+              isCompanyInactive
+                ? "bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-600 border border-gray-200 dark:border-slate-700 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-[0_8px_25px_-5px_rgba(79,70,229,0.25)]"
+            }`}
+            title={isCompanyInactive ? "Cannot add recruiter contacts to an inactive company" : "Add Contact"}
           >
             <Plus className="h-4 w-4" />
             <span>Add Contact</span>
           </button>
         </div>
+
+        {isCompanyInactive && (
+          <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 p-4 rounded-3xl border border-amber-100 dark:border-amber-900/40 shadow-[0_4px_20px_rgba(0,0,0,0.01)] text-xs font-bold leading-relaxed">
+            <Info className="h-4 w-4 shrink-0 text-amber-500" />
+            <span>This company is currently INACTIVE. You cannot manage contacts or add recruiter/interviewer details for inactive companies.</span>
+          </div>
+        )}
 
         {/* Role Filter Pills */}
         {availableRoles.length > 0 && (
@@ -530,6 +546,10 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
                           </span>
                           Primary Contact
                         </span>
+                      ) : isCompanyInactive ? (
+                        <span className="inline-flex items-center text-[10px] font-bold text-gray-400">
+                          Make Primary
+                        </span>
                       ) : (
                         <button
                           onClick={() => handleMakePrimary(contact)}
@@ -560,16 +580,26 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
                 {/* Contact Actions */}
                 <div className="flex items-center gap-2.5 w-full md:w-auto justify-end border-t md:border-t-0 border-gray-100 dark:border-slate-800/80 pt-3 md:pt-0 shrink-0 z-10">
                   <button
-                    onClick={() => openEditForm(contact)}
-                    className="flex items-center gap-1 border border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-950/20 text-amber-600 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors"
+                    disabled={isCompanyInactive}
+                    onClick={() => !isCompanyInactive && openEditForm(contact)}
+                    className={`flex items-center gap-1 border px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                      isCompanyInactive
+                        ? "border-gray-200 text-gray-400 cursor-not-allowed opacity-50 dark:border-slate-800"
+                        : "border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-950/20 text-amber-600"
+                    }`}
                   >
                     <Edit2 className="h-3.5 w-3.5" />
                     <span>Edit</span>
                   </button>
                   {contact.contact_id !== -1 && (
                     <button
-                      onClick={() => handleDeleteContact(contact)}
-                      className="flex items-center gap-1 border border-red-200 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors"
+                      disabled={isCompanyInactive}
+                      onClick={() => !isCompanyInactive && handleDeleteContact(contact)}
+                      className={`flex items-center gap-1 border px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                        isCompanyInactive
+                          ? "border-gray-200 text-gray-400 cursor-not-allowed opacity-50 dark:border-slate-800"
+                          : "border-red-200 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600"
+                      }`}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                       <span>Delete</span>
