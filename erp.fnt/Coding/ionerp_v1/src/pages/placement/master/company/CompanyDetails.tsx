@@ -36,7 +36,8 @@ interface Contact {
   designation_id: number;
   designation_name?: string;
   is_primary: number;
-  status: number;
+  status?: number;
+  is_active?: number;
 }
 
 interface Designation {
@@ -48,6 +49,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [designations, setDesignations] = useState<Designation[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
   // Form states for nested add/edit contact
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -63,93 +65,18 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
 
   const fetchDesignations = useCallback(async () => {
     try {
-      if (useMock) {
-        setDesignations([
-          { designation_id: 1, designation_name: "HoD" },
-          { designation_id: 2, designation_name: "Assistant Professor" },
-          { designation_id: 3, designation_name: "Principal" },
-          { designation_id: 4, designation_name: "Training & Placement Officer" },
-          { designation_id: 5, designation_name: "HR Manager" },
-          { designation_id: 6, designation_name: "Talent Acquisition Specialist" },
-          { designation_id: 7, designation_name: "Interviewer" },
-        ]);
-        return;
-      }
       const res: any = await axiosInstance.get(ApiEndpoint.placementContact.get_designations);
       setDesignations(res.data?.data || []);
     } catch (err) {
       console.error("Failed to load designations", err);
     }
-  }, [useMock]);
+  }, []);
 
   const fetchContacts = useCallback(async () => {
     if (!company) return;
     const cid = company.company_id ?? (company as any).id;
     setLoading(true);
     try {
-      if (useMock) {
-        const raw = localStorage.getItem("placement_contact_mock");
-        let allContacts: Contact[] = [];
-        if (raw) {
-          allContacts = JSON.parse(raw);
-        } else {
-          // default mock contacts
-          allContacts = [
-            {
-              contact_id: 1,
-              company_id: 1,
-              first_name: "Akshata",
-              last_name: "S",
-              email: "aksh@gmail.com",
-              phone: "1234567897",
-              designation_id: 1,
-              designation_name: "HoD",
-              is_primary: 1,
-              status: 1,
-            },
-            {
-              contact_id: 2,
-              company_id: 2,
-              first_name: "Radha",
-              last_name: "P",
-              email: "radhaaa@gmail.com",
-              phone: "1234567844",
-              designation_id: 2,
-              designation_name: "Assistant Professor",
-              is_primary: 1,
-              status: 1,
-            },
-            {
-              contact_id: 3,
-              company_id: 1,
-              first_name: "Govinda",
-              last_name: "R",
-              email: "govinda@gmail.com",
-              phone: "1099454298",
-              designation_id: 1,
-              designation_name: "HoD",
-              is_primary: 0,
-              status: 1,
-            },
-            {
-              contact_id: 4,
-              company_id: 1,
-              first_name: "Vikram",
-              last_name: "Sharma",
-              email: "vikram.sharma@google.com",
-              phone: "9876543211",
-              designation_id: 7,
-              designation_name: "Interviewer",
-              is_primary: 0,
-              status: 1,
-            }
-          ];
-          localStorage.setItem("placement_contact_mock", JSON.stringify(allContacts));
-        }
-        setContacts(allContacts.filter((c) => c.company_id === cid && c.status === 1));
-        setLoading(false);
-        return;
-      }
       const res: any = await axiosInstance.get(
         `${ApiEndpoint.placementContact.get_contact_list}?company_id=${cid}`
       );
@@ -160,7 +87,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
     } finally {
       setLoading(false);
     }
-  }, [company, useMock]);
+  }, [company]);
 
   const [detailedCompany, setDetailedCompany] = useState<any>(null);
 
@@ -168,38 +95,6 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
     if (!company) return;
     const cid = company.company_id ?? (company as any).id;
     try {
-      if (useMock) {
-        let mockDrives = 0;
-        let mockOffers = 0;
-        let mockInterviewers = 0;
-
-        if (Number(cid) === 1) {
-          mockDrives = 3;
-          mockOffers = 12;
-          mockInterviewers = 4;
-        } else if (Number(cid) === 2) {
-          mockDrives = 2;
-          mockOffers = 8;
-          mockInterviewers = 3;
-        } else if (Number(cid) === 3) {
-          mockDrives = 4;
-          mockOffers = 15;
-          mockInterviewers = 5;
-        } else {
-          mockDrives = Math.floor(Math.random() * 3) + 1;
-          mockOffers = Math.floor(Math.random() * 10) + 2;
-          mockInterviewers = Math.floor(Math.random() * 4) + 1;
-        }
-
-        setDetailedCompany({
-          ...company,
-          drives_created: mockDrives,
-          offers_given: mockOffers,
-          interviewers_count: mockInterviewers,
-        });
-        return;
-      }
-
       const res: any = await axiosInstance.get(`/placement/company/detail/${cid}`);
       if (res.data?.status) {
         setDetailedCompany(res.data.data);
@@ -210,7 +105,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
       console.error("Failed to fetch detailed company stats", err);
       setDetailedCompany(company);
     }
-  }, [company, useMock]);
+  }, [company]);
 
   useEffect(() => {
     if (company) {
@@ -257,47 +152,10 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
       phone: phoneVal.trim(),
       designation_id: Number(designationId),
       is_primary: isPrimary ? 1 : 0,
-      status: 1,
+      is_active: 1,
     };
 
     try {
-      if (useMock) {
-        const raw = localStorage.getItem("placement_contact_mock");
-        let allContacts: Contact[] = raw ? JSON.parse(raw) : [];
-
-        // Primary contact logic: unset other primary contacts for this company
-        if (payload.is_primary === 1) {
-          allContacts = allContacts.map((c) =>
-            c.company_id === cid ? { ...c, is_primary: 0 } : c
-          );
-        }
-
-        const desName =
-          designations.find((d) => d.designation_id === Number(designationId))
-            ?.designation_name || "N/A";
-
-        if (editingContact) {
-          allContacts = allContacts.map((c) =>
-            c.contact_id === editingContact.contact_id
-              ? { ...c, ...payload, designation_name: desName }
-              : c
-          );
-          toast.success("Contact updated successfully (mock)");
-        } else {
-          const newContact: Contact = {
-            ...payload,
-            contact_id: Math.floor(Math.random() * 10000) + 200,
-            designation_name: desName,
-          };
-          allContacts.push(newContact);
-          toast.success("Contact added successfully (mock)");
-        }
-        localStorage.setItem("placement_contact_mock", JSON.stringify(allContacts));
-        setIsFormOpen(false);
-        fetchContacts();
-        return;
-      }
-
       if (editingContact) {
         await axiosInstance.put(ApiEndpoint.placementContact.update_contact, {
           ...payload,
@@ -319,24 +177,6 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
   const handleMakePrimary = async (contact: Contact) => {
     const cid = company?.company_id ?? (company as any).id;
     try {
-      if (useMock) {
-        const raw = localStorage.getItem("placement_contact_mock");
-        let allContacts: Contact[] = raw ? JSON.parse(raw) : [];
-        allContacts = allContacts.map((c) => {
-          if (c.company_id === cid) {
-            return {
-              ...c,
-              is_primary: c.contact_id === contact.contact_id ? 1 : 0,
-            };
-          }
-          return c;
-        });
-        localStorage.setItem("placement_contact_mock", JSON.stringify(allContacts));
-        toast.success("Contact marked as primary (mock)");
-        fetchContacts();
-        return;
-      }
-
       await axiosInstance.put(ApiEndpoint.placementContact.update_contact, {
         contact_id: contact.contact_id,
         company_id: cid,
@@ -353,20 +193,10 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
   const handleDeleteContact = async (contact: Contact) => {
     if (!window.confirm("Are you sure you want to delete this contact?")) return;
     try {
-      if (useMock) {
-        const raw = localStorage.getItem("placement_contact_mock");
-        let allContacts: Contact[] = raw ? JSON.parse(raw) : [];
-        allContacts = allContacts.filter((c) => c.contact_id !== contact.contact_id);
-        localStorage.setItem("placement_contact_mock", JSON.stringify(allContacts));
-        toast.success("Contact deleted (mock)");
-        fetchContacts();
-        return;
-      }
-
       // Deactivate contact first
       await axiosInstance.put(ApiEndpoint.placementContact.update_contact, {
         contact_id: contact.contact_id,
-        status: 0,
+        is_active: 0,
       });
       // Perform soft delete/delete API
       await axiosInstance.delete(ApiEndpoint.placementContact.delete_contact, {
@@ -398,11 +228,18 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
   const offersGiven = detailedCompany?.offers_given ?? 0;
   const interviewersCount = detailedCompany?.interviewers_count ?? 0;
 
-  const contactPersonName = company?.contact_person ?? (company as any)?.contact_person;
-  const displayContacts = [...contacts];
+  const availableRoles = Array.from(
+    new Set(
+      contacts
+        .map((c) => c.designation_name)
+        .filter((name): name is string => typeof name === "string" && name.trim() !== "")
+    )
+  );
 
+  const contactPersonName = company?.contact_person ?? (company as any)?.contact_person;
+  let baseContacts = [...contacts];
   if (contacts.length === 0 && contactPersonName && contactPersonName.trim() !== "") {
-    displayContacts.push({
+    baseContacts.push({
       contact_id: -1,
       company_id: company?.company_id ?? (company as any)?.id ?? 0,
       first_name: contactPersonName,
@@ -413,8 +250,19 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
       designation_name: company?.contact_designation ?? (company as any)?.contact_designation ?? "Primary Recruiter",
       is_primary: 1,
       status: 1,
+      is_active: 1,
     });
   }
+
+  const displayContacts = baseContacts.filter((c) => {
+    // Only active contacts
+    if (c.is_active !== undefined && c.is_active !== 1) return false;
+    if (c.status !== undefined && c.status !== 1) return false;
+
+    // Filter by selected roles
+    if (selectedRoles.length === 0) return true;
+    return c.designation_name && selectedRoles.includes(c.designation_name);
+  });
 
   return (
     <div className="space-y-6 p-1 font-sans text-gray-700 dark:text-gray-200">
@@ -600,6 +448,45 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
           </button>
         </div>
 
+        {/* Role Filter Pills */}
+        {availableRoles.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.01)]">
+            <span className="text-xs font-bold text-gray-400 uppercase mr-1">Filter by Role:</span>
+            <button
+              onClick={() => setSelectedRoles([])}
+              className={`px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide uppercase transition-all ${
+                selectedRoles.length === 0
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-gray-300 hover:bg-gray-200"
+              }`}
+            >
+              All Roles
+            </button>
+            {availableRoles.map((role) => {
+              const isSelected = selectedRoles.includes(role);
+              return (
+                <button
+                  key={role}
+                  onClick={() => {
+                    if (isSelected) {
+                      setSelectedRoles(selectedRoles.filter((r) => r !== role));
+                    } else {
+                      setSelectedRoles([...selectedRoles, role]);
+                    }
+                  }}
+                  className={`px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide uppercase transition-all ${
+                    isSelected
+                      ? "bg-indigo-600 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-gray-300 hover:bg-gray-200"
+                  }`}
+                >
+                  {role}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Contacts Grid/List */}
         {loading ? (
           <div className="flex justify-center items-center h-48 bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
@@ -614,7 +501,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-[450px] overflow-y-auto pr-1">
             {displayContacts.map((contact) => (
               <div
                 key={contact.contact_id}

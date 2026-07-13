@@ -127,7 +127,7 @@ const deleteContactHandler = async (contactId: number) => {
       phone: data.mobile,
       designation_id: data.designation,
       is_primary: data.is_primary,
-      status: 1,
+      is_active: 1,
     };
 
     const response = await customApiCall(
@@ -147,7 +147,7 @@ const deleteContactHandler = async (contactId: number) => {
       phone: data.mobile,
       designation_id: data.designation,
       is_primary: data.is_primary,
-      status: 1,
+      is_active: 1,
     };
 
     const response = await addItem(
