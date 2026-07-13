@@ -262,6 +262,10 @@ const StudentOffersPage: React.FC<StudentOffersPageProps> = ({ studentId }) => {
 
                     <button
                       onClick={async () => {
+                        if (offer.status !== "Accepted") {
+                          toast.error("Offer letter can only be downloaded after you have accepted the offer.");
+                          return;
+                        }
                         try {
                           await offerManagementService.downloadOfferLetter(offer.id, `Offer_Letter_${offer.company_name}`);
                           toast.success("Offer letter downloaded.");
@@ -269,7 +273,11 @@ const StudentOffersPage: React.FC<StudentOffersPageProps> = ({ studentId }) => {
                           toast.error("Download failed.");
                         }
                       }}
-                      className="w-full flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 py-2 rounded-lg text-sm font-semibold transition-colors"
+                      className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                        offer.status === "Accepted"
+                          ? "border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                          : "bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600 border border-gray-200 dark:border-gray-700 cursor-not-allowed opacity-60"
+                      }`}
                     >
                       <Download size={15} />
                       Download Letter

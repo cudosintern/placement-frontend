@@ -395,6 +395,10 @@ const OfferManagementPage: React.FC = () => {
             </button>
             <button
               onClick={async () => {
+                if (params.data.status !== "Accepted") {
+                  toast.error("Offer letter can only be downloaded after the student has accepted the offer.");
+                  return;
+                }
                 try {
                   await offerManagementService.downloadOfferLetter(params.data.id, params.data.student_name);
                   toast.success("Offer letter downloaded successfully.");
@@ -402,7 +406,11 @@ const OfferManagementPage: React.FC = () => {
                   toast.error("Failed to download offer letter.");
                 }
               }}
-              className="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition-colors shadow-sm"
+              className={`p-1.5 rounded-lg transition-colors shadow-sm ${
+                params.data.status === "Accepted"
+                  ? "bg-indigo-50 hover:bg-indigo-100 text-indigo-600"
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed opacity-60"
+              }`}
               title="Download Offer Letter"
             >
               <Download size={14} />
