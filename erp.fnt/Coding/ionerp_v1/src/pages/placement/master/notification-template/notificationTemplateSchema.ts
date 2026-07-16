@@ -26,7 +26,7 @@ export const SchemaFields = [
         required: true,
       },
       {
-        type: "textarea",
+        type: "editor",
         name: "notification_message",
         label: "Notification Message",
         placeholder: "Enter Notification Message",
@@ -77,7 +77,7 @@ export const SchemaColumnDefs = [
   },
  {
   headerName: "Event Type",
-  field: "event_type_id",
+  field: "event_type_name",
   sortable: true,
   filter: true,
 },

@@ -30,6 +30,8 @@ export interface CompanyResponse {
   contact_phone?: string;
   company_contact_email?: string;
   contact_email?: string;
+  company_contact_designation?: string;
+  contact_designation?: string;
   company_website?: string;
   website?: string;
   company_industry?: string;
@@ -40,6 +42,12 @@ export interface CompanyResponse {
   employees?: number | string;
   company_linkedin?: string;
   linkedin?: string;
+  company_type?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  description?: string;
 }
 
 export type CompanyListResponse = CompanyResponse[];

@@ -7,14 +7,35 @@ import DataTable from "../../../../components/Table/DataTable";
 import { Schema, SchemaColumnDefs, SchemaFields } from "./companySchema";
 import { ApiEndpoint } from "../../../../utils/ApiEndpoint/emsapiEndpoint";
 import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoints";
+import axiosInstance from "../../../../utils/api";
 import { useAxios } from "../../../../hooks/useAxios";
 import { CompanyResponse } from "./responseInterface";
-import { GoPencil } from "react-icons/go";
-import { MdOutlineDoNotDisturbAlt } from "react-icons/md";
-import { FaCheckCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
 import ModalContainer from "../../../../components/Modal/ModalContainer";
 import CompanyDetails from "./CompanyDetails";
+import { Eye, Edit2, Ban, CheckCircle, Building, Plus, XCircle, TrendingUp } from "lucide-react";
+
+// ── Summary Card Component ──────────────────────────────────────────────────
+const SummaryCard: React.FC<{
+  label: string;
+  count: number;
+  icon: React.ReactNode;
+  gradientClass: string;
+  iconBgClass: string;
+  shadowClass: string;
+}> = ({ label, count, icon, gradientClass, iconBgClass, shadowClass }) => (
+  <div className={`flex-grow sm:flex-1 min-w-[200px] bg-gradient-to-br ${gradientClass} text-white p-6 rounded-3xl ${shadowClass} hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 flex items-center justify-between border border-white/10 relative overflow-hidden group`}>
+    <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-white/5 rounded-full group-hover:scale-150 transition-all duration-500" />
+    <div className="space-y-1 z-10">
+      <p className="text-[10px] font-bold uppercase tracking-wider opacity-75">{label}</p>
+      <div className="text-3xl font-extrabold tracking-tight text-white !text-white" style={{ color: '#ffffff' }}>{count}</div>
+    </div>
+    <div className={`h-11 w-11 rounded-xl flex items-center justify-center ${iconBgClass} backdrop-blur-md z-10 shadow-inner group-hover:rotate-12 transition-transform duration-300`}>
+      {icon}
+    </div>
+  </div>
+);
+
 
 const CompanyList: React.FC = () => {
   const [deleteId, setDeleteId] = React.useState<CompanyResponse | null>(null);
@@ -24,53 +45,139 @@ const CompanyList: React.FC = () => {
   const [viewCompany, setViewCompany] = React.useState<CompanyResponse | null>(null);
   const [statusTarget, setStatusTarget] = React.useState<CompanyResponse | null>(null);
 
+  const useMock = false;
+
   const { responseData, setResponseData, addItem, editStateItem, addStateItem, refetch } = useAxios<
     {},
     any
   >(PlacementApiEndpoint.company.list, {
-    method: "post",
-    loader: true,
+    method: "get",
+    loader: !useMock,
     payload: {},
-    shouldFetch: true,
+    shouldFetch: !useMock,
   });
-
-  const useMock = process.env.REACT_APP_BYPASS_LOGIN === "true";
   const defaultData: CompanyResponse[] = React.useMemo(
     () => [
       {
         company_id: 1,
-        company_name: "Demo Corp",
-        company_code: "DC001",
-        company_email: "info@democorp.com",
-        company_phone: "1234567890",
-        company_address: "123 Demo Street",
-        company_contact_person: "Alice Johnson",
-        company_contact_phone: "1234567890",
-        company_contact_email: "alice@democorp.com",
-        company_website: "https://www.democorp.com",
-        company_industry: "Software",
-        company_established_year: 2010,
-        company_employees: 120,
-        company_linkedin: "https://www.linkedin.com/company/democorp",
+        company_name: "Infosys",
+        company_type: "MNC",
+        industry: "IT / Software",
+        website: "https://www.infosys.com",
+        email: "info@infosys.com",
+        phone: "080 2852 0261",
+        address: "Electronics City, Hosur Road",
+        city: "Bengaluru",
+        state: "Karnataka",
+        country: "India",
+        pincode: "560100",
+        contact_person: "Sudha Murty",
+        contact_designation: "HR Lead",
+        contact_phone: "9876543210",
+        contact_email: "sudha@infosys.com",
+        description: "Infosys is a global leader in next-generation digital services and consulting.",
         status: 1,
       },
       {
         company_id: 2,
-        company_name: "Acme Ltd",
-        company_code: "ACM02",
-        company_email: "hello@acme.com",
-        company_phone: "0987654321",
-        company_address: "456 Acme Road",
-        company_contact_person: "Bob Smith",
-        company_contact_phone: "0987654321",
-        company_contact_email: "bob@acme.com",
-        company_website: "https://www.acme.com",
-        company_industry: "Manufacturing",
-        company_established_year: 1998,
-        company_employees: 450,
-        company_linkedin: "https://www.linkedin.com/company/acme",
-        status: 0,
+        company_name: "TCS",
+        company_type: "MNC",
+        industry: "IT / Software",
+        website: "https://www.tcs.com",
+        email: "corporate@tcs.com",
+        phone: "022 6778 9999",
+        address: "TCS House, Raveline Street, Fort",
+        city: "Mumbai",
+        state: "Maharashtra",
+        country: "India",
+        pincode: "400001",
+        contact_person: "Rajesh Gopinathan",
+        contact_designation: "Recruiter Manager",
+        contact_phone: "9876543211",
+        contact_email: "rajesh@tcs.com",
+        description: "Tata Consultancy Services is an IT services, consulting and business solutions organization.",
+        status: 1,
       },
+      {
+        company_id: 3,
+        company_name: "Wipro",
+        company_type: "MNC",
+        industry: "IT / Software",
+        website: "https://www.wipro.com",
+        email: "info@wipro.com",
+        phone: "080 2844 0011",
+        address: "Sarjapur Road, Doddakannelli",
+        city: "Bengaluru",
+        state: "Karnataka",
+        country: "India",
+        pincode: "560035",
+        contact_person: "Rishad Premji",
+        contact_designation: "Talent Acquisition Head",
+        contact_phone: "9876543212",
+        contact_email: "rishad@wipro.com",
+        description: "Wipro Limited is a leading technology services and consulting company.",
+        status: 1,
+      },
+      {
+        company_id: 4,
+        company_name: "Accenture",
+        company_type: "MNC",
+        industry: "IT / Software",
+        website: "https://www.accenture.com",
+        email: "india@accenture.com",
+        phone: "080 4106 0000",
+        address: "Electronics City Phase 1",
+        city: "Bengaluru",
+        state: "Karnataka",
+        country: "India",
+        pincode: "560100",
+        contact_person: "Julie Sweet",
+        contact_designation: "HR Specialist",
+        contact_phone: "9876543213",
+        contact_email: "julie@accenture.com",
+        description: "Accenture is a leading global professional services company.",
+        status: 1,
+      },
+      {
+        company_id: 5,
+        company_name: "L&T",
+        company_type: "Public Ltd",
+        industry: "Manufacturing",
+        website: "https://www.larsentoubro.com",
+        email: "info@larsentoubro.com",
+        phone: "022 6752 5656",
+        address: "L&T House, Ballard Estate",
+        city: "Mumbai",
+        state: "Maharashtra",
+        country: "India",
+        pincode: "400001",
+        contact_person: "A. M. Naik",
+        contact_designation: "Corporate HR Lead",
+        contact_phone: "9876543214",
+        contact_email: "naik@larsentoubro.com",
+        description: "Larsen & Toubro Limited is an Indian multinational conglomerate company.",
+        status: 1,
+      },
+      {
+        company_id: 6,
+        company_name: "HDFC Bank",
+        company_type: "Public Ltd",
+        industry: "Finance / Banking",
+        website: "https://www.hdfcbank.com",
+        email: "banking@hdfcbank.com",
+        phone: "022 6060 6161",
+        address: "Senapati Bapat Marg, Lower Parel",
+        city: "Mumbai",
+        state: "Maharashtra",
+        country: "India",
+        pincode: "400013",
+        contact_person: "Sashidhar Jagdishan",
+        contact_designation: "HR Officer",
+        contact_phone: "9876543215",
+        contact_email: "sashi@hdfcbank.com",
+        description: "HDFC Bank Limited is an Indian banking and financial services company.",
+        status: 1,
+      }
     ],
     [],
   );
@@ -119,17 +226,14 @@ const CompanyList: React.FC = () => {
 
   const confirmDelete = useCallback(async () => {
     if (!deleteId) return;
-    const deletePayload = {
-      flag: "company",
-      record_id: (deleteId as any).company_id ?? deleteId.id,
-      status: (deleteId as any).status === 1 ? 0 : 1,
-    } as any;
-    console.debug("CompanyList.confirmDelete: deleteId, payload, responseData", deleteId, deletePayload, responseData);
+    const idKey = (deleteId as any).company_id ? "company_id" : "id";
+    const idVal = (deleteId as any)[idKey];
+    const desiredStatus = (deleteId as any).status === 1 ? 0 : 1;
+
+    console.debug("CompanyList.confirmDelete: deleteId, desiredStatus, responseData", deleteId, desiredStatus, responseData);
       if (useMock) {
         // simulate toggle locally by updating responseData or the default data
-        const idKey = (deleteId as any).company_id ? "company_id" : "id";
-        const idVal = (deleteId as any)[idKey];
-        const updated = { ...(deleteId as any), status: (deleteId as any).status === 1 ? 0 : 1 } as any;
+        const updated = { ...(deleteId as any), status: desiredStatus } as any;
         const source = Array.isArray(responseData) && responseData.length ? responseData.slice() : defaultData.slice();
         const newData = source.map((item: any) => (item[idKey] === idVal ? { ...item, ...updated } : item));
         setResponseData(newData as any);
@@ -142,25 +246,31 @@ const CompanyList: React.FC = () => {
         return;
       }
 
-      const response = await addItem(deletePayload, ApiEndpoint.master_soft_delete);
-      if (!response) return;
+      try {
+        const endpoint = desiredStatus === 1
+          ? PlacementApiEndpoint.company.activate
+          : PlacementApiEndpoint.company.deactivate;
 
-      // If API returned updated item, update local state immediately
-      const returned = response as any;
-      const idKey = (deleteId as any).company_id ? "company_id" : "id";
-      const idVal = (deleteId as any)[idKey];
-      if (returned) {
-        console.debug("CompanyList.confirmDelete: API returned, updating local state", returned);
-        const source = Array.isArray(responseData) && responseData.length ? responseData.slice() : defaultData.slice();
-        const newData = source.map((item: any) => (item[idKey] === idVal ? { ...item, ...returned } : item));
-        setResponseData(newData as any);
-      } else {
-        // fallback to refetch if no returned payload
-        console.debug("CompanyList.confirmDelete: API returned no payload, refetching");
-        refetch();
+        const res: any = await axiosInstance.put(endpoint, {
+          company_id: idVal,
+          status: desiredStatus
+        });
+
+        if (res.data?.status) {
+          toast.success(res.data?.message || "Status updated successfully!");
+          const returned = res.data?.data as any;
+          const source = Array.isArray(responseData) && responseData.length ? responseData.slice() : defaultData.slice();
+          const newData = source.map((item: any) => (item[idKey] === idVal ? { ...item, ...returned, status: desiredStatus } : item));
+          setResponseData(newData as any);
+        } else {
+          refetch();
+        }
+      } catch (err: any) {
+        console.error("Failed to toggle status", err);
+        toast.error(err.response?.data?.message || "Failed to update status.");
       }
       setDeleteId(null);
-  }, [addItem, deleteId, refetch]);
+  }, [deleteId, responseData, defaultData, useMock, refetch]);
 
   const openStatusDialog = (item: CompanyResponse) => {
     setStatusTarget(item);
@@ -172,13 +282,7 @@ const CompanyList: React.FC = () => {
       const idKey = (statusTarget as any).company_id ? "company_id" : "id";
       const idVal = (statusTarget as any)[idKey];
 
-      const payload = {
-        flag: "company",
-        record_id: idVal,
-        status: desiredStatus,
-      } as any;
-
-      console.debug("CompanyList.handleStatusChange: desiredStatus, statusTarget, payload, responseData", desiredStatus, statusTarget, payload, responseData);
+      console.debug("CompanyList.handleStatusChange: desiredStatus, statusTarget, responseData", desiredStatus, statusTarget, responseData);
 
       if (useMock) {
         const updated = { ...(statusTarget as any), status: desiredStatus } as any;
@@ -194,24 +298,34 @@ const CompanyList: React.FC = () => {
         return;
       }
 
-      const response = await addItem(payload, ApiEndpoint.master_soft_delete);
-      if (!response) return;
-
-      // If API returned updated item, use it; otherwise, optimistically apply desiredStatus.
-      const returned = response as any;
-      const source = Array.isArray(responseData) && responseData.length ? responseData.slice() : defaultData.slice();
-      const newData = source.map((item: any) =>
-        item[idKey] === idVal ? { ...(item as any), ...(returned ?? {}), status: (returned?.status ?? desiredStatus) } : item,
-      );
-      console.debug("CompanyList.handleStatusChange: applying API/optimistic update", newData);
-      setResponseData(newData as any);
-      // persist when in mock mode
       try {
-        if (useMock) localStorage.setItem(LS_KEY, JSON.stringify(newData));
-      } catch (e) {}
+        const endpoint = desiredStatus === 1
+          ? PlacementApiEndpoint.company.activate
+          : PlacementApiEndpoint.company.deactivate;
+
+        const res: any = await axiosInstance.put(endpoint, {
+          company_id: idVal,
+          status: desiredStatus
+        });
+
+        if (res.data?.status) {
+          toast.success(res.data?.message || "Status updated successfully!");
+          const returned = res.data?.data as any;
+          const source = Array.isArray(responseData) && responseData.length ? responseData.slice() : defaultData.slice();
+          const newData = source.map((item: any) =>
+            item[idKey] === idVal ? { ...(item as any), ...(returned ?? {}), status: desiredStatus } : item,
+          );
+          setResponseData(newData as any);
+        } else {
+          refetch();
+        }
+      } catch (err: any) {
+        console.error("Failed to update status", err);
+        toast.error(err.response?.data?.message || "Failed to update status.");
+      }
       setStatusTarget(null);
     },
-    [addItem, defaultData, refetch, responseData, statusTarget, useMock],
+    [defaultData, refetch, responseData, statusTarget, useMock],
   );
 
   const columnDefs = useMemo(() => {
@@ -223,48 +337,78 @@ const CompanyList: React.FC = () => {
         minWidth: 100,
       })),
       {
+        headerName: "Status",
+        field: "status",
+        sortable: true,
+        filter: true,
+        cellRenderer: (params: any) => {
+          const isActive = params.value === 1;
+          return (
+            <div className="flex items-center h-full">
+              <span
+                className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                  isActive
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50"
+                    : "bg-rose-50 text-rose-700 border border-rose-200/50"
+                }`}
+              >
+                <span className="relative flex h-1.5 w-1.5 mr-1.5">
+                  {isActive && (
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  )}
+                  <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${isActive ? "bg-emerald-500" : "bg-rose-500"}`}></span>
+                </span>
+                {isActive ? "Active" : "Disabled"}
+              </span>
+            </div>
+          );
+        },
+        width: 120,
+        flex: 0,
+      },
+      {
         headerName: "Action",
         field: "action",
         cellRenderer: (params: any) => {
           const isActive = params.data?.status === 1;
           return (
-            <div className='flex space-x-2 items-center h-full'>
+            <div className="flex items-center justify-center space-x-2.5 h-full w-full">
               <button
-                className='text-sm text-blue-600 underline px-2 py-1 rounded'
+                className="p-2 border border-indigo-100 hover:bg-indigo-50 text-indigo-600 rounded-full transition-all duration-150 active:scale-90"
                 onClick={() => setViewCompany(params.data)}
-                title='View'
+                title="View Details"
               >
-                View
+                <Eye className="h-4 w-4" />
               </button>
               <button
-                className='text-sm text-yellow-700 px-2 py-1 rounded border'
+                className="p-2 border border-amber-100 hover:bg-amber-50 text-amber-600 rounded-full transition-all duration-150 active:scale-90"
                 onClick={() => handleEdit(params.data)}
-                title='Edit'
+                title="Edit Company"
               >
-                Edit
+                <Edit2 className="h-4 w-4" />
               </button>
               {isActive ? (
                 <button
-                  className='text-sm text-red-600 px-2 py-1 rounded border'
+                  className="p-2 border border-red-100 hover:bg-red-50 text-red-500 rounded-full transition-all duration-150 active:scale-90"
                   onClick={() => openStatusDialog(params.data)}
-                  title='Change Status'
+                  title="Disable Company"
                 >
-                  Deactivate
+                  <Ban className="h-4 w-4" />
                 </button>
               ) : (
                 <button
-                  className='text-sm text-green-600 px-2 py-1 rounded border'
+                  className="p-2 border border-emerald-100 hover:bg-emerald-50 text-emerald-600 rounded-full transition-all duration-150 active:scale-90"
                   onClick={() => openStatusDialog(params.data)}
-                  title='Change Status'
+                  title="Enable Company"
                 >
-                  Activate
+                  <CheckCircle className="h-4 w-4" />
                 </button>
               )}
             </div>
           );
         },
-        width: 220,
-        cellStyle: { textAlign: "center" },
+        width: 160,
+        cellStyle: { display: "flex", alignItems: "center", justifyContent: "center" },
         filter: false,
         editable: false,
         sortable: false,
@@ -312,91 +456,140 @@ const CompanyList: React.FC = () => {
         return;
       }
 
-      const response = await addItem(updatePayload as any, PlacementApiEndpoint.company.save);
-      if (!response) return;
+      try {
+        let res: any;
+        if (editingData) {
+          // Edit: PUT request
+          res = await axiosInstance.put(PlacementApiEndpoint.company.save, updatePayload);
+          toast.success("Company updated successfully!");
+        } else {
+          // Add: POST request
+          res = await axiosInstance.post(PlacementApiEndpoint.company.save, updatePayload);
+          toast.success("Company registered successfully!");
+        }
 
-      // Update local state so UI reflects the change immediately
-      const idKey = (editingData as any)?.company_id ? "company_id" : "id";
-      const idVal = editingData ? (editingData as any)[idKey] : null;
-      const returned = response as any;
-      if (editingData) {
-        // editing existing
-        if (Array.isArray(responseData)) {
-          const newData = responseData.map((item: any) =>
-            item[idKey] === idVal ? { ...item, ...(returned ?? {}) } : item,
-          );
-          setResponseData(newData as any);
+        const returned = res.data?.data as any;
+        const idKey = editingData?.company_id ? "company_id" : "id";
+        const idVal = editingData ? editingData[idKey] : null;
+
+        if (editingData) {
+          if (Array.isArray(responseData)) {
+            const newData = responseData.map((item: any) =>
+              item[idKey] === idVal ? { ...item, ...(returned ?? {}) } : item,
+            );
+            setResponseData(newData as any);
+          } else {
+            setResponseData([returned] as any);
+          }
         } else {
-          setResponseData([returned] as any);
+          if (Array.isArray(responseData) && responseData.length) {
+            setResponseData([...(responseData as any), returned] as any);
+          } else {
+            setResponseData([returned] as any);
+          }
         }
-      } else {
-        // adding new
-        if (Array.isArray(responseData) && responseData.length) {
-          setResponseData([...(responseData as any), returned] as any);
-        } else {
-          setResponseData([returned] as any);
-        }
+      } catch (err: any) {
+        console.error("Failed to save company", err);
+        toast.error(err.response?.data?.message || "Failed to save company.");
       }
       closeModalHandler();
     },
-    [addItem, addStateItem, editStateItem, editingData],
+    [editingData, responseData],
   );
+
+  // Dynamic stats calculation
+  const totalComp = Array.isArray(responseData) ? responseData.length : defaultData.length;
+  const activeComp = Array.isArray(responseData) 
+    ? responseData.filter((c: any) => c.status === 1).length 
+    : defaultData.filter((c: any) => c.status === 1).length;
+  const disabledComp = Array.isArray(responseData) 
+    ? responseData.filter((c: any) => c.status === 0).length 
+    : defaultData.filter((c: any) => c.status === 0).length;
+  const uniqueInd = Array.isArray(responseData) 
+    ? new Set(responseData.map((c: any) => c.industry).filter(Boolean)).size 
+    : new Set(defaultData.map((c: any) => c.industry).filter(Boolean)).size;
 
   return (
     <>
-      <div>
-        <h3 className='text-lg leading-6 font-medium pb-5'>Company Master - List</h3>
+      <div className="space-y-6">
+        
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 rounded-3xl shadow-lg border border-slate-800 relative overflow-hidden group">
+          <div className="absolute right-0 top-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute left-1/3 bottom-0 w-60 h-60 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="z-10 space-y-1">
+            <h2 className="text-2xl font-extrabold tracking-tight">Company Directory</h2>
+            <p className="text-xs text-indigo-200/70 font-medium">Manage corporate partners, industry sectors, recruiter contacts, and status logs.</p>
+          </div>
+          <button
+            onClick={OpenModalHandler}
+            className="z-10 flex items-center space-x-2 bg-white hover:bg-indigo-50 text-indigo-950 hover:text-indigo-900 text-sm font-bold px-5 py-3 rounded-2xl shadow-md hover:shadow-indigo-500/20 transition-all duration-200 active:scale-95 shadow-[0_8px_30px_rgb(99,102,241,0.25)]"
+          >
+            <Plus className="h-4 w-4 text-indigo-600" />
+            <span>Add Company</span>
+          </button>
+        </div>
+
+        {/* Summary stats cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <SummaryCard
+            label="Total Partners"
+            count={totalComp}
+            icon={<Building className="h-5 w-5 text-white" />}
+            gradientClass="from-indigo-600 to-indigo-500"
+            iconBgClass="bg-white/20"
+            shadowClass="shadow-[0_10px_25px_-5px_rgba(79,70,229,0.25)]"
+          />
+          <SummaryCard
+            label="Active Partners"
+            count={activeComp}
+            icon={<CheckCircle className="h-5 w-5 text-white" />}
+            gradientClass="from-emerald-600 to-emerald-500"
+            iconBgClass="bg-white/20"
+            shadowClass="shadow-[0_10px_25px_-5px_rgba(16,185,129,0.25)]"
+          />
+          <SummaryCard
+            label="Disabled Partners"
+            count={disabledComp}
+            icon={<XCircle className="h-5 w-5 text-white" />}
+            gradientClass="from-rose-600 to-red-500"
+            iconBgClass="bg-white/20"
+            shadowClass="shadow-[0_10px_25px_-5px_rgba(239,68,68,0.25)]"
+          />
+          <SummaryCard
+            label="Industry Sectors"
+            count={uniqueInd}
+            icon={<TrendingUp className="h-5 w-5 text-white" />}
+            gradientClass="from-cyan-600 to-blue-500"
+            iconBgClass="bg-white/20"
+            shadowClass="shadow-[0_10px_25px_-5px_rgba(6,182,212,0.25)]"
+          />
+        </div>
 
         {isModalOpen && (
           <ModalWithForm
-            title={'Company'}
+            title={editingData ? 'Edit Company' : 'Add Company'}
             isOpen={isModalOpen}
             onSubmit={handleFormSubmit}
             onClose={closeModalHandler}
             formFields={SchemaFields}
             schema={Schema}
-            size={'lg'}
-            columnLayout={1}
+            size={'4xl'}
+            columnLayout={2}
             initialValues={editingData || {}}
           />
         )}
 
-        <DataTable
-          columnDefs={columnDefs}
-          rowData={
-            Array.isArray(responseData) && responseData.length
-              ? responseData
-              : [
-                      {
-                        company_id: 1,
-                        company_name: "Demo Corp",
-                        company_code: "DC001",
-                        company_email: "info@democorp.com",
-                        company_phone: "1234567890",
-                        company_address: "123 Demo Street",
-                        company_contact_person: "Alice Johnson",
-                        company_website: "https://www.democorp.com",
-                        status: 1,
-                      },
-                      {
-                        company_id: 2,
-                        company_name: "Acme Ltd",
-                        company_code: "ACM02",
-                        company_email: "hello@acme.com",
-                        company_phone: "0987654321",
-                        company_address: "456 Acme Road",
-                        company_contact_person: "Bob Smith",
-                        company_website: "https://www.acme.com",
-                        status: 0,
-                      },
-                ]
-          }
-          showAddButton={true}
-          showExportButton={false}
-          addButtonHandler={OpenModalHandler}
-          headerFilter={true}
-          pageSize={20}
-        />
+        <div className="bg-white dark:bg-slate-950 rounded-3xl border border-gray-100 dark:border-slate-800 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          <DataTable
+            columnDefs={columnDefs}
+            rowData={Array.isArray(responseData) && responseData.length ? responseData : defaultData}
+            showAddButton={false}
+            showExportButton={false}
+            headerFilter={true}
+            pageSize={20}
+          />
+        </div>
 
         <ConfirmDialog
           isOpen={deleteId !== null}
@@ -405,7 +598,7 @@ const CompanyList: React.FC = () => {
           title='Confirm'
           message={confirmMessage}
         />
-        <ModalContainer isOpen={!!viewCompany} onClose={() => setViewCompany(null)} title={'Company Details'} size={'md'}>
+        <ModalContainer isOpen={!!viewCompany} onClose={() => setViewCompany(null)} title={'Company Details'} size={'5xl'}>
           <CompanyDetails company={viewCompany} />
         </ModalContainer>
 

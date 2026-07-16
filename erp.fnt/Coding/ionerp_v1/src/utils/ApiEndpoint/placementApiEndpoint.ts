@@ -64,7 +64,10 @@ export const PlacementApiEndpoint = {
         shortlist:       "placement/drive/applications/shortlist",    // POST {drive_id, application_ids[]}
         auto_shortlist:  "placement/drive/applications/auto-shortlist", // POST {drive_id} — auto by branch+CGPA
         reject:          "placement/drive/applications/reject",       // POST {application_id, reason?}
+        waitlist:        "placement/drive/applications/waitlist",     // POST {application_id} — SHORTLISTED → WAITLISTED
         withdraw:        "placement/drive/applications/withdraw",     // POST {application_id}
+        override_shortlist: "placement/drive/applications/override-shortlist",
+        override_reject: "placement/drive/applications/override-reject",
     },
 
     // ── Student Drive (Apply / Withdraw / My Applications) ───────────────────

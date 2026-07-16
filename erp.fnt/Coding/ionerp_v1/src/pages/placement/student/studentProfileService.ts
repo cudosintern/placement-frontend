@@ -1,5 +1,5 @@
 import axiosInstance from "../../../utils/api";
-import { PlacementApiEndpoint as ApiEndpoint, PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoints";
+import { ApiEndpoint, PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoints";
 import {
   IEMStudentInfo,
   AllStudentRow,

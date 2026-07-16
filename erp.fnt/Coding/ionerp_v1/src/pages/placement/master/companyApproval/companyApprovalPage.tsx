@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import DataTable from "../../../../components/Table/DataTable";
-import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementapiEndpoint";
+import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoints";
 import axiosInstance from "../../../../utils/api";
 import { toast } from "react-toastify";
 import { RegistrationRecord, STATUS_LABELS } from "./registrationInterface";

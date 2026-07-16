@@ -11,9 +11,11 @@ import {
   StudentProfileWrapper,
   StudentSkillWrapper,
   StudentCertificationWrapper,
+  StudentOffersWrapper,
 } from "../pages/placement/student/studentRoutes";
 import AvailableDrivesPage from "../pages/placement/student/AvailableDrivesPage";
-import { PlacementStatusWrapper } from "../pages/placement/student/studentRoutes";
+// TODO: Restore once PlacementStatusPage is committed to git
+// import { PlacementStatusWrapper } from "../pages/placement/student/studentRoutes";
 import NotificationTemplatePage from "../pages/placement/master/notification-template/notificationTemplatePage";
 import NotificationLogPage from "../pages/placement/master/notification-log/NotificationLogPage";
 import EventTypePage from "../pages/placement/master/event-type/eventTypePage";
@@ -21,6 +23,9 @@ import EventTypePage from "../pages/placement/master/event-type/eventTypePage";
 import CompanyRegistrationPage from "../pages/placement/master/companyRegistration/companyRegistrationPage";
 import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
 import DrivePage from "../pages/placement/tpoDashboard/drivePage";
+import OfferManagementPage from "../pages/placement/tpoDashboard/offer-management/OfferManagementPage";
+import OfficerShortlistPage from "../pages/placement/officerDashboard/officerShortlistPage";
+import ShortlistApprovalPage from "../pages/placement/tpoDashboard/shortlistApprovalPage";
 
 export const PLACEMENTROUTE = [
   {
@@ -110,7 +115,7 @@ export const PLACEMENTROUTE = [
       },
 
       {
-        name: "Event Type",
+        name: "Notification Event Type",
         href: "event-type",
         roles: [],
         element: EventTypePage,
@@ -167,6 +172,36 @@ export const PLACEMENTROUTE = [
         element: DrivePage,
         subItems: [],
       },
+
+      {
+        name: "Offer Management",
+        href: "/tpo/offer-management",
+        roles: [],
+        element: OfferManagementPage,
+        subItems: [],
+      },
+      {
+        name: "Shortlist Approvals",
+        href: "/tpo/shortlist-approval",
+        roles: [],
+        element: ShortlistApprovalPage,
+        subItems: [],
+      },
+    ],
+  },
+  {
+    name: "Officer",
+    href: "",
+    element: Outlet,
+    roles: [],
+    subItems: [
+      {
+        name: "Shortlist",
+        href: "/officer/shortlist",
+        roles: [],
+        element: OfficerShortlistPage,
+        subItems: [],
+      },
     ],
   },
   {
@@ -198,10 +233,10 @@ export const PLACEMENTROUTE = [
         subItems: [],
       },
       {
-        name: "Placement Status",
-        href: "student/placement-status",
+        name: "My Offers",
+        href: "student/offers",
         roles: [],
-        element: PlacementStatusWrapper,
+        element: StudentOffersWrapper,
         subItems: [],
       },
     ],

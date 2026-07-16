@@ -312,7 +312,7 @@ const CompanyContactPage = () => {
         phone: data.mobile,
         designation_id: data.designation,
         is_primary: data.is_primary,
-        status: 1,
+        is_active: 1,
       };
 
       const response = await customApiCall(
@@ -332,7 +332,7 @@ const CompanyContactPage = () => {
         phone: data.mobile,
         designation_id: data.designation,
         is_primary: data.is_primary,
-        status: 1,
+        is_active: 1,
       };
 
       const response = await addItem(
@@ -360,7 +360,7 @@ const CompanyContactPage = () => {
         phone: selectedContact.phone || "",
         designation_id: selectedContact.designation_id || null,
         is_primary: 1,
-        status: 1,
+        is_active: 1,
       };
 
       await customApiCall(

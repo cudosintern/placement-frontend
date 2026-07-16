@@ -230,3 +230,91 @@ main button {
   padding: unset !important;
 }
 
+
+/* Premium Ag-Grid Table Customization */
+.ag-theme-alpine, .ag-theme-alpine-dark {
+  --ag-border-color: #f1f5f9;
+  --ag-row-border-color: #f1f5f9;
+  --ag-header-background-color: #f8fafc;
+  --ag-header-foreground-color: #475569;
+  --ag-header-cell-hover-background-color: #f1f5f9;
+  --ag-row-hover-color: #f1f5f9;
+  --ag-selected-row-background-color: #e2e8f0;
+  --ag-odd-row-background-color: #fafafa;
+  --ag-font-family: 'Roboto', 'Inter', sans-serif;
+  --ag-font-size: 14px;
+  border: none !important;
+}
+
+.dark .ag-theme-alpine, .dark .ag-theme-alpine-dark {
+  --ag-border-color: #1e293b;
+  --ag-row-border-color: #1e293b;
+  --ag-header-background-color: #0f172a;
+  --ag-header-foreground-color: #94a3b8;
+  --ag-header-cell-hover-background-color: #1e293b;
+  --ag-row-hover-color: #1e293b;
+  --ag-selected-row-background-color: #334155;
+  --ag-odd-row-background-color: #0b1329;
+  border: none !important;
+}
+
+/* Make headers bold and clean */
+.ag-header-cell-label {
+  font-weight: 700 !important;
+  color: #1e293b !important;
+}
+.dark .ag-header-cell-label {
+  color: #f1f5f9 !important;
+}
+
+/* Row hover transition */
+.ag-row {
+  transition: background-color 0.2s ease-in-out, transform 0.15s ease-in-out;
+}
+
+/* Beautiful custom pagination panel */
+.ag-paging-panel {
+  border-top: 1px solid #f1f5f9 !important;
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+  font-weight: 500;
+}
+.dark .ag-paging-panel {
+  border-top: 1px solid #1e293b !important;
+  background-color: #0f172a !important;
+  color: #94a3b8 !important;
+}
+
+/* Beautiful custom input boxes in table headers */
+.ag-floating-filter-button {
+  display: none !important;
+}
+
+.ag-floating-filter-input {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding: 4px 8px !important;
+  background-color: #ffffff !important;
+  font-size: 11px !important;
+  transition: all 0.2s !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+.dark .ag-floating-filter-input {
+  border: 1px solid #334155 !important;
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+.ag-floating-filter-input:focus-within {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Row padding and text styles */
+.ag-row {
+  font-size: 14px !important;
+}
+
+.ag-header-row {
+  font-size: 14px !important;
+}
