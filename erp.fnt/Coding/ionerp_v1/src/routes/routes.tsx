@@ -11,8 +11,6 @@ import CompanyRegistrationPage from "../pages/placement/master/companyRegistrati
 import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
 import DrivePage from "../pages/placement/tpoDashboard/drivePage";
 import DriveFormPage from "../pages/placement/tpoDashboard/driveFormPage";
-import InterviewSchedulingPage from "../pages/placement/tpoDashboard/interview-scheduling/interviewSchedulingPage";
-import InterviewSlotsPage from "../pages/placement/tpoDashboard/interview-scheduling/interviewSlotsPage";
 import OfferManagementPage from "../pages/placement/tpoDashboard/offer-management/OfferManagementPage";
 const ProtectedRoute: React.FC<{
   element: React.ReactElement;
@@ -109,8 +107,6 @@ const AppRoutes: React.FC = () => {
         <Route path="/tpo/placement-drive" element={<DrivePage />} />
         <Route path="/tpo/placement-drive/create" element={<DriveFormPage />} />
         <Route path="/tpo/placement-drive/edit" element={<DriveFormPage />} />
-        <Route path="/tpo/interview-scheduling" element={<InterviewSchedulingPage />} />
-        <Route path="/tpo/interview-slots" element={<InterviewSlotsPage />} />
         <Route path="/tpo/offer-management" element={<OfferManagementPage />} />
       </Route>
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />

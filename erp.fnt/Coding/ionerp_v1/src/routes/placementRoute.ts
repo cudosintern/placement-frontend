@@ -23,8 +23,6 @@ import EventTypePage from "../pages/placement/master/event-type/eventTypePage";
 import CompanyRegistrationPage from "../pages/placement/master/companyRegistration/companyRegistrationPage";
 import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
 import DrivePage from "../pages/placement/tpoDashboard/drivePage";
-import InterviewSchedulingPage from "../pages/placement/tpoDashboard/interview-scheduling/interviewSchedulingPage";
-import InterviewSlotsPage from "../pages/placement/tpoDashboard/interview-scheduling/interviewSlotsPage";
 import OfferManagementPage from "../pages/placement/tpoDashboard/offer-management/OfferManagementPage";
 
 export const PLACEMENTROUTE = [
@@ -158,20 +156,7 @@ export const PLACEMENTROUTE = [
         element: DrivePage,
         subItems: [],
       },
-      {
-        name: "Interview Scheduling",
-        href: "/tpo/interview-scheduling",
-        roles: [],
-        element: InterviewSchedulingPage,
-        subItems: [],
-      },
-      {
-        name: "Interview Slots",
-        href: "/tpo/interview-slots",
-        roles: [],
-        element: InterviewSlotsPage,
-        subItems: [],
-      },
+
       {
         name: "Offer Management",
         href: "/tpo/offer-management",
