@@ -7,6 +7,7 @@ export const Schema = z.object({
   email: z.string().email({ message: "Valid Email is required" }),
   mobile: z.string().regex(/^\d{10}$/, { message: "Mobile Number must be exactly 10 numeric digits" }),
   is_primary: z.any().optional(),
+  is_interviewer: z.any().optional(),
 });
 
 export const SchemaFields = [
@@ -60,6 +61,12 @@ export const SchemaFields = [
         type: "checkbox",
         name: "is_primary",
         label: "Primary Contact",
+        required: false,
+      },
+      {
+        type: "checkbox",
+        name: "is_interviewer",
+        label: "Interviewer",
         required: false,
       },
     ],
