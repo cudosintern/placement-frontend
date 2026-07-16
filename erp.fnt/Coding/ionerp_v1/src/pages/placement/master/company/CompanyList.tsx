@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from "react";
 import { Outlet } from "react-router-dom";
 import ModalWithForm from "../../../../components/Modal/ModalWithForm";
 import ConfirmDialog from "../../../../components/Dialog/ConfirmDialog";
-import StatusDialog from "../../../../components/Dialog/StatusDialog";
 import DataTable from "../../../../components/Table/DataTable";
 import { Schema, SchemaColumnDefs, SchemaFields } from "./companySchema";
 import { ApiEndpoint } from "../../../../utils/ApiEndpoint/emsapiEndpoint";
@@ -602,13 +601,12 @@ const CompanyList: React.FC = () => {
           <CompanyDetails company={viewCompany} />
         </ModalContainer>
 
-        <StatusDialog
-          isOpen={!!statusTarget}
+        <ConfirmDialog
+          isOpen={statusTarget !== null}
           onClose={() => setStatusTarget(null)}
-          onEnable={() => handleStatusChange(1)}
-          onDisable={() => handleStatusChange(0)}
-          title={'Change Company Status'}
-          message={'Select Enable to activate the company, or Disable to deactivate it.'}
+          onConfirm={() => statusTarget && handleStatusChange(statusTarget.status === 1 ? 0 : 1)}
+          title='Confirm Status Change'
+          message={statusTarget ? (statusTarget.status === 1 ? `Are you sure you want to disable ${statusTarget.company_name}?` : `Are you sure you want to activate ${statusTarget.company_name}?`) : ''}
         />
       </div>
       <Outlet />
