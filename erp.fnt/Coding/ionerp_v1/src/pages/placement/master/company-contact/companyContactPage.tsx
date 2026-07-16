@@ -268,6 +268,7 @@ const CompanyContactPage = () => {
       email: contact.email || "",
       mobile: contact.phone || "",
       is_primary: contact.is_primary,
+      is_interviewer: contact.is_interviewer,
       contact_id: contact.contact_id,
     });
 
@@ -312,6 +313,7 @@ const CompanyContactPage = () => {
         phone: data.mobile,
         designation_id: data.designation,
         is_primary: data.is_primary,
+        is_interviewer: data.is_interviewer ? 1 : 0,
         is_active: 1,
       };
 
@@ -332,6 +334,7 @@ const CompanyContactPage = () => {
         phone: data.mobile,
         designation_id: data.designation,
         is_primary: data.is_primary,
+        is_interviewer: data.is_interviewer ? 1 : 0,
         is_active: 1,
       };
 
