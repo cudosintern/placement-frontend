@@ -1,40 +1,62 @@
 import { z } from "zod";
+import axiosInstance from "../../../../utils/api";
+import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoints";
 
 export const Schema = z.object({
   company_name: z.string().min(1, {
     message: "Company Name is required",
   }),
-  company_type: z.string().optional().nullable(),
-  industry: z.string().optional().nullable(),
-  website: z.string().optional().nullable(),
-  email: z
-    .string()
-    .email({
-      message: "Valid Email is required",
-    })
-    .or(z.literal(""))
-    .optional()
-    .nullable(),
-  phone: z.string().optional().nullable(),
+  company_type: z.string().min(1, {
+    message: "Company Type is required",
+  }),
+  industry: z.string().min(1, {
+    message: "Industry is required",
+  }),
+  website: z.string().min(1, {
+    message: "Website URL is required",
+  }).url({
+    message: "Invalid website URL",
+  }),
+  email: z.string().min(1, {
+    message: "Email Address is required",
+  }).email({
+    message: "Valid Email is required",
+  }),
+  phone: z.string().min(10, {
+    message: "Phone number must be at least 10 digits",
+  }),
   description: z.string().optional().nullable(),
   
-  address: z.string().optional().nullable(),
-  city: z.string().optional().nullable(),
-  state: z.string().optional().nullable(),
-  country: z.string().optional().nullable(),
-  pincode: z.string().optional().nullable(),
+  address: z.string().min(1, {
+    message: "Street Address is required",
+  }),
+  city: z.string().min(1, {
+    message: "City is required",
+  }),
+  state: z.string().min(1, {
+    message: "State / Region is required",
+  }),
+  country: z.string().min(1, {
+    message: "Country is required",
+  }),
+  pincode: z.string().min(6, {
+    message: "ZIP / Postal Code must be 6 characters",
+  }),
 
-  contact_person: z.string().optional().nullable(),
-  contact_designation: z.string().optional().nullable(),
-  contact_phone: z.string().optional().nullable(),
-  contact_email: z
-    .string()
-    .email({
-      message: "Valid Contact Email is required",
-    })
-    .or(z.literal(""))
-    .optional()
-    .nullable(),
+  contact_person: z.string().min(1, {
+    message: "Contact Name is required",
+  }),
+  contact_designation: z.string().min(1, {
+    message: "Contact Designation is required",
+  }),
+  contact_phone: z.string().min(10, {
+    message: "Contact Phone number must be at least 10 digits",
+  }),
+  contact_email: z.string().min(1, {
+    message: "Contact Email Address is required",
+  }).email({
+    message: "Valid Contact Email is required",
+  }),
 });
 
 export const SchemaFields = [
@@ -51,7 +73,7 @@ export const SchemaFields = [
         type: "select",
         name: "company_type",
         label: "Company Type",
-        required: false,
+        required: true,
         options: [
           { label: "Select Company Type", value: "" },
           { label: "Private Ltd", value: "Private Ltd" },
@@ -67,7 +89,7 @@ export const SchemaFields = [
         type: "select",
         name: "industry",
         label: "Industry",
-        required: false,
+        required: true,
         options: [
           { label: "Select Industry", value: "" },
           { label: "IT / Software", value: "IT / Software" },
@@ -83,21 +105,21 @@ export const SchemaFields = [
         type: "text",
         name: "website",
         label: "Website URL",
-        required: false,
-        placeholder: "e.g. www.example.com",
+        required: true,
+        placeholder: "e.g. https://www.example.com",
       },
       {
         type: "text",
         name: "email",
         label: "Email Address",
-        required: false,
+        required: true,
         placeholder: "e.g. contact@example.com",
       },
       {
         type: "text",
         name: "phone",
         label: "Phone Number",
-        required: false,
+        required: true,
         placeholder: "e.g. +91 9876543210",
       },
       {
@@ -116,35 +138,95 @@ export const SchemaFields = [
         type: "text",
         name: "address",
         label: "Street Address",
-        required: false,
+        required: true,
         placeholder: "e.g. Electronics City Phase 1",
       },
       {
-        type: "text",
-        name: "city",
-        label: "City",
-        required: false,
-        placeholder: "e.g. Bangalore",
-      },
-      {
-        type: "text",
-        name: "state",
-        label: "State / Region",
-        required: false,
-        placeholder: "e.g. Karnataka",
-      },
-      {
-        type: "text",
+        type: "select",
         name: "country",
         label: "Country",
-        required: false,
-        placeholder: "e.g. India",
+        placeholder: "Select Country",
+        required: true,
+        loadOptions: async () => {
+          try {
+            const response = await axiosInstance.get(
+              PlacementApiEndpoint.companyRegistration.countries
+            );
+            const resData = response.data as any;
+            if (resData?.status && Array.isArray(resData.data)) {
+              return resData.data.map((c: any) => ({
+                label: c.name,
+                value: c.name,
+              }));
+            }
+            return [];
+          } catch (error) {
+            console.error("Failed to load countries:", error);
+            return [];
+          }
+        },
+      },
+      {
+        type: "select",
+        name: "state",
+        label: "State / Region",
+        placeholder: "Select State",
+        required: true,
+        dependsOn: "country",
+        loadOptions: async (countryName: any) => {
+          try {
+            const response = await axiosInstance.get(
+              `${PlacementApiEndpoint.companyRegistration.states}?country_name=${encodeURIComponent(
+                countryName
+              )}`
+            );
+            const resData = response.data as any;
+            if (resData?.status && Array.isArray(resData.data)) {
+              return resData.data.map((s: any) => ({
+                label: s.name,
+                value: s.name,
+              }));
+            }
+            return [];
+          } catch (error) {
+            console.error("Failed to load states:", error);
+            return [];
+          }
+        },
+      },
+      {
+        type: "select",
+        name: "city",
+        label: "City",
+        placeholder: "Select City",
+        required: true,
+        dependsOn: "state",
+        loadOptions: async (stateName: any) => {
+          try {
+            const response = await axiosInstance.get(
+              `${PlacementApiEndpoint.companyRegistration.cities}?state_name=${encodeURIComponent(
+                stateName
+              )}`
+            );
+            const resData = response.data as any;
+            if (resData?.status && Array.isArray(resData.data)) {
+              return resData.data.map((c: any) => ({
+                label: c.name,
+                value: c.name,
+              }));
+            }
+            return [];
+          } catch (error) {
+            console.error("Failed to load cities:", error);
+            return [];
+          }
+        },
       },
       {
         type: "text",
         name: "pincode",
         label: "ZIP / Postal Code",
-        required: false,
+        required: true,
         placeholder: "e.g. 560100",
       },
     ],
@@ -156,28 +238,28 @@ export const SchemaFields = [
         type: "text",
         name: "contact_person",
         label: "Contact Name",
-        required: false,
+        required: true,
         placeholder: "e.g. Sudha Murty",
       },
       {
         type: "text",
         name: "contact_designation",
         label: "Contact Designation",
-        required: false,
+        required: true,
         placeholder: "e.g. TA Lead / HR Manager",
       },
       {
         type: "text",
         name: "contact_phone",
         label: "Contact Phone Number",
-        required: false,
+        required: true,
         placeholder: "e.g. 9876543210",
       },
       {
         type: "text",
         name: "contact_email",
         label: "Contact Email Address",
-        required: false,
+        required: true,
         placeholder: "e.g. recruiter@example.com",
       },
     ],
@@ -222,5 +304,3 @@ export const SchemaColumnDefs = [
     filter: true,
   },
 ];
-
-export default Schema;
