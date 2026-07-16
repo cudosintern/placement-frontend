@@ -24,6 +24,8 @@ import CompanyRegistrationPage from "../pages/placement/master/companyRegistrati
 import CompanyApprovalPage from "../pages/placement/tpoDashboard/companyApprovalPage";
 import DrivePage from "../pages/placement/tpoDashboard/drivePage";
 import OfferManagementPage from "../pages/placement/tpoDashboard/offer-management/OfferManagementPage";
+import OfficerShortlistPage from "../pages/placement/officerDashboard/officerShortlistPage";
+import ShortlistApprovalPage from "../pages/placement/tpoDashboard/shortlistApprovalPage";
 
 export const PLACEMENTROUTE = [
   {
@@ -162,6 +164,28 @@ export const PLACEMENTROUTE = [
         href: "/tpo/offer-management",
         roles: [],
         element: OfferManagementPage,
+        subItems: [],
+      },
+      {
+        name: "Shortlist Approvals",
+        href: "/tpo/shortlist-approval",
+        roles: [],
+        element: ShortlistApprovalPage,
+        subItems: [],
+      },
+    ],
+  },
+  {
+    name: "Officer",
+    href: "",
+    element: Outlet,
+    roles: [],
+    subItems: [
+      {
+        name: "Shortlist",
+        href: "/officer/shortlist",
+        roles: [],
+        element: OfficerShortlistPage,
         subItems: [],
       },
     ],

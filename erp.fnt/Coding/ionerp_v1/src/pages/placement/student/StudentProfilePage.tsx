@@ -1177,6 +1177,26 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
           >
             🚀 View Drives
           </button>
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              background: "#17375e",
+              color: "#fff",
+              border: "none",
+              padding: "6px 14px",
+              borderRadius: 6,
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+              boxShadow: "0 2px 4px rgba(23,55,94,0.3)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: 32,
+            }}
+          >
+            Back
+          </button>
         </div>
       </div>
 

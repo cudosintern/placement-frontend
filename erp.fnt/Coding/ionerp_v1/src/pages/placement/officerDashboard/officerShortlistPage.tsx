@@ -1,17 +1,15 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Eye, Users } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/api";
-import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoints";
+import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementapiEndpoint";
 import DataTable from "../../../components/Table/DataTable";
 import {
   DriveRecord,
   DriveSummary,
   DRIVE_STATUS_CONFIG,
   TIER_CONFIG,
-} from "./driveSchema";
-import DriveDetailModal from "./driveDetailModal";
+} from "../tpoDashboard/driveSchema"; 
 
 // ── Status tab config ──────────────────────────────────────────────────────
 const TAB_CONFIG: Record<
@@ -26,8 +24,8 @@ const TAB_CONFIG: Record<
   5: { label: "Cancelled", accent: "#f97316", count: (s) => s.cancelled },
 };
 
-// ── Drive List Page ───────────────────────────────────────────────────────
-const DrivePage: React.FC = () => {
+// ── Officer Shortlist Page ──────────────────────────────────────────────────
+const OfficerShortlistPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [drives, setDrives] = useState<DriveRecord[]>([]);
@@ -41,12 +39,8 @@ const DrivePage: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  // 0=All 1=Draft 2=Scheduled 3=Active 4=Closed 5=Cancelled
-  const [activeTab, setActiveTab] = useState(0);
-
-  // Detail modal state
-  const [viewDrive, setViewDrive] = useState<DriveRecord | null>(null);
-  const [detailOpen, setDetailOpen] = useState(false);
+  // Default to Active (3) as per requirement to list active drives
+  const [activeTab, setActiveTab] = useState(3);
 
   // ── Fetch all drives ──────────────────────────────────────────────────────
   const fetchDrives = useCallback(async () => {
@@ -76,29 +70,10 @@ const DrivePage: React.FC = () => {
     return drives.filter((d) => d.status === STATUS_MAP[activeTab]);
   }, [drives, activeTab]);
 
-  // ── View detail — opens the Drive Detail modal (original behaviour) ────────
-  const handleView = useCallback(async (row: DriveRecord) => {
-    try {
-      const res = await axiosInstance.get(
-        `${PlacementApiEndpoint.drive.detail}/${row.drive_id}`,
-      );
-      const body = res.data as any;
-      if (body?.status) {
-        setViewDrive(body.data);
-        setDetailOpen(true);
-      } else toast.error("Could not load drive details.");
-    } catch {
-      toast.error("Could not load drive details.");
-    }
-  }, []);
-
-
-  // ── Navigate to edit (from modal) ──────────────────────────────────────────
-  const handleEditFromDetail = (drive: DriveRecord) => {
-    setDetailOpen(false);
-    setViewDrive(null);
-    navigate("/tpo/placement-drive/edit", { state: { editDrive: drive } });
-  };
+  // ── Shortlisting — navigate to Drive Detail & Shortlisting page ─────────
+  const handleShortlisting = useCallback((row: DriveRecord) => {
+    navigate(`/tpo/placement-drive/${row.drive_id}`, { state: { drive: row } });
+  }, [navigate]);
 
   // ── Column defs ───────────────────────────────────────────────────────────
   const columnDefs = useMemo(
@@ -213,38 +188,41 @@ const DrivePage: React.FC = () => {
         cellClass: "dp-grid-cell",
         cellRenderer: (params: any) => (
           <div style={{ display: "flex", alignItems: "center", gap: 6, height: "100%" }}>
-            {/* Red eye / View button */}
+            {/* Shortlisting button */}
             <button
-              title="View drive details"
-              onClick={() => handleView(params.data)}
+              title="Open shortlisting page"
+              onClick={() => handleShortlisting(params.data)}
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                width: 30,
+                gap: 5,
+                padding: "0 10px",
                 height: 28,
-                padding: 0,
                 borderRadius: 6,
-                border: "none",
-                background: "#dc2626",
-                color: "#ffffff",
+                border: "1px solid #6366f1",
+                background: "#6366f1",
+                color: "#fff",
+                fontSize: 11,
+                fontWeight: 700,
                 cursor: "pointer",
+                whiteSpace: "nowrap",
                 flexShrink: 0,
-                boxShadow: "0 1px 3px rgba(220,38,38,0.35)",
+                boxShadow: "0 1px 3px rgba(99,102,241,0.35)",
               }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, display: "block" }}>
-                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                <circle cx="12" cy="12" r="3" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, display: "block" }}>
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
+              Shortlisting
             </button>
-
-
           </div>
         ),
       },
     ],
-    [handleView],
+    [handleShortlisting],
   );
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -253,18 +231,10 @@ const DrivePage: React.FC = () => {
       className="dp-drive-page p-6"
       style={{ fontFamily: "'Roboto', sans-serif" }}
     >
-      {/* ── Scoped styles — identical pattern to companyApprovalPage ─────── */}
       <style>{`
         .dp-drive-page,
         .dp-drive-page * {
           font-family: 'Roboto', sans-serif;
-        }
-        .dp-drive-page .dp-action-btn {
-          padding: 0 !important;
-          width: 28px !important;
-          height: 28px !important;
-          min-width: 28px !important;
-          min-height: 28px !important;
         }
         .dp-list-panel {
           border-radius: 12px;
@@ -333,14 +303,14 @@ const DrivePage: React.FC = () => {
       {/* Page header */}
       <div className="mb-6">
         <h2 className="text-2xl font-black tracking-tight text-black">
-          Placement Drives
+          Shortlist Drives
         </h2>
         <p className="mt-1 text-sm font-medium text-black/55">
-          Manage and track all campus placement drives
+          Continue the shortlisting process for active drives
         </p>
       </div>
 
-      {/* Filter tabs + count — same pill style as company approval */}
+      {/* Filter tabs + count */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1 gap-0.5">
           {Object.entries(TAB_CONFIG).map(([key, cfg]) => {
@@ -378,13 +348,6 @@ const DrivePage: React.FC = () => {
             </span>{" "}
             drives
           </p>
-          <button
-            onClick={() => navigate("/tpo/placement-drive/create")}
-            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors"
-          >
-            <Plus size={15} />
-            Create Drive
-          </button>
         </div>
       </div>
 
@@ -404,42 +367,8 @@ const DrivePage: React.FC = () => {
           }
         />
       </div>
-
-      {/* Detail modal — restored (View button) */}
-      {detailOpen && viewDrive && (
-        <DriveDetailModal
-          drive={viewDrive}
-          onClose={() => {
-            setDetailOpen(false);
-            setViewDrive(null);
-          }}
-          onEdit={handleEditFromDetail}
-          onStatusChange={async (driveId, newStatus, currentLabel) => {
-            if (
-              !window.confirm(
-                `Change status from "${currentLabel}" to "${DRIVE_STATUS_CONFIG[newStatus]?.label}"?`,
-              )
-            )
-              return;
-            try {
-              const res = await axiosInstance.put(
-                PlacementApiEndpoint.drive.status,
-                { drive_id: driveId, status: newStatus },
-              );
-              const body = res.data as any;
-              if (body?.status) {
-                toast.success(body.message || "Status updated.");
-                fetchDrives();
-                setDetailOpen(false);
-              } else toast.error(body?.message || "Failed to update status.");
-            } catch {
-              toast.error("Failed to update status.");
-            }
-          }}
-        />
-      )}
     </div>
   );
 };
 
-export default DrivePage;
+export default OfficerShortlistPage;
