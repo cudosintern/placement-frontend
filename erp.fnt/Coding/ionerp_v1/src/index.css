@@ -192,3 +192,41 @@ main button {
 .btn-cancel-glossy:hover {
   background: linear-gradient(to bottom, #ee6460 0%, #cf3a35 100%);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   INTERVIEW SCHEDULING WIZARD — Design Spells
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Modal overlay slide-in ───────────────────────────────────── */
+@keyframes wizardOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes wizardPanelIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+.animate-in {
+  animation: wizardOverlayIn 0.2s ease-out both;
+}
+.animate-in > div {
+  animation: wizardPanelIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+}
+
+/* ── Tooltip fade in ──────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+.animate-fade-in {
+  animation: fadeIn 0.15s ease-out both;
+}
+
+/* ── Protect wizard buttons from the global `main button` rule ── */
+/* The wizard lives inside a fixed overlay, not inside <main>,
+   but this scoped rule ensures pixel-perfect padding regardless. */
+.schedule-wizard-modal button {
+  padding: unset !important;
+}
+

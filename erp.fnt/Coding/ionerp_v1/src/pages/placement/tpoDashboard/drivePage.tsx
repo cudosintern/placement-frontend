@@ -92,10 +92,7 @@ const DrivePage: React.FC = () => {
     }
   }, []);
 
-  // ── Shortlisting — navigate to Drive Detail & Shortlisting page ─────────
-  const handleShortlisting = useCallback((row: DriveRecord) => {
-    navigate(`/tpo/placement-drive/${row.drive_id}`, { state: { drive: row } });
-  }, [navigate]);
+
 
   // ── Navigate to edit (from modal) ──────────────────────────────────────────
   const handleEditFromDetail = (drive: DriveRecord) => {
@@ -210,7 +207,7 @@ const DrivePage: React.FC = () => {
       },
       {
         headerName: "Actions",
-        width: 170,
+        width: 65,
         flex: 0,
         sortable: false,
         filter: false,
@@ -242,42 +239,11 @@ const DrivePage: React.FC = () => {
                 <circle cx="12" cy="12" r="3" />
               </svg>
             </button>
-
-            {/* Shortlisting button */}
-            <button
-              title="Open shortlisting page"
-              onClick={() => handleShortlisting(params.data)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 5,
-                padding: "0 10px",
-                height: 28,
-                borderRadius: 6,
-                border: "1px solid #6366f1",
-                background: "#6366f1",
-                color: "#fff",
-                fontSize: 11,
-                fontWeight: 700,
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-                flexShrink: 0,
-                boxShadow: "0 1px 3px rgba(99,102,241,0.35)",
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, display: "block" }}>
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-              Shortlisting
-            </button>
           </div>
         ),
       },
     ],
-    [handleView, handleShortlisting],
+    [handleView],
   );
 
   // ── Render ────────────────────────────────────────────────────────────────

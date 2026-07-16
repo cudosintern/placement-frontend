@@ -6,6 +6,7 @@ import StatusDialog from "../../../../components/Dialog/StatusDialog";
 import DataTable from "../../../../components/Table/DataTable";
 import { Schema, SchemaColumnDefs, SchemaFields } from "./companySchema";
 import { ApiEndpoint } from "../../../../utils/ApiEndpoint/emsapiEndpoint";
+import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoints";
 import { useAxios } from "../../../../hooks/useAxios";
 import { CompanyResponse } from "./responseInterface";
 import { GoPencil } from "react-icons/go";
@@ -26,7 +27,7 @@ const CompanyList: React.FC = () => {
   const { responseData, setResponseData, addItem, editStateItem, addStateItem, refetch } = useAxios<
     {},
     any
-  >(ApiEndpoint.company.company_list, {
+  >(PlacementApiEndpoint.company.list, {
     method: "post",
     loader: true,
     payload: {},
@@ -311,7 +312,7 @@ const CompanyList: React.FC = () => {
         return;
       }
 
-      const response = await addItem(updatePayload as any, ApiEndpoint.company.save_company);
+      const response = await addItem(updatePayload as any, PlacementApiEndpoint.company.save);
       if (!response) return;
 
       // Update local state so UI reflects the change immediately

@@ -70,6 +70,20 @@ export const PLACEMENTROUTE = [
             element: require("../pages/placement/plm/WaitlistManagement").default,
             subItems: [],
           },
+          {
+            name: "Interview Schedule",
+            href: "plm/interview-schedule",
+            roles: [],
+            element: require("../pages/placement/plm/interview/InterviewSchedulePage").default,
+            subItems: [],
+          },
+          {
+            name: "Round Results",
+            href: "plm/round-results",
+            roles: [],
+            element: require("../pages/placement/plm/interview/RoundResultPage").default,
+            subItems: [],
+          },
         ],
       },
       {
@@ -79,29 +93,29 @@ export const PLACEMENTROUTE = [
         element: CompanyContactPage,
         subItems: [],
       },
-       {
-    name: "Notification Template",
-    href: "notification-template",
-    roles: [],
-    element: NotificationTemplatePage,
-    subItems: [],
-  },
+      {
+        name: "Notification Template",
+        href: "notification-template",
+        roles: [],
+        element: NotificationTemplatePage,
+        subItems: [],
+      },
 
-  {
-  name: "Notification Log",
-  href: "notification-log",
-  roles: [],
-  element: NotificationLogPage,
-  subItems: [],
-},
+      {
+        name: "Notification Log",
+        href: "notification-log",
+        roles: [],
+        element: NotificationLogPage,
+        subItems: [],
+      },
 
-{
-  name: "Event Type",
-  href: "event-type",
-  roles: [],
-  element: EventTypePage,
-  subItems: [],
-},
+      {
+        name: "Event Type",
+        href: "event-type",
+        roles: [],
+        element: EventTypePage,
+        subItems: [],
+      },
       {
         name: "Configuration",
         href: "",
@@ -195,3 +209,4 @@ export const PLACEMENTROUTE = [
 ];
 
 export default PLACEMENTROUTE;
+
