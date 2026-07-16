@@ -393,8 +393,9 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
     return c.designation_name && selectedRoles.includes(c.designation_name);
   });
 
-  const drivesCreated = detailedCompany?.drives_created || (useMock ? (Number(company?.company_id ?? (company as any).id) === 1 ? 3 : Number(company?.company_id ?? (company as any).id) === 2 ? 2 : 4) : 0);
-  const offersGiven = detailedCompany?.offers_given || (useMock ? (Number(company?.company_id ?? (company as any).id) === 1 ? 12 : Number(company?.company_id ?? (company as any).id) === 2 ? 8 : 15) : 0);
+  const drivesList = detailedCompany?.drives || [];
+  const drivesCreated = drivesList.length || (useMock ? (Number(company?.company_id ?? (company as any).id) === 1 ? 3 : Number(company?.company_id ?? (company as any).id) === 2 ? 2 : 4) : 0);
+  const offersGiven = drivesList.reduce((acc: number, d: any) => acc + (d.students_passed?.length ?? 0), 0) || (useMock ? (Number(company?.company_id ?? (company as any).id) === 1 ? 12 : Number(company?.company_id ?? (company as any).id) === 2 ? 8 : 15) : 0);
   const interviewersCount = displayContacts.length;
 
   const isCompanyInactive = company?.status === 0;
