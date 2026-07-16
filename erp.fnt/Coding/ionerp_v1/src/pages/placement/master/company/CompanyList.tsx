@@ -45,7 +45,7 @@ const CompanyList: React.FC = () => {
   const [viewCompany, setViewCompany] = React.useState<CompanyResponse | null>(null);
   const [statusTarget, setStatusTarget] = React.useState<CompanyResponse | null>(null);
 
-  const useMock = process.env.REACT_APP_BYPASS_LOGIN === "true";
+  const useMock = false;
 
   const { responseData, setResponseData, addItem, editStateItem, addStateItem, refetch } = useAxios<
     {},

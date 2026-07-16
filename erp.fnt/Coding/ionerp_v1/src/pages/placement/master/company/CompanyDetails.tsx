@@ -62,7 +62,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
   const [designationId, setDesignationId] = useState("");
   const [isPrimary, setIsPrimary] = useState(false);
 
-  const useMock = process.env.REACT_APP_BYPASS_LOGIN === "true";
+  const useMock = false;
 
   const fetchDesignations = useCallback(async () => {
     try {
