@@ -1,5 +1,5 @@
 import axiosInstance from "../../../utils/api";
-import { ApiEndpoint, PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoints";
+import { PlacementApiEndpoint as ApiEndpoint, PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoints";
 import {
   IEMStudentInfo,
   AllStudentRow,
@@ -620,5 +620,45 @@ export const getMyApplications = async (
   } catch (err) {
     console.error("studentProfileService.getMyApplications", err);
     return [];
+  }
+};
+
+export interface StudentNotification {
+  log_id: number;
+  subject: string;
+  body: string;
+  sent_at: string;
+  status: string;
+  expires_at?: string | null;
+  is_expired?: boolean;
+}
+
+export interface StudentNotificationsResponse {
+  student_id: number;
+  is_scheduled: boolean;
+  notifications: StudentNotification[];
+}
+
+export const getStudentNotifications = async (studentId: number): Promise<StudentNotificationsResponse> => {
+  try {
+    const res = await axiosInstance.get(
+      `${PlacementApiEndpoint.interview.student_notifications}?student_id=${studentId}`
+    );
+    return unwrap<StudentNotificationsResponse>(res);
+  } catch (err) {
+    console.error("studentProfileService.getStudentNotifications", err);
+    return { student_id: studentId, is_scheduled: false, notifications: [] };
+  }
+};
+
+export const markNotificationAsRead = async (logId: number): Promise<boolean> => {
+  try {
+    await axiosInstance.patch(
+      PlacementApiEndpoint.interview.student_notifications_read.replace("{log_id}", String(logId))
+    );
+    return true;
+  } catch (err) {
+    console.error("studentProfileService.markNotificationAsRead", err);
+    return false;
   }
 };

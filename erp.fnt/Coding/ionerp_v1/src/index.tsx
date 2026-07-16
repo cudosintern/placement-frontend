@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
+import "./plm_index.css";
 import App from "./App";
 import { LoaderProvider } from "./contexts/LoaderContext";
 import { ThemeProvider } from "./contexts/ThemeContext";

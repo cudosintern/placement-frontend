@@ -206,7 +206,7 @@ const DrivePage: React.FC = () => {
       },
       {
         headerName: "Actions",
-        width: 170,
+        width: 65,
         flex: 0,
         sortable: false,
         filter: false,

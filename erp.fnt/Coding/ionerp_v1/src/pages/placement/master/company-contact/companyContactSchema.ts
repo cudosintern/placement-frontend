@@ -14,19 +14,19 @@ export const SchemaFields = [
     group: "",
     fields: [
       {
-  type: "select",
-  name: "company_id",
-  label: "Company",
-  placeholder: "Select Company",
-  required: true,
-  loadOptions: async () => {
-    return [
-      { label: "Infosys", value: "1" },
-      { label: "TCS", value: "2" },
-      { label: "Wipro", value: "3" },
-    ];
-  },
-},
+        type: "select",
+        name: "company_id",
+        label: "Company",
+        placeholder: "Select Company",
+        required: true,
+        loadOptions: async () => {
+          return [
+            { label: "Infosys", value: "1" },
+            { label: "TCS", value: "2" },
+            { label: "Wipro", value: "3" },
+          ];
+        },
+      },
       {
         type: "text",
         name: "contact_name",
@@ -35,13 +35,13 @@ export const SchemaFields = [
         required: true,
       },
       {
-  type: "select",
-  name: "designation",
-  label: "Designation",
-  placeholder: "Select Designation",
-  required: true,
-  loadOptions: async () => [],
-},
+        type: "select",
+        name: "designation",
+        label: "Designation",
+        placeholder: "Select Designation",
+        required: true,
+        loadOptions: async () => [],
+      },
       {
         type: "text",
         name: "email",
@@ -105,6 +105,15 @@ export const SchemaColumnDefs = [
     filter: true,
     cellRenderer: (params: any) => {
       return params.value ? "✅ Primary" : "";
+    },
+  },
+  {
+    headerName: "Interviewer",
+    field: "is_interviewer",
+    sortable: true,
+    filter: true,
+    cellRenderer: (params: any) => {
+      return params.value ? "✅ Interviewer" : "";
     },
   },
 ];

@@ -47,6 +47,26 @@ export const PlacementApiEndpoint = {
     delete_slot: "placement/interview/slots/delete",
     eligible_students: "placement/interview/slots/eligible-students",
     submit_result: "placement/interview/slots/result/submit",
+
+    // Our Custom Interview Scheduling Endpoints
+    meta:             "placement/interview/meta",                   // GET  — drives + rounds dropdown data
+    schedule_save:    "placement/interview/schedule/save",          // POST — create schedule
+    schedule_update:  "placement/interview/schedule/save",          // PUT  — update schedule
+    schedule_list:    "placement/interview/schedule/list",          // GET  — list all schedules
+    schedule_detail:  "placement/interview/schedule/detail",        // GET  — single schedule
+    slot_eligible:    "placement/interview/slot/eligible-students", // GET  — shortlisted students for drive
+    slot_assign:      "placement/interview/slot/assign",            // POST — bulk assign slots
+    slot_list:        "placement/interview/slot/list",              // GET  — slots for a schedule
+    slot_list_by_schedule: "placement/interview/schedule/slots",    // GET  — slot list with student info
+    schedule_dispatch:"placement/interview/schedule/dispatch/{schedule_id}", // POST
+    schedule_notify:  "placement/interview/schedule/notify",                  // POST
+    result_save:      "placement/interview/result/save",            // POST — bulk save results
+    result_list:      "placement/interview/result/list",            // GET  — results for a schedule
+    result_override:  "placement/interview/result/override",        // PATCH — override single result
+    interviewers_list: "placement/interview/interviewers",          // GET — list of all active interviewers
+    student_notifications: "placement/interview/student-notifications", // GET — list of notifications for a student
+    student_notifications_read: "placement/interview/student-notifications/read/{log_id}", // PATCH — mark notification as read
+    check_interviewer_conflict: "placement/interview/check_interviewer_conflict", // GET — check interviewer availability conflict
   },
 
   // Phase 5: Offer Management

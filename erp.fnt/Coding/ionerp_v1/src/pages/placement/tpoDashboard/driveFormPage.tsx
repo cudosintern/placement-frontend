@@ -34,6 +34,7 @@ const EMPTY_ROUND: Omit<DriveRound, "round_id" | "drive_id"> = {
 const MAX_BATCH_YEARS = 4;
 
 // ─── Shared styles ────────────────────────────────────────────────────────────
+// ─── Shared styles ────────────────────────────────────────────────────────────
 const inputCls =
   "w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition placeholder:text-gray-400";
 const labelCls =
@@ -46,13 +47,10 @@ const Section: React.FC<{
   subtitle?: string;
   children: React.ReactNode;
   accent?: string;
-}> = ({ icon, title, subtitle, children, accent = "#6366f1" }) => (
-  <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm">
+}> = ({ icon, title, subtitle, children, accent = "#2563eb" }) => (
+  <div className="space-y-4">
     {/* Section header */}
-    <div
-      className="flex items-center gap-3 px-6 py-4 border-b border-gray-100"
-      style={{ borderLeft: `4px solid ${accent}` }}
-    >
+    <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gradient-to-b from-white to-slate-50 border border-gray-200 shadow-[0_3px_0_#e5e7eb] mb-2">
       <span
         className="flex h-8 w-8 items-center justify-center rounded-lg text-white"
         style={{ backgroundColor: accent }}
@@ -60,11 +58,11 @@ const Section: React.FC<{
         {icon}
       </span>
       <div>
-        <h3 className="text-sm font-bold text-gray-800">{title}</h3>
-        {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
+        <h3 className="text-sm font-bold text-black">{title}</h3>
+        {subtitle && <p className="text-[11px] text-gray-400 font-medium mt-0.5">{subtitle}</p>}
       </div>
     </div>
-    <div className="p-6 space-y-5">{children}</div>
+    <div className="p-2 space-y-4">{children}</div>
   </div>
 );
 
@@ -412,36 +410,65 @@ const DriveFormPage: React.FC = () => {
   }
 
   return (
-    <div
-      className="min-h-screen bg-slate-50 pb-16"
-      style={{ fontFamily: "'Roboto', sans-serif" }}
-    >
-      {/* ── Sticky top header ──────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center gap-4">
-          <button
-            type="button"
-            onClick={() => navigate("/tpo/placement-drive")}
-            className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100"
-          >
-            <ArrowLeft size={15} />
-            Back
-          </button>
-          <div className="flex-1">
-            <h1 className="text-xl font-black text-gray-900">
-              {isEdit ? "Edit Placement Drive" : "Create Placement Drive"}
-            </h1>
-            <p className="text-xs text-gray-400 mt-0.5">
-              {isEdit
-                ? `Editing "${editDrive?.drive_name}"`
-                : "Fill in all sections below to create a new drive"}
-            </p>
+    <div className="cr-registration-page mx-auto max-w-5xl px-4 py-6" style={{ fontFamily: "'Roboto', sans-serif" }}>
+      <style>{`
+        .cr-registration-page, .cr-registration-page * {
+          font-family: 'Roboto', sans-serif;
+        }
+        .cr-form-panel label {
+          font-weight: 600 !important;
+          color: #111827 !important;
+          font-size: 0.75rem !important;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        .cr-form-panel input,
+        .cr-form-panel select,
+        .cr-form-panel textarea {
+          border-radius: 0.85rem !important;
+          border-color: #e5e7eb !important;
+          background-color: #f9fafb !important;
+          box-shadow: 0 2px 0 #f3f4f6;
+          transition: all 0.2s ease-in-out;
+        }
+        .cr-form-panel input:focus,
+        .cr-form-panel select:focus,
+        .cr-form-panel textarea:focus {
+          border-color: #2563eb !important;
+          background-color: #ffffff !important;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+      `}</style>
+
+      {/* Header */}
+      <div
+        className="mb-6 rounded-3xl border border-white bg-white p-6"
+        style={{
+          boxShadow:
+            "0 1px 0 rgba(255,255,255,0.9) inset, 0 14px 32px -14px rgba(37,99,235,0.18), 0 4px 0 #1d4ed8",
+        }}
+      >
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-[0_4px_0_#bfdbfe]">
+              <Building2 className="h-7 w-7" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight text-black">
+                {isEdit ? "Edit Placement Drive" : "Create Placement Drive"}
+              </h1>
+              <p className="mt-1 max-w-2xl text-sm font-medium text-black/55">
+                {isEdit
+                  ? `Editing "${editDrive?.drive_name}". Configure job details, schedule timeline, and eligibility.`
+                  : "Fill in the company details, schedule timeline, criteria, and interview rounds to launch a drive."}
+              </p>
+            </div>
           </div>
           <div className="flex gap-3">
             <button
               type="button"
               onClick={() => navigate("/tpo/placement-drive")}
-              className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50"
+              className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-xs font-bold text-black shadow-[0_3px_0_#d1d5db] transition-all hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[0_1px_0_#d1d5db]"
             >
               Cancel
             </button>
@@ -449,18 +476,56 @@ const DriveFormPage: React.FC = () => {
               type="button"
               onClick={submitForm}
               disabled={saving}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-60 shadow-sm"
+              className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-xs font-bold text-white shadow-[0_4px_0_#1d4ed8] transition-all hover:-translate-y-0.5 hover:bg-blue-500 active:translate-y-0.5 active:shadow-[0_1px_0_#1d4ed8]"
             >
-              {saving && <Loader2 size={14} className="animate-spin" />}
+              {saving && <Loader2 size={13} className="animate-spin" />}
               {isEdit ? "Save Changes" : "Create Drive"}
             </button>
           </div>
         </div>
       </div>
 
+      {/* Steps */}
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { icon: Building2, label: "Company & Role", desc: "Job details & role type" },
+          { icon: CalendarDays, label: "Schedule & Status", desc: "Dates & publish status" },
+          { icon: ShieldCheck, label: "Eligibility Criteria", desc: "CGPA, branch, batch" },
+          { icon: ListOrdered, label: "Define Rounds", desc: "Selection stages" },
+        ].map((step, index) => {
+          const Icon = step.icon;
+          return (
+            <div
+              key={step.label}
+              className="rounded-2xl border border-white bg-white p-4"
+              style={{
+                boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset, 0 8px 24px -10px rgba(0,0,0,0.12), 0 3px 0 #e5e7eb",
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-sm font-black text-white shadow-[0_3px_0_rgba(0,0,0,0.25)]">
+                  {index + 1}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <Icon className="h-4 w-4 text-blue-600 shrink-0" />
+                    <p className="text-xs font-bold text-black truncate">{step.label}</p>
+                  </div>
+                  <p className="text-[10px] font-medium text-black/50 truncate mt-0.5">{step.desc}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
       <form
         onSubmit={handleSubmit}
-        className="max-w-5xl mx-auto px-6 pt-8 space-y-6"
+        className="cr-form-panel rounded-3xl border border-white bg-white p-6 md:p-8 space-y-8"
+        style={{
+          boxShadow:
+            "0 1px 0 rgba(255,255,255,0.9) inset, 0 18px 44px -18px rgba(0,0,0,0.14), 0 4px 0 #e5e7eb",
+        }}
       >
         {/* ══════════════════════════════════════════════════════════════════
             SECTION 1 — Company & Role
@@ -871,7 +936,7 @@ const DriveFormPage: React.FC = () => {
 
                   {/* Round name */}
                   <div className="flex-1 min-w-[160px]">
-                    <label className={labelCls}>Round Name</label>
+                     <label className={labelCls}>Round Name</label>
                     <input
                       type="text"
                       value={r.round_name}
@@ -935,8 +1000,8 @@ const DriveFormPage: React.FC = () => {
                     />
                   </div>
 
-                  {/* Eliminatory toggle + delete */}
-                  <div className="flex flex-col gap-2 pt-5 items-end ml-auto">
+                  {/* Eliminatory & Action */}
+                  <div className="flex items-center gap-3 pt-6 min-h-[38px]">
                     <label className="flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-gray-600 whitespace-nowrap">
                       <input
                         type="checkbox"
@@ -978,20 +1043,20 @@ const DriveFormPage: React.FC = () => {
         </Section>
 
         {/* ── Bottom submit bar ───────────────────────────────────────────────── */}
-        <div className="flex justify-end gap-3 pt-2 pb-4">
+        <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
           <button
             type="button"
             onClick={() => navigate("/tpo/placement-drive")}
-            className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50"
+            className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-xs font-bold text-black shadow-[0_3px_0_#d1d5db] transition-all hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[0_1px_0_#d1d5db]"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-7 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-60 shadow-sm"
+            className="flex items-center gap-2 rounded-xl bg-blue-600 px-7 py-2.5 text-xs font-bold text-white shadow-[0_4px_0_#1d4ed8] transition-all hover:-translate-y-0.5 hover:bg-blue-500 active:translate-y-0.5 active:shadow-[0_1px_0_#1d4ed8]"
           >
-            {saving && <Loader2 size={15} className="animate-spin" />}
+            {saving && <Loader2 size={13} className="animate-spin" />}
             {isEdit ? "Save Changes" : "Create Drive"}
           </button>
         </div>
