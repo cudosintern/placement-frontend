@@ -243,9 +243,14 @@ const AvailableDrivesPage: React.FC = () => {
   const handleWithdraw = async (driveId: number, companyName: string) => {
     const profileId = selectedStudent?.profile_id;
     if (!profileId) return;
-    const confirmed = window.confirm(
-      `Are you sure you want to withdraw your application for ${companyName}?\n\nThis action cannot be undone if rounds have already been scheduled.`
-    );
+    
+    const currentStatus = applyMap[driveId];
+    const isShortlisted = currentStatus === "shortlisted";
+    const confirmMsg = isShortlisted
+      ? `Are you sure you want to withdraw your application for ${companyName}?\n\nYou are currently Shortlisted. Withdrawing will remove you from the shortlist and the next waitlisted student will be promoted.`
+      : `Are you sure you want to withdraw your application for ${companyName}?\n\nThis action cannot be undone if rounds have already been scheduled.`;
+      
+    const confirmed = window.confirm(confirmMsg);
     if (!confirmed) return;
     setWithdrawing(driveId);
     try {
@@ -380,13 +385,31 @@ const AvailableDrivesPage: React.FC = () => {
       )}
 
       {/* ── Page Header ── */}
-      <div style={{ marginBottom: 22 }}>
-        <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#17375e" }}>Available Drives</h2>
-        <p style={{ margin: "4px 0 0", fontSize: 13, color: "#888" }}>
-          {profileMode
-            ? "Active placement drives — showing your eligibility against each drive."
-            : "Active placement drives open for your batch. Go to your profile to check eligibility and apply."}
-        </p>
+      <div style={{ marginBottom: 22, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#17375e" }}>Available Drives</h2>
+          <p style={{ margin: "4px 0 0", fontSize: 13, color: "#888" }}>
+            {profileMode
+              ? "Active placement drives — showing your eligibility against each drive."
+              : "Active placement drives open for your batch. Go to your profile to check eligibility and apply."}
+          </p>
+        </div>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            background: "#17375e",
+            color: "#fff",
+            border: "none",
+            padding: "6px 14px",
+            borderRadius: 6,
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: "pointer",
+            boxShadow: "0 2px 4px rgba(23,55,94,0.3)",
+          }}
+        >
+          Back
+        </button>
       </div>
 
       {/* ── Student Banner (profile mode only) ── */}
@@ -686,9 +709,9 @@ const AvailableDrivesPage: React.FC = () => {
                         >
                           {isApplying ? "Applying…" : eligible ? "Apply Now" : "Not Eligible"}
                         </button>
-                      ) : profileMode && currentStatus === "applied" ? (
+                      ) : profileMode && (currentStatus === "applied" || currentStatus === "shortlisted") ? (
                         <>
-                          <button disabled style={{ padding: "8px 20px", fontSize: 12, fontWeight: 700, color: statusCfg.color, background: statusCfg.bg, border: `1px solid ${statusCfg.color}44`, borderRadius: 4, cursor: "default", minWidth: 100 }}>✔ Applied</button>
+                          <button disabled style={{ padding: "8px 20px", fontSize: 12, fontWeight: 700, color: statusCfg.color, background: statusCfg.bg, border: `1px solid ${statusCfg.color}44`, borderRadius: 4, cursor: "default", minWidth: 100 }}>✔ {statusCfg.label}</button>
                           <button
                             id={`withdraw-btn-${d.drive_id}`}
                             disabled={withdrawing === d.drive_id}
