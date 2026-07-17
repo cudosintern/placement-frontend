@@ -261,17 +261,31 @@ const columnDefsWithAction = [
   ),
 },
 ];
-const formFields = SchemaFields.map((group: any) => ({
-  ...group,
-  fields: group.fields.map((field: any) =>
-    field.name === "designation"
-      ? {
+  const companyOptions = ((companyData as any[]) || []).map(
+    (c: any) => ({
+      label: c.company_name,
+      value: String(c.company_id),
+    })
+  );
+
+  const formFields = SchemaFields.map((group: any) => ({
+    ...group,
+    fields: group.fields.map((field: any) => {
+      if (field.name === "designation") {
+        return {
           ...field,
           loadOptions: async () => designationOptions,
-        }
-      : field
-  ),
-}));
+        };
+      }
+      if (field.name === "company_id") {
+        return {
+          ...field,
+          loadOptions: async () => companyOptions,
+        };
+      }
+      return field;
+    }),
+  }));
 return (
     <div>
       {isModalOpen && (
