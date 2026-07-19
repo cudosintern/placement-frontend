@@ -187,6 +187,20 @@ export const PLACEMENTROUTE = [
         element: ShortlistApprovalPage,
         subItems: [],
       },
+      {
+        name: "Student Placement Report",
+        href: "/tpo/reports/student-placement",
+        roles: [],
+        element: require("../pages/placement/reports/StudentPlacementReport").default,
+        subItems: [],
+      },
+      {
+        name: "Drive Summary Report",
+        href: "/tpo/reports/drive-summary",
+        roles: [],
+        element: require("../pages/placement/reports/DriveSummaryReport").default,
+        subItems: [],
+      },
     ],
   },
   {
