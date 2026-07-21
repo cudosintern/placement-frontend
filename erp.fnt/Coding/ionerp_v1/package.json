@@ -44,7 +44,7 @@
     "react-toastify": "^10.0.6",
     "recharts": "^2.15.4",
     "tinymce": "^6.8.6",
-    "typescript": "^5.9.3",
+    "typescript": "5.9.3",
     "web-vitals": "^2.1.4",
     "xlsx": "^0.18.5",
     "zod": "^3.25.76"

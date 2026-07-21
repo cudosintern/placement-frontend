@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/api";
-import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementapiEndpoint";
+import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoints";
 import DataTable from "../../../components/Table/DataTable";
 import {
   DriveRecord,
