@@ -254,7 +254,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
     setLastName("");
     setEmailVal("");
     setPhoneVal("");
-    setDesignationId(designations[0]?.designation_id.toString() || "");
+    setDesignationId("");
     setIsPrimary(false);
     setIsFormOpen(true);
   };
@@ -274,6 +274,28 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
     e.preventDefault();
     if (!firstName.trim()) {
       toast.error("First Name is required");
+      return;
+    }
+    if (!emailVal.trim()) {
+      toast.error("Email Address is required");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailVal.trim())) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    if (!phoneVal.trim()) {
+      toast.error("Mobile / Phone Number is required");
+      return;
+    }
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phoneVal.trim())) {
+      toast.error("Mobile / Phone Number must be exactly 10 digits");
+      return;
+    }
+    if (!designationId) {
+      toast.error("Designation is required");
       return;
     }
     const cid = company?.company_id ?? (company as any).id;
@@ -352,7 +374,10 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
   const address = company.address ?? (company as any).address ?? "-";
   const website = company.website ?? (company as any).website ?? "";
   const industry = company.industry ?? (company as any).industry ?? "Software";
-  const location = [company.city || (company as any).city, company.state || (company as any).state].filter(Boolean).join(", ") || company.country || (company as any).country || "India";
+  const location = [
+    (company as any).city_name || company.city,
+    (company as any).state_name || company.state
+  ].filter(Boolean).join(", ") || (company as any).country_name || company.country || "India";
   const pincode = company.pincode ?? (company as any).pincode ?? "-";
   const description = company.description ?? (company as any).description ?? "";
   const linkedin = (company as any).linkedin ?? "";
@@ -376,7 +401,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
       email: company?.contact_email ?? (company as any)?.contact_email ?? "",
       phone: company?.contact_phone ?? (company as any)?.contact_phone ?? "",
       designation_id: 0,
-      designation_name: company?.contact_designation ?? (company as any)?.contact_designation ?? "Primary Recruiter",
+      designation_name: (company as any)?.contact_designation_name ?? company?.contact_designation ?? (company as any)?.contact_designation ?? "Primary Recruiter",
       is_primary: 1,
       status: 1,
       is_active: 1,
@@ -785,10 +810,11 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
 
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
-              Email Address
+              Email Address *
             </label>
             <input
               type="email"
+              required
               value={emailVal}
               onChange={(e) => setEmailVal(e.target.value)}
               className="w-full rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-950 transition text-gray-900 dark:text-gray-100"
@@ -798,26 +824,29 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
 
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
-              Mobile / Phone Number
+              Mobile / Phone Number *
             </label>
             <input
               type="tel"
+              required
               value={phoneVal}
               onChange={(e) => setPhoneVal(e.target.value)}
               className="w-full rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-950 transition text-gray-900 dark:text-gray-100"
-              placeholder="e.g. +91 98765 43210"
+              placeholder="e.g. 9876543210"
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
-              Designation
+              Designation *
             </label>
             <select
               value={designationId}
+              required
               onChange={(e) => setDesignationId(e.target.value)}
               className="w-full rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 px-3.5 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-950 transition cursor-pointer text-gray-900 dark:text-gray-100"
             >
+              <option value="">Select Designation</option>
               {designations.map((d) => (
                 <option key={d.designation_id} value={d.designation_id}>
                   {d.designation_name}

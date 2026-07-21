@@ -3,6 +3,7 @@ import DataTable from "../../../../components/Table/DataTable";
 import ModalWithForm from "../../../../components/Modal/ModalWithForm";
 import notificationService from "./notificationService";
 import eventTypeService from "../event-type/eventTypeService";
+import { toast } from "react-toastify";
 
 import {
   Schema,
@@ -62,33 +63,39 @@ const editTemplateHandler = (template: any) => {
 const deleteTemplateHandler = async (id: number) => {
   try {
     await notificationService.deleteTemplate(id);
-
+    toast.success("Notification Template deleted successfully!");
     const response = await notificationService.getTemplates();
-
     setTemplates((response as any).data || []);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
+    toast.error(error.response?.data?.message || "Failed to delete notification template.");
   }
 };
 const handleFormSubmit = async (data: any) => {
   try {
+    const payload = {
+      ...data,
+      event_type_id: data.event_type_id ? Number(data.event_type_id) : null,
+    };
     if (editingTemplate) {
       await notificationService.updateTemplate(
         editingTemplate.id,
-        data
+        payload
       );
+      toast.success("Notification Template updated successfully!");
     } else {
-      await notificationService.addTemplate(data);
+      await notificationService.addTemplate(payload);
+      toast.success("Notification Template added successfully!");
     }
 
     const response = await notificationService.getTemplates();
-
     setTemplates((response as any).data || []);
 
     setEditingTemplate(null);
     setIsModalOpen(false);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
+    toast.error(error.response?.data?.message || "Failed to save Notification Template.");
   }
 };
 

@@ -421,6 +421,7 @@ const CompanyList: React.FC = () => {
       const updatePayload = {
         ...data,
         company_id: editingData ? (editingData as any).company_id ?? editingData.id : null,
+        status: editingData ? (editingData as any).status : 1,
       } as any;
 
       if (useMock) {

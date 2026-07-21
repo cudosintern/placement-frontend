@@ -5,7 +5,7 @@ export const Schema = z.object({
   contact_name: z.string().min(1, { message: "Contact Name is required" }),
   designation: z.any(),
   email: z.string().email({ message: "Valid Email is required" }),
-  mobile: z.string().min(10, { message: "Mobile Number is required" }),
+  mobile: z.string().regex(/^\d{10}$/, { message: "Mobile Number must be exactly 10 numeric digits" }),
   is_primary: z.any().optional(),
 });
 

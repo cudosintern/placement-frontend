@@ -1,6 +1,7 @@
 import { z } from "zod";
 import axiosInstance from "../../../../utils/api";
 import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementApiEndpoints";
+import { ApiEndpoint } from "../../../../utils/ApiEndpoint/emsapiEndpoint";
 
 export const Schema = z.object({
   company_name: z.string().min(1, {
@@ -22,8 +23,8 @@ export const Schema = z.object({
   }).email({
     message: "Valid Email is required",
   }),
-  phone: z.string().min(10, {
-    message: "Phone number must be at least 10 digits",
+  phone: z.string().regex(/^\d{10}$/, {
+    message: "Phone number must be exactly 10 numeric digits",
   }),
   description: z.string().optional().nullable(),
   
@@ -39,8 +40,8 @@ export const Schema = z.object({
   country: z.string().min(1, {
     message: "Country is required",
   }),
-  pincode: z.string().min(6, {
-    message: "ZIP / Postal Code must be 6 characters",
+  pincode: z.string().regex(/^\d{6}$/, {
+    message: "ZIP / Postal Code must be exactly 6 numeric digits",
   }),
 
   contact_person: z.string().min(1, {
@@ -49,8 +50,8 @@ export const Schema = z.object({
   contact_designation: z.string().min(1, {
     message: "Contact Designation is required",
   }),
-  contact_phone: z.string().min(10, {
-    message: "Contact Phone number must be at least 10 digits",
+  contact_phone: z.string().regex(/^\d{10}$/, {
+    message: "Contact Phone number must be exactly 10 numeric digits",
   }),
   contact_email: z.string().min(1, {
     message: "Contact Email Address is required",
@@ -156,7 +157,7 @@ export const SchemaFields = [
             if (resData?.status && Array.isArray(resData.data)) {
               return resData.data.map((c: any) => ({
                 label: c.name,
-                value: c.name,
+                value: c.country_id.toString(),
               }));
             }
             return [];
@@ -173,18 +174,17 @@ export const SchemaFields = [
         placeholder: "Select State",
         required: true,
         dependsOn: "country",
-        loadOptions: async (countryName: any) => {
+        loadOptions: async (countryId: any) => {
           try {
+            if (!countryId) return [];
             const response = await axiosInstance.get(
-              `${PlacementApiEndpoint.companyRegistration.states}?country_name=${encodeURIComponent(
-                countryName
-              )}`
+              `${PlacementApiEndpoint.companyRegistration.states}?country_id=${countryId}`
             );
             const resData = response.data as any;
             if (resData?.status && Array.isArray(resData.data)) {
               return resData.data.map((s: any) => ({
                 label: s.name,
-                value: s.name,
+                value: s.state_id.toString(),
               }));
             }
             return [];
@@ -201,18 +201,17 @@ export const SchemaFields = [
         placeholder: "Select City",
         required: true,
         dependsOn: "state",
-        loadOptions: async (stateName: any) => {
+        loadOptions: async (stateId: any) => {
           try {
+            if (!stateId) return [];
             const response = await axiosInstance.get(
-              `${PlacementApiEndpoint.companyRegistration.cities}?state_name=${encodeURIComponent(
-                stateName
-              )}`
+              `${PlacementApiEndpoint.companyRegistration.cities}?state_id=${stateId}`
             );
             const resData = response.data as any;
             if (resData?.status && Array.isArray(resData.data)) {
               return resData.data.map((c: any) => ({
                 label: c.name,
-                value: c.name,
+                value: c.city_id.toString(),
               }));
             }
             return [];
@@ -242,11 +241,29 @@ export const SchemaFields = [
         placeholder: "e.g. Sudha Murty",
       },
       {
-        type: "text",
+        type: "select",
         name: "contact_designation",
         label: "Contact Designation",
         required: true,
-        placeholder: "e.g. TA Lead / HR Manager",
+        placeholder: "Select Designation",
+        loadOptions: async () => {
+          try {
+            const response = await axiosInstance.get(
+              ApiEndpoint.placementContact.get_designations
+            );
+            const resData = response.data as any;
+            if (resData?.status && Array.isArray(resData.data)) {
+              return resData.data.map((d: any) => ({
+                label: d.designation_name,
+                value: d.designation_id.toString(),
+              }));
+            }
+            return [];
+          } catch (error) {
+            console.error("Failed to load designations:", error);
+            return [];
+          }
+        },
       },
       {
         type: "text",

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import DataTable from "../../../../components/Table/DataTable";
 import ModalWithForm from "../../../../components/Modal/ModalWithForm";
 import eventTypeService from "./eventTypeService";
+import { toast } from "react-toastify";
 
 import {
   Schema,
@@ -37,14 +38,16 @@ const handleFormSubmit = async (data: any) => {
     if (editingEventType) {
       console.log("Editing Record:", editingEventType);
       await eventTypeService.updateEventType(
-  editingEventType.id,
-  {
-    ...data,
-    status: editingEventType.status ?? 1,
-  }
-);
+        editingEventType.id,
+        {
+          ...data,
+          status: editingEventType.status ?? 1,
+        }
+      );
+      toast.success("Event Type updated successfully!");
     } else {
       await eventTypeService.addEventType(data);
+      toast.success("Event Type added successfully!");
     }
 
     const response = await eventTypeService.getEventTypes();
@@ -52,8 +55,9 @@ const handleFormSubmit = async (data: any) => {
 
     setIsModalOpen(false);
     setEditingEventType(null);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
+    toast.error(error.response?.data?.message || "Failed to save Event Type.");
   }
 };
 
