@@ -48,35 +48,7 @@ export const PLACEMENTROUTE = [
     element: Outlet,
     roles: [],
     subItems: [
-      {
-        name: "Placement Module",
-        href: "",
-        roles: [],
-        element: Outlet,
-        subItems: [
-          {
-            name: "Applications",
-            href: "plm/applications",
-            roles: [],
-            element: require("../pages/placement/plm/ApplicationList").default,
-            subItems: [],
-          },
-          {
-            name: "Shortlist",
-            href: "plm/shortlist",
-            roles: [],
-            element: require("../pages/placement/plm/ShortlistManagement").default,
-            subItems: [],
-          },
-          {
-            name: "Waitlist",
-            href: "plm/waitlist",
-            roles: [],
-            element: require("../pages/placement/plm/WaitlistManagement").default,
-            subItems: [],
-          },
-        ],
-      },
+
       {
         name: "Company Contact",
         href: "company-contact",
@@ -173,20 +145,6 @@ export const PLACEMENTROUTE = [
         element: ShortlistApprovalPage,
         subItems: [],
       },
-      {
-        name: "Student Placement Report",
-        href: "/tpo/reports/student-placement",
-        roles: [],
-        element: require("../pages/placement/reports/StudentPlacementReport").default,
-        subItems: [],
-      },
-      {
-        name: "Drive Summary Report",
-        href: "/tpo/reports/drive-summary",
-        roles: [],
-        element: require("../pages/placement/reports/DriveSummaryReport").default,
-        subItems: [],
-      },
     ],
   },
   {
@@ -200,6 +158,28 @@ export const PLACEMENTROUTE = [
         href: "/officer/shortlist",
         roles: [],
         element: OfficerShortlistPage,
+        subItems: [],
+      },
+    ],
+  },
+  {
+    name: "Reports",
+    href: "",
+    element: Outlet,
+    roles: [],
+    subItems: [
+      {
+        name: "Student Placement Report",
+        href: "/reports/student-placement",
+        roles: [],
+        element: require("../pages/placement/reports/StudentPlacementReport").default,
+        subItems: [],
+      },
+      {
+        name: "Drive Summary Report",
+        href: "/reports/drive-summary",
+        roles: [],
+        element: require("../pages/placement/reports/DriveSummaryReport").default,
         subItems: [],
       },
     ],

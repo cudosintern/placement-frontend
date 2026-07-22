@@ -15,6 +15,8 @@ import OfferManagementPage from "../pages/placement/tpoDashboard/offer-managemen
 import DriveDetailPage from "../pages/placement/tpoDashboard/driveDetailPage";
 import OfficerShortlistPage from "../pages/placement/officerDashboard/officerShortlistPage";
 import ShortlistApprovalPage from "../pages/placement/tpoDashboard/shortlistApprovalPage";
+import StudentPlacementReport from "../pages/placement/reports/StudentPlacementReport";
+import DriveSummaryReport from "../pages/placement/reports/DriveSummaryReport";
 const ProtectedRoute: React.FC<{
   element: React.ReactElement;
   roles?: string[];
@@ -114,6 +116,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/tpo/placement-drive/:driveId" element={<DriveDetailPage />} />
         <Route path="/tpo/shortlist-approval" element={<ShortlistApprovalPage />} />
         <Route path="/officer/shortlist" element={<OfficerShortlistPage />} />
+        <Route path="/reports/student-placement" element={<StudentPlacementReport />} />
+        <Route path="/reports/drive-summary" element={<DriveSummaryReport />} />
       </Route>
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
