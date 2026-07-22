@@ -84,21 +84,28 @@ const AvailableDrivesPage: React.FC = () => {
 
   useEffect(() => { loadDrives(); }, [loadDrives]);
 
-  // ── Students from API ─────────────────────────────────────────────────────
+  // ── Students from API (only needed in profileMode: TPO viewing drives for a student) ─────
   const [allStudents, setAllStudents] = useState<AllStudentRow[]>([]);
-  const [loadingStudents, setLoadingStudents] = useState(true);
+  const [loadingStudents, setLoadingStudents] = useState(profileMode);
 
   const loadStudents = useCallback(async () => {
+    if (!profileMode) {
+      // Student accessing directly — no need to load all students list
+      setLoadingStudents(false);
+      return;
+    }
     setLoadingStudents(true);
     try {
-      const data = await profileService.getAllStudentsList();
-      setAllStudents(Array.isArray(data) ? data : []);
+      // getAllStudentsList returns StudentsListResponse { students: [], total_count, ... }
+      // NOT a plain array — must access .students
+      const response = await profileService.getAllStudentsList();
+      setAllStudents(Array.isArray(response?.students) ? response.students : []);
     } catch {
       setAllStudents([]);
     } finally {
       setLoadingStudents(false);
     }
-  }, []);
+  }, [profileMode]);
 
   useEffect(() => { loadStudents(); }, [loadStudents]);
 
