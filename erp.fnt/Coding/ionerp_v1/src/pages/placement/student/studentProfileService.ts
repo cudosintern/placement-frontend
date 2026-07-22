@@ -49,20 +49,38 @@ export const getStudents = async (): Promise<IEMStudentInfo[]> => {
   }
 };
 
+export interface StudentsListResponse {
+  students: AllStudentRow[];
+  total_count: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
 /**
- * Returns ALL students in iems_students with is_registered flag.
+ * Returns paginated students with optional department filter and is_registered flag.
  * Used for the main student list page.
+ * @param dept_id  - optional department filter
+ * @param page     - 1-indexed page number
+ * @param limit    - records per page (max 200)
  */
-export const getAllStudentsList = async (): Promise<AllStudentRow[]> => {
+export const getAllStudentsList = async (
+  dept_id?: number | "",
+  page = 1,
+  limit = 50
+): Promise<StudentsListResponse> => {
   try {
+    const params: Record<string, any> = { page, limit };
+    if (dept_id) params.dept_id = dept_id;
     const res = await axiosInstance.get(
-      ApiEndpoint.studentProfile.get_all_students_list
+      ApiEndpoint.studentProfile.get_all_students_list,
+      { params }
     );
-    const data = unwrap<AllStudentRow[]>(res);
-    return Array.isArray(data) ? data : [];
+    const data = unwrap<StudentsListResponse>(res);
+    return data ?? { students: [], total_count: 0, page: 1, limit, total_pages: 0 };
   } catch (err) {
     console.error("studentProfileService.getAllStudentsList", err);
-    return [];
+    return { students: [], total_count: 0, page: 1, limit, total_pages: 0 };
   }
 };
 

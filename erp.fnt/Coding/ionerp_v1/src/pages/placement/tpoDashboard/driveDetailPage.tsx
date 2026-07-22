@@ -179,6 +179,30 @@ const StatusBadge: React.FC<{
       </span>
     );
   }
+  if (status === "WAITLISTED" && overrideReason) {
+    return (
+      <span
+        title="Override request pending TPO approval. Click to view remarks."
+        onClick={onClickReason}
+        style={{
+          padding: "3px 10px",
+          borderRadius: 20,
+          fontSize: 11,
+          fontWeight: 700,
+          background: "#fffbeb",
+          color: "#b45309",
+          border: "1.5px solid #fde68a",
+          whiteSpace: "nowrap",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "4px",
+          cursor: "pointer"
+        }}
+      >
+        ⏳ Pending Approval
+      </span>
+    );
+  }
   if (status === "REJECTED" && overrideReason) {
     return (
       <span
@@ -621,6 +645,32 @@ const ResumeViewerModal: React.FC<{
   </div>
 );
 
+const OfficerOverrideModal: React.FC<{
+  studentName: string;
+  onSubmit: (reason: string) => void;
+  onClose: () => void;
+}> = ({ studentName, onSubmit, onClose }) => {
+  const [reason, setReason] = useState("");
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Inter, sans-serif" }} onClick={onClose}>
+      <div style={{ background: "#fff", padding: 24, borderRadius: 12, width: 440, boxShadow: "0 4px 20px rgba(0,0,0,0.15)" }} onClick={(e) => e.stopPropagation()}>
+        <h3 style={{ margin: "0 0 12px 0", fontSize: 16, fontWeight: 700, color: "#17375e" }}>Request Shortlist Override</h3>
+        <p style={{ margin: "0 0 8px 0", fontSize: 13, color: "#374151" }}>Provide justification to request TPO override approval for <strong>{studentName}</strong>.</p>
+        <textarea
+          placeholder="Add officer override remarks (required)..."
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 13, minHeight: 80, border: "1px solid #d1d5db", borderRadius: 8, resize: "vertical", fontFamily: "inherit", marginBottom: 16 }}
+        />
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+          <button onClick={onClose} style={{ padding: "8px 16px", background: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#374151" }}>Cancel</button>
+          <button onClick={() => onSubmit(reason)} disabled={!reason.trim()} style={{ padding: "8px 16px", background: "#17375e", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: reason.trim() ? "pointer" : "not-allowed", opacity: reason.trim() ? 1 : 0.6 }}>Submit Request</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 const DriveDetailPage: React.FC = () => {
@@ -663,12 +713,18 @@ const DriveDetailPage: React.FC = () => {
 
   // TPO Remarks popup modal state
   const [tpoRemarks, setTpoRemarks] = useState<{ studentName: string; reason: string; status: string } | null>(null);
+  const [officerOverride, setOfficerOverride] = useState<{ applicationId: number; studentName: string } | null>(null);
   const [hasToastedOverrides, setHasToastedOverrides] = useState(false);
 
   // Reset toast on drive change
   useEffect(() => {
     setHasToastedOverrides(false);
   }, [driveId]);
+
+  // Clear selection when filters (status, branch, or search) change
+  useEffect(() => {
+    setSelected(new Set());
+  }, [search, filterBranch, filterStatus]);
 
   // ── Always fetch fresh drive detail from API ───────────────────────────────
   useEffect(() => {
@@ -1036,22 +1092,30 @@ const DriveDetailPage: React.FC = () => {
     }
   };
 
-  // ── Shortlist single waitlisted applicant ─────────────────────────────────
-  const handleShortlistOne = async (applicationId: number, studentName: string) => {
+  // ── Shortlist single waitlisted applicant (Officer override request) ───────
+  const handleShortlistOne = (applicationId: number, studentName: string) => {
+    setOfficerOverride({ applicationId, studentName });
+  };
+
+  // ── Handle submitting Officer override request ────────────────────────────
+  const handleOfficerOverrideSubmit = async (reason: string) => {
+    if (!officerOverride) return;
+    const { applicationId, studentName } = officerOverride;
+    setOfficerOverride(null);
     try {
       const res = await axiosInstance.post(
-        PlacementApiEndpoint.applications.shortlist,
-        { drive_id: Number(driveId), application_ids: [applicationId] }
+        (PlacementApiEndpoint.applications as any).override_request,
+        { application_id: applicationId, reason }
       );
       const body = res.data as any;
       if (body?.status) {
-        toast.success(`${studentName} has been shortlisted.`);
+        toast.success(`Override request submitted for ${studentName}.`);
         fetchApplicants();
       } else {
-        toast.error(body?.message || "Shortlist failed.");
+        toast.error(body?.message || "Failed to submit override request.");
       }
     } catch {
-      toast.error("Shortlist failed.");
+      toast.error("Failed to submit override request.");
     }
   };
 
@@ -1425,39 +1489,7 @@ const DriveDetailPage: React.FC = () => {
         )}
       </div>
 
-      {/* ── Tabs ── */}
-      <div
-        style={{
-          display: "flex",
-          borderBottom: "2px solid #e5e7eb",
-          marginBottom: 16,
-          gap: 0,
-        }}
-      >
-        {[
-          { key: "applications", label: `Applications (${applicants.length})` },
-          { key: "rounds", label: "Rounds & Results" },
-          { key: "offers", label: "Offers (0)" },
-        ].map((tab) => (
-          <div
-            key={tab.key}
-            style={{
-              padding: "10px 20px",
-              fontSize: 13,
-              fontWeight: 700,
-              color: tab.key === "applications" ? CLR.navy : "#888",
-              borderBottom:
-                tab.key === "applications"
-                  ? `2.5px solid ${CLR.navy}`
-                  : "2.5px solid transparent",
-              cursor: "pointer",
-              marginBottom: -2,
-            }}
-          >
-            {tab.label}
-          </div>
-        ))}
-      </div>
+
 
       {/* ── Filters + Actions Bar ── */}
       <div
@@ -1831,66 +1863,9 @@ const DriveDetailPage: React.FC = () => {
               </button>
             )}
 
-            {/* Bulk Shortlist + Reject — only visible on Waitlisted tab with selection */}
-            {filterStatus === "WAITLISTED" && selected.size > 0 && (
-              <>
-                <button
-                  id="bulk-shortlist-btn"
-                  onClick={handleBulkShortlist}
-                  disabled={bulkActioning !== null}
-                  title={`Shortlist ${selected.size} selected waitlisted student${selected.size > 1 ? "s" : ""}`}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 3,
-                    padding: "4px 9px", fontSize: 10, fontWeight: 700,
-                    color: bulkActioning ? "#aaa" : "#065f46",
-                    background: bulkActioning ? "rgba(255,255,255,0.15)" : "#d1fae5",
-                    border: "1px solid #6ee7b7", borderRadius: 4,
-                    cursor: bulkActioning ? "not-allowed" : "pointer",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  ✓ {bulkActioning === "shortlist" ? "Shortlisting…" : `Shortlist (${selected.size})`}
-                </button>
-                <button
-                  id="bulk-reject-btn"
-                  onClick={handleBulkReject}
-                  disabled={bulkActioning !== null}
-                  title={`Reject ${selected.size} selected waitlisted student${selected.size > 1 ? "s" : ""}`}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 3,
-                    padding: "4px 9px", fontSize: 10, fontWeight: 700,
-                    color: bulkActioning ? "#aaa" : "#991b1b",
-                    background: bulkActioning ? "rgba(255,255,255,0.15)" : "#fee2e2",
-                    border: "1px solid #fca5a5", borderRadius: 4,
-                    cursor: bulkActioning ? "not-allowed" : "pointer",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  ✕ {bulkActioning === "reject" ? "Rejecting…" : `Reject (${selected.size})`}
-                </button>
-              </>
-            )}
 
-            {/* Bulk Waitlist — only visible on Shortlisted tab with selection */}
-            {filterStatus === "SHORTLISTED" && selected.size > 0 && (
-              <button
-                id="bulk-waitlist-btn"
-                onClick={handleBulkWaitlist}
-                disabled={bulkActioning !== null}
-                title={`Move ${selected.size} shortlisted student${selected.size > 1 ? "s" : ""} back to Waitlist`}
-                style={{
-                  display: "flex", alignItems: "center", gap: 3,
-                  padding: "4px 9px", fontSize: 10, fontWeight: 700,
-                  color: bulkActioning ? "#aaa" : "#4338ca",
-                  background: bulkActioning ? "rgba(255,255,255,0.15)" : "#e0e7ff",
-                  border: "1px solid #a5b4fc", borderRadius: 4,
-                  cursor: bulkActioning ? "not-allowed" : "pointer",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                ⟳ {bulkActioning === "waitlist" ? "Moving…" : `Waitlist (${selected.size})`}
-              </button>
-            )}
+
+
           </div>
         </div>
 
@@ -2141,58 +2116,34 @@ const DriveDetailPage: React.FC = () => {
                     </button>
                   )}
 
-                  {/* WAITLISTED — Shortlist + Reject */}
+                  {/* WAITLISTED — Shortlist (requires approval) */}
                   {applicant.status === "WAITLISTED" && (
                     <>
-                      <button
-                        id={`shortlist-btn-${applicant.application_id}`}
-                        onClick={() => handleShortlistOne(applicant.application_id, applicant.name)}
-                        title="Move to Shortlisted"
-                        style={{
-                          width: "100%", padding: "4px 8px", fontSize: 10, fontWeight: 700,
-                          color: "#065f46", background: "#d1fae5",
-                          border: "1px solid #6ee7b7", borderRadius: 4, cursor: "pointer",
-                          whiteSpace: "nowrap", textAlign: "center",
-                        }}
-                      >
-                        ✓ Shortlist
-                      </button>
-                      <button
-                        id={`reject-waitlist-btn-${applicant.application_id}`}
-                        onClick={() => handleReject(applicant.application_id, applicant.name)}
-                        title="Reject this waitlisted applicant"
-                        style={{
-                          width: "100%", padding: "4px 8px", fontSize: 10, fontWeight: 700,
-                          color: "#dc2626", background: "#fff",
-                          border: "1px solid #fca5a5", borderRadius: 4, cursor: "pointer",
-                          whiteSpace: "nowrap", textAlign: "center",
-                        }}
-                      >
-                        ✕ Reject
-                      </button>
+                      {!applicant.override_reason ? (
+                        <button
+                          id={`shortlist-btn-${applicant.application_id}`}
+                          onClick={() => handleShortlistOne(applicant.application_id, applicant.name)}
+                          title="Move to Shortlisted"
+                          style={{
+                            width: "100%", padding: "4px 8px", fontSize: 10, fontWeight: 700,
+                            color: "#065f46", background: "#d1fae5",
+                            border: "1px solid #6ee7b7", borderRadius: 4, cursor: "pointer",
+                            whiteSpace: "nowrap", textAlign: "center",
+                          }}
+                        >
+                          ✓ Shortlist
+                        </button>
+                      ) : (
+                        <span style={{ fontSize: 10, color: "#6b7280", fontStyle: "italic", whiteSpace: "nowrap" }}>
+                          Requested
+                        </span>
+                      )}
                     </>
                   )}
 
-                  {/* SHORTLISTED — Waitlist (demote) */}
-                  {applicant.status === "SHORTLISTED" && (
-                    <button
-                      id={`waitlist-btn-${applicant.application_id}`}
-                      onClick={() => handleWaitlistOne(applicant.application_id, applicant.name)}
-                      title="Move back to Waitlist"
-                      style={{
-                        width: "100%", padding: "4px 8px", fontSize: 10, fontWeight: 700,
-                        color: "#4338ca", background: "#e0e7ff",
-                        border: "1px solid #a5b4fc", borderRadius: 4, cursor: "pointer",
-                        whiteSpace: "nowrap", textAlign: "center",
-                      }}
-                    >
-                      ⟳ Waitlist
-                    </button>
-                  )}
-
-                  {/* REJECTED — Waitlist (restore) */}
-                  {applicant.status === "REJECTED" && (
-                    <span style={{ fontSize: 10, color: "#bbb", fontStyle: "italic" }}>No action</span>
+                  {/* SHORTLISTED, REJECTED, WITHDRAWN — No Action */}
+                  {(applicant.status === "SHORTLISTED" || applicant.status === "REJECTED" || applicant.status === "WITHDRAWN") && (
+                    <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 500, width: "100%", textAlign: "center" }}>—</span>
                   )}
                 </div>
               </div>
@@ -2264,6 +2215,15 @@ const DriveDetailPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Officer Shortlist Override Remarks Modal ── */}
+      {officerOverride && (
+        <OfficerOverrideModal
+          studentName={officerOverride.studentName}
+          onSubmit={handleOfficerOverrideSubmit}
+          onClose={() => setOfficerOverride(null)}
+        />
       )}
 
       {/* ── Confirm Auto-Shortlist Modal ── */}
