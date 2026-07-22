@@ -499,7 +499,15 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
   }, [studentId]);
 
   // ── Load from API ────────────────────────────────────────────────────────────
-  const loadAll = useCallback(async (page = 1) => {
+  const loadAll = useCallback(async (page = 1, _retryCount = 0) => {
+    // Guard: if org-id is not yet in localStorage (race with bypass-login useEffect),
+    // retry up to 3 times at 600ms intervals before giving up.
+    const AUTH_COOKIE_ORG_KEY = "auth_org_state";
+    const orgRaw = localStorage.getItem(AUTH_COOKIE_ORG_KEY);
+    if (!orgRaw && !studentId && _retryCount < 3) {
+      setTimeout(() => loadAll(page, _retryCount + 1), 600);
+      return;
+    }
     setLoading(true);
     try {
       if (studentId) {
@@ -520,13 +528,20 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
         }
       } else {
         const result = await profileService.getAllStudentsList(selectedDeptId, page, PAGE_LIMIT);
-        setAllStudents(result.students);
-        setTotalCount(result.total_count);
-        setTotalPages(result.total_pages);
-        setCurrentPage(result.page);
+        setAllStudents(result.students ?? []);
+        setTotalCount(result.total_count ?? 0);
+        setTotalPages(result.total_pages ?? 0);
+        setCurrentPage(result.page ?? 1);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("loadAll error:", err);
+      // If the request failed due to missing org-id header (422) and we still have retries,
+      // clear the stale cache and try again after a short delay.
+      const status = err?.response?.status;
+      if (status === 422 && !studentId && _retryCount < 3) {
+        setTimeout(() => loadAll(page, _retryCount + 1), 600);
+        return;
+      }
     }
     setLoading(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
