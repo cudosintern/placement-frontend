@@ -3,6 +3,7 @@ import DataTable from "../../../../components/Table/DataTable";
 import ModalWithForm from "../../../../components/Modal/ModalWithForm";
 import { ApiEndpoint } from "../../../../utils/ApiEndpoint/emsapiEndpoint";
 import { useAxios } from "../../../../hooks/useAxios"; 
+import { toast } from "react-toastify"; 
 
 import {
   Schema,
@@ -96,15 +97,24 @@ const deleteContactHandler = async (contactId: number) => {
 
   if (!confirmDelete) return;
 
-  const response = await customApiCall(
-    ApiEndpoint.placementContact.delete_contact,
-    "delete",
-    {
-      contact_id: contactId,
-    }
-  );
+  try {
+    const response = await customApiCall(
+      ApiEndpoint.placementContact.delete_contact,
+      "delete",
+      {
+        contact_id: contactId,
+      }
+    );
 
-  console.log("Delete Response =", response);
+    if (response) {
+      toast.success("Contact deleted successfully!");
+    } else {
+      toast.error("Failed to delete contact.");
+    }
+  } catch (err: any) {
+    console.error("Failed to delete contact", err);
+    toast.error(err.response?.data?.message || "Failed to delete contact.");
+  }
 
   await refetch();
 };

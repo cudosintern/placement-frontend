@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Loader2, ArrowLeft, ChevronDown } from "lucide-react";
 import axiosInstance from "../../../utils/api";
-import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementapiEndpoint";
+import { PlacementApiEndpoint } from "../../../utils/ApiEndpoint/placementApiEndpoints";
 import { DriveRecord } from "./driveSchema";
 import { DriveApplicant } from "./driveDetailPage";
 
@@ -74,8 +74,9 @@ const ShortlistApprovalPage: React.FC = () => {
         const allApps: DriveApplicant[] = Array.isArray(body.data?.applicants)
           ? body.data.applicants
           : [];
-        // Filter to waitlisted only
-        setApplicants(allApps.filter(a => a.status === "WAITLISTED"));
+        // Filter to waitlisted with override reason only
+        const filtered = allApps.filter(a => a.status === "WAITLISTED" && a.override_reason);
+        setApplicants(filtered);
       }
     } catch {
       toast.error("Failed to load applications.");
@@ -90,17 +91,13 @@ const ShortlistApprovalPage: React.FC = () => {
       fetchApplications(selectedDriveId);
     } else {
       setApplicants([]);
+      setReasons({});
     }
-    setReasons({});
   }, [selectedDriveId, fetchApplications]);
 
   // Handle Approve
   const handleApprove = async (appId: number) => {
     const reason = reasons[appId] || "";
-    if (!reason.trim()) {
-      toast.warn("Please provide an override reason to approve.");
-      return;
-    }
     setProcessing(appId);
     try {
       const res = await axiosInstance.post(PlacementApiEndpoint.applications.override_shortlist, {
@@ -133,7 +130,7 @@ const ShortlistApprovalPage: React.FC = () => {
         reason: reason.trim(),
       });
       if ((res.data as any)?.status) {
-        toast.success("Student permanently rejected.");
+        toast.success("Override request rejected. Student remains waitlisted.");
         setApplicants((prev) => prev.filter(a => a.application_id !== appId));
       } else {
         toast.error((res.data as any)?.message || "Action failed.");
@@ -303,10 +300,20 @@ const ShortlistApprovalPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Officer's override remarks */}
+                {app.override_reason && (
+                  <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", padding: 12, borderRadius: 8 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "#0369a1", marginBottom: 4 }}>Officer Override Justification</div>
+                    <div style={{ fontSize: 13, color: "#0c4a6e", fontWeight: 500, whiteSpace: "pre-wrap" }}>
+                      {app.override_reason}
+                    </div>
+                  </div>
+                )}
+
                 {/* Input & Actions */}
                 <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
                   <textarea
-                    placeholder="Add officer override remarks (required for approval)..."
+                    placeholder="Add comments/remarks (optional)..."
                     value={reasons[app.application_id] || ""}
                     onChange={(e) => setReasons({ ...reasons, [app.application_id]: e.target.value })}
                     style={{

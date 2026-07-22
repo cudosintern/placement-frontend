@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axiosInstance from "../../../utils/api";
 import * as profileService from "./studentProfileService";
 import { StudentResume } from "./studentProfileService";
 import StudentOffersPage from "./StudentOffersPage";
@@ -412,6 +413,25 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
 
   // ── Profile list state (for when no studentId)
   const [allStudents, setAllStudents] = useState<AllStudentRow[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_LIMIT = 50;
+
+  // ── Department filter state
+  const [selectedDeptId, setSelectedDeptId] = useState<number | "">("");
+  const [deptList, setDeptList] = useState<{ department_id: number; dept_name: string }[]>([]);
+
+  const filteredStudents = React.useMemo(() => {
+    if (!searchQuery.trim()) return allStudents;
+    const q = searchQuery.toLowerCase().trim();
+    return allStudents.filter(
+      (s) =>
+        (s.name && s.name.toLowerCase().includes(q)) ||
+        (s.usno && s.usno.toLowerCase().includes(q))
+    );
+  }, [allStudents, searchQuery]);
 
   // ── Quick-register modal state
   const [registerTarget, setRegisterTarget] = useState<AllStudentRow | null>(null);
@@ -457,8 +477,37 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
   const [pdfModalName, setPdfModalName] = useState("");
   const pdfBlobRef = useRef<string | null>(null);
 
+  // ── Load departments once on mount (for the filter dropdown)
+  useEffect(() => {
+    if (!studentId) {
+      axiosInstance
+        .post("comman_function/department_list", {
+          show_delete: 1,
+          equal_or_not_equal: 0,
+          no_batch: 1,
+        })
+        .then((res) => {
+          const body = res.data as any;
+          // API returns { status: true, data: [...] }
+          const list = Array.isArray(body?.data) ? body.data
+                     : Array.isArray(body)        ? body
+                     : [];
+          setDeptList(list);
+        })
+        .catch(() => {/* ignore — dropdown stays empty */});
+    }
+  }, [studentId]);
+
   // ── Load from API ────────────────────────────────────────────────────────────
-  const loadAll = useCallback(async () => {
+  const loadAll = useCallback(async (page = 1, _retryCount = 0) => {
+    // Guard: if org-id is not yet in localStorage (race with bypass-login useEffect),
+    // retry up to 3 times at 600ms intervals before giving up.
+    const AUTH_COOKIE_ORG_KEY = "auth_org_state";
+    const orgRaw = localStorage.getItem(AUTH_COOKIE_ORG_KEY);
+    if (!orgRaw && !studentId && _retryCount < 3) {
+      setTimeout(() => loadAll(page, _retryCount + 1), 600);
+      return;
+    }
     setLoading(true);
     try {
       if (studentId) {
@@ -478,17 +527,28 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
           await loadAcademicData(p.regno);
         }
       } else {
-        const rows = await profileService.getAllStudentsList();
-        setAllStudents(rows);
+        const result = await profileService.getAllStudentsList(selectedDeptId, page, PAGE_LIMIT);
+        setAllStudents(result.students ?? []);
+        setTotalCount(result.total_count ?? 0);
+        setTotalPages(result.total_pages ?? 0);
+        setCurrentPage(result.page ?? 1);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("loadAll error:", err);
+      // If the request failed due to missing org-id header (422) and we still have retries,
+      // clear the stale cache and try again after a short delay.
+      const status = err?.response?.status;
+      if (status === 422 && !studentId && _retryCount < 3) {
+        setTimeout(() => loadAll(page, _retryCount + 1), 600);
+        return;
+      }
     }
     setLoading(false);
-  }, [studentId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studentId, selectedDeptId]);
 
   useEffect(() => {
-    loadAll();
+    loadAll(1);
   }, [loadAll]);
 
   // ── Load academic data by regno ──────────────────────────────────────────────
@@ -702,6 +762,7 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
     };
 
     const registeredCount = allStudents.filter((s) => s.is_registered).length;
+    const pageOffset = (currentPage - 1) * PAGE_LIMIT;
 
     const handleRegisterClick = (row: AllStudentRow) => {
       setRegisterTarget(row);
@@ -746,7 +807,8 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
             All Students
           </h3>
           <p style={{ margin: "4px 0 0", fontSize: 13, color: "#888" }}>
-            {registeredCount} of {allStudents.length} students registered for Placement.
+            {totalCount} total students ·&nbsp;
+            {registeredCount} registered on this page.
             Unregistered students can be registered using the <strong>Register</strong> button.
           </p>
         </div>
@@ -903,14 +965,62 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
         <div style={listCardStyle}>
           <div style={{ padding: "14px 22px", borderBottom: "1px solid #e8e8e8", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <span style={{ fontSize: 14, fontWeight: 700, color: "#333" }}>
-              All Students ({allStudents.length})
+              All Students ({totalCount})
             </span>
             <span style={{ fontSize: 12, color: "#888" }}>
               <span style={{ color: "#155724", fontWeight: 700 }}>{registeredCount} Registered</span>
               &nbsp;·&nbsp;
               <span style={{ color: "#856404", fontWeight: 700 }}>{allStudents.length - registeredCount} Not Registered</span>
+              &nbsp;(this page)
             </span>
           </div>
+
+          {/* Filters Row: Department Dropdown + Search */}
+          <div style={{ padding: "12px 22px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", gap: 12 }}>
+            {/* Department Dropdown */}
+            <select
+              value={selectedDeptId}
+              onChange={(e) => {
+                setSelectedDeptId(e.target.value === "" ? "" : Number(e.target.value));
+                setSearchQuery("");
+              }}
+              style={{
+                padding: "8px 12px",
+                fontSize: 13,
+                border: "1px solid #cbd5e1",
+                borderRadius: 6,
+                outline: "none",
+                fontFamily: "inherit",
+                minWidth: 200,
+                background: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              <option value="">All Departments</option>
+              {deptList.map((d) => (
+                <option key={d.department_id} value={d.department_id}>{d.dept_name}</option>
+              ))}
+            </select>
+
+            {/* Search Bar (client-side filter on current page) */}
+            <input
+              type="text"
+              placeholder="Search by name or USN on this page..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                flex: 1,
+                padding: "8px 12px",
+                fontSize: 13,
+                border: "1px solid #cbd5e1",
+                borderRadius: 6,
+                boxSizing: "border-box",
+                outline: "none",
+                fontFamily: "inherit",
+              }}
+            />
+          </div>
+
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, tableLayout: "fixed" }}>
               <colgroup>
@@ -930,16 +1040,16 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
                 </tr>
               </thead>
               <tbody>
-                {allStudents.length === 0 ? (
+                {filteredStudents.length === 0 ? (
                   <tr>
                     <td colSpan={7} style={{ ...tdStyle, textAlign: "center", color: "#aaa", padding: 32 }}>
                       No students found.
                     </td>
                   </tr>
                 ) : (
-                  allStudents.map((s, idx) => (
+                  filteredStudents.map((s, idx) => (
                     <tr key={s.student_id} style={{ background: idx % 2 === 0 ? "#fff" : "#fafafa" }}>
-                      <td style={{ ...tdStyle, textAlign: "center", color: "#888" }}>{idx + 1}</td>
+                      <td style={{ ...tdStyle, textAlign: "center", color: "#888" }}>{pageOffset + idx + 1}</td>
                       <td style={{ ...tdStyle, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {s.is_registered ? (
                           <button
@@ -993,6 +1103,70 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div style={{ padding: "14px 22px", borderTop: "1px solid #e8e8e8", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: 12, color: "#6b7280" }}>
+                Page {currentPage} of {totalPages} &nbsp;·&nbsp; {totalCount} total students
+              </span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  onClick={() => loadAll(currentPage - 1)}
+                  disabled={currentPage <= 1}
+                  style={{
+                    padding: "6px 14px", fontSize: 12, fontWeight: 600,
+                    border: "1px solid #d1d5db", borderRadius: 4,
+                    background: currentPage <= 1 ? "#f3f4f6" : "#fff",
+                    color: currentPage <= 1 ? "#9ca3af" : "#374151",
+                    cursor: currentPage <= 1 ? "not-allowed" : "pointer",
+                  }}
+                >
+                  ← Prev
+                </button>
+                {/* Page number buttons: show up to 5 around current */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
+                  .reduce<(number | "...")[]>((acc, p, i, arr) => {
+                    if (i > 0 && (p as number) - (arr[i - 1] as number) > 1) acc.push("...");
+                    acc.push(p);
+                    return acc;
+                  }, [])
+                  .map((p, i) =>
+                    p === "..." ? (
+                      <span key={`ellipsis-${i}`} style={{ padding: "6px 4px", fontSize: 12, color: "#9ca3af" }}>…</span>
+                    ) : (
+                      <button
+                        key={p}
+                        onClick={() => loadAll(p as number)}
+                        style={{
+                          padding: "6px 12px", fontSize: 12, fontWeight: 600,
+                          border: "1px solid #d1d5db", borderRadius: 4,
+                          background: p === currentPage ? "#17375e" : "#fff",
+                          color: p === currentPage ? "#fff" : "#374151",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {p}
+                      </button>
+                    )
+                  )}
+                <button
+                  onClick={() => loadAll(currentPage + 1)}
+                  disabled={currentPage >= totalPages}
+                  style={{
+                    padding: "6px 14px", fontSize: 12, fontWeight: 600,
+                    border: "1px solid #d1d5db", borderRadius: 4,
+                    background: currentPage >= totalPages ? "#f3f4f6" : "#fff",
+                    color: currentPage >= totalPages ? "#9ca3af" : "#374151",
+                    cursor: currentPage >= totalPages ? "not-allowed" : "pointer",
+                  }}
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );

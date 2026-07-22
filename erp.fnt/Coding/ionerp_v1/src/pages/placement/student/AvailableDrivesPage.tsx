@@ -84,21 +84,28 @@ const AvailableDrivesPage: React.FC = () => {
 
   useEffect(() => { loadDrives(); }, [loadDrives]);
 
-  // ── Students from API ─────────────────────────────────────────────────────
+  // ── Students from API (only needed in profileMode: TPO viewing drives for a student) ─────
   const [allStudents, setAllStudents] = useState<AllStudentRow[]>([]);
-  const [loadingStudents, setLoadingStudents] = useState(true);
+  const [loadingStudents, setLoadingStudents] = useState(profileMode);
 
   const loadStudents = useCallback(async () => {
+    if (!profileMode) {
+      // Student accessing directly — no need to load all students list
+      setLoadingStudents(false);
+      return;
+    }
     setLoadingStudents(true);
     try {
-      const data = await profileService.getAllStudentsList();
-      setAllStudents(Array.isArray(data) ? data : []);
+      // getAllStudentsList returns StudentsListResponse { students: [], total_count, ... }
+      // NOT a plain array — must access .students
+      const response = await profileService.getAllStudentsList();
+      setAllStudents(Array.isArray(response?.students) ? response.students : []);
     } catch {
       setAllStudents([]);
     } finally {
       setLoadingStudents(false);
     }
-  }, []);
+  }, [profileMode]);
 
   useEffect(() => { loadStudents(); }, [loadStudents]);
 
@@ -222,7 +229,13 @@ const AvailableDrivesPage: React.FC = () => {
         activeResumeId = active?.resume_id ?? null;
       }
 
-      // 2. Submit application with active resume_id (null if no resume uploaded yet)
+      if (!activeResumeId) {
+        setApplyError("Resume required! Please upload and activate your resume in your Student Profile before applying for a drive.");
+        setApplying(null);
+        return;
+      }
+
+      // 2. Submit application with active resume_id
       const result = await applyToDrive(driveId, profileId, activeResumeId);
       if (result) {
         setApplyMap((prev) => ({ ...prev, [driveId]: mapAppStatus(result.status) }));
@@ -490,6 +503,27 @@ const AvailableDrivesPage: React.FC = () => {
         </div>
       )}
 
+      {/* ── Apply Error Toast ── */}
+      {applyError !== null && (
+        <div style={{ background: "#fee2e2", border: "1px solid #fca5a5", borderRadius: 6, padding: "10px 16px", marginBottom: 20, fontSize: 13, color: "#991b1b", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 18 }}>⚠️</span>
+            <span>{applyError}</span>
+          </div>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            {selectedStudent && (
+              <button
+                onClick={() => navigate(`/student/profile?student_id=${selectedStudent.student_id}`)}
+                style={{ padding: "4px 10px", fontSize: 12, fontWeight: 700, color: "#fff", background: "#991b1b", border: "none", borderRadius: 4, cursor: "pointer" }}
+              >
+                Go to Profile →
+              </button>
+            )}
+            <button onClick={() => setApplyError(null)} style={{ background: "none", border: "none", color: "#991b1b", fontSize: 18, cursor: "pointer", fontWeight: 700, lineHeight: 1 }}>×</button>
+          </div>
+        </div>
+      )}
+
       {/* ── Withdraw Success Toast ── */}
       {withdrawSuccess !== null && (
         <div style={{ background: "#fef3c7", border: "1px solid #fcd34d", borderRadius: 6, padding: "10px 16px", marginBottom: 20, fontSize: 13, color: "#92400e", display: "flex", alignItems: "center", gap: 8 }}>
@@ -703,11 +737,11 @@ const AvailableDrivesPage: React.FC = () => {
                           disabled={isApplying}
                           onClick={() => {
                             if (!selectedStudent?.is_registered) { openRegisterModal(); return; }
-                            if (eligible) handleApply(d.drive_id);
+                            handleApply(d.drive_id);
                           }}
-                          style={{ padding: "8px 20px", fontSize: 12, fontWeight: 700, color: eligible ? "#fff" : "#aaa", background: isApplying ? "#6b7280" : eligible ? "#17375e" : "#e5e7eb", border: "none", borderRadius: 4, cursor: isApplying ? "not-allowed" : "pointer", minWidth: 100, transition: "background 0.2s" }}
+                          style={{ padding: "8px 20px", fontSize: 12, fontWeight: 700, color: "#fff", background: isApplying ? "#6b7280" : "#17375e", border: "none", borderRadius: 4, cursor: isApplying ? "not-allowed" : "pointer", minWidth: 100, transition: "background 0.2s" }}
                         >
-                          {isApplying ? "Applying…" : eligible ? "Apply Now" : "Not Eligible"}
+                          {isApplying ? "Applying…" : "Apply Now"}
                         </button>
                       ) : profileMode && (currentStatus === "applied" || currentStatus === "shortlisted") ? (
                         <>
