@@ -360,7 +360,7 @@ const DynamicFormBuilder = forwardRef<DynamicFormHandle, DynamicFormProps>((prop
   }[columnLayout];
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" autoComplete="off">
+    <div className="space-y-3">
       {fields.map((group, groupIndex) => (
         <div key={`${group.group}-${groupIndex}`} className="space-y-4">
           {group.group && (
@@ -400,7 +400,8 @@ const DynamicFormBuilder = forwardRef<DynamicFormHandle, DynamicFormProps>((prop
       <div className={`flex justify-${submitbuttonposition || "start"} space-x-2`}>
         {submitbuttonName && (
           <button
-            type="submit"
+            type="button"
+            onClick={handleSubmit(onSubmit)}
             disabled={isSubmitting}
             className={`flex items-center space-x-2 px-4 py-2 text-sm text-white rounded focus:outline-none ${submitButtonClassName || "button-bg hover:pannel-bg-1"}`}
           >
@@ -433,7 +434,7 @@ const DynamicFormBuilder = forwardRef<DynamicFormHandle, DynamicFormProps>((prop
           </button>
         )}
       </div>
-    </form>
+    </div>
   );
 });
 
