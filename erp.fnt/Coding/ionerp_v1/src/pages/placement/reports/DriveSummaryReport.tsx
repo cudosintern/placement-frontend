@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../../utils/api";
-import { Search, RefreshCw, BarChart2, Calendar, Layout, ShieldAlert } from "lucide-react";
+import { Search, RefreshCw, BarChart2, Calendar, Layout, ShieldAlert, FileSpreadsheet, FileText } from "lucide-react";
 import { toast } from "react-toastify";
 
 interface DriveSummaryData {
@@ -91,12 +91,56 @@ const DriveSummaryReport: React.FC = () => {
     fetchReport();
   }, []);
 
+  // Handle Export Excel
+  const handleExportExcel = () => {
+    const params = new URLSearchParams();
+    if (company !== "All") params.append("company_id", company);
+    if (status !== "All") params.append("status", status);
+    if (dateFrom) params.append("date_from", dateFrom);
+    if (dateTo) params.append("date_to", dateTo);
+
+    const base = axiosInstance.defaults.baseURL || "http://localhost:8003/";
+    const cleanedBase = base.endsWith("/") ? base.slice(0, -1) : base;
+    window.open(`${cleanedBase}/placement/reports/drive-summary/export-excel?${params.toString()}`);
+  };
+
+  // Handle Export PDF
+  const handleExportPdf = () => {
+    const params = new URLSearchParams();
+    if (company !== "All") params.append("company_id", company);
+    if (status !== "All") params.append("status", status);
+    if (dateFrom) params.append("date_from", dateFrom);
+    if (dateTo) params.append("date_to", dateTo);
+
+    const base = axiosInstance.defaults.baseURL || "http://localhost:8003/";
+    const cleanedBase = base.endsWith("/") ? base.slice(0, -1) : base;
+    window.open(`${cleanedBase}/placement/reports/drive-summary/export-pdf?${params.toString()}`);
+  };
+
   return (
     <div className="p-6 bg-slate-50 min-h-screen text-slate-800">
       {/* Title */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Recruiter Drive Summary Report</h1>
-        <p className="text-slate-500 text-sm mt-1">Analyse recruiters, candidate progression funnels, and application metrics.</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Recruiter Drive Summary Report</h1>
+          <p className="text-slate-500 text-sm mt-1">Analyse recruiters, candidate progression funnels, and application metrics.</p>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={handleExportExcel}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm text-sm font-medium transition duration-250 cursor-pointer"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            Export Excel
+          </button>
+          <button
+            onClick={handleExportPdf}
+            className="flex items-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-sm text-sm font-medium transition duration-250 cursor-pointer"
+          >
+            <FileText className="w-4 h-4" />
+            Export PDF
+          </button>
+        </div>
       </div>
 
       {/* Filter Card */}
