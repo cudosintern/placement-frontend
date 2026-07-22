@@ -44,20 +44,10 @@ export const Schema = z.object({
     message: "ZIP / Postal Code must be exactly 6 numeric digits",
   }),
 
-  contact_person: z.string().min(1, {
-    message: "Contact Name is required",
-  }),
-  contact_designation: z.string().min(1, {
-    message: "Contact Designation is required",
-  }),
-  contact_phone: z.string().regex(/^\d{10}$/, {
-    message: "Contact Phone number must be exactly 10 numeric digits",
-  }),
-  contact_email: z.string().min(1, {
-    message: "Contact Email Address is required",
-  }).email({
-    message: "Valid Contact Email is required",
-  }),
+  contact_person: z.string().optional().nullable(),
+  contact_designation: z.string().optional().nullable(),
+  contact_phone: z.string().optional().nullable(),
+  contact_email: z.string().optional().nullable(),
 });
 
 export const SchemaFields = [
@@ -230,57 +220,7 @@ export const SchemaFields = [
       },
     ],
   },
-  {
-    group: "Primary Recruiter Contact",
-    fields: [
-      {
-        type: "text",
-        name: "contact_person",
-        label: "Contact Name",
-        required: true,
-        placeholder: "e.g. Sudha Murty",
-      },
-      {
-        type: "select",
-        name: "contact_designation",
-        label: "Contact Designation",
-        required: true,
-        placeholder: "Select Designation",
-        loadOptions: async () => {
-          try {
-            const response = await axiosInstance.get(
-              ApiEndpoint.placementContact.get_designations
-            );
-            const resData = response.data as any;
-            if (resData?.status && Array.isArray(resData.data)) {
-              return resData.data.map((d: any) => ({
-                label: d.designation_name,
-                value: d.designation_id.toString(),
-              }));
-            }
-            return [];
-          } catch (error) {
-            console.error("Failed to load designations:", error);
-            return [];
-          }
-        },
-      },
-      {
-        type: "text",
-        name: "contact_phone",
-        label: "Contact Phone Number",
-        required: true,
-        placeholder: "e.g. 9876543210",
-      },
-      {
-        type: "text",
-        name: "contact_email",
-        label: "Contact Email Address",
-        required: true,
-        placeholder: "e.g. recruiter@example.com",
-      },
-    ],
-  },
+
 ];
 
 export const SchemaColumnDefs = [

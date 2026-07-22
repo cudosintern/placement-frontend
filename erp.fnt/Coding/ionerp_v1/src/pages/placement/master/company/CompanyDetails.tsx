@@ -348,12 +348,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
   const handleDeleteContact = async (contact: Contact) => {
     if (!window.confirm("Are you sure you want to delete this contact?")) return;
     try {
-      // Deactivate contact first
-      await axiosInstance.put(ApiEndpoint.placementContact.update_contact, {
-        contact_id: contact.contact_id,
-        is_active: 0,
-      });
-      // Perform soft delete/delete API
+      // Perform delete API directly
       await axiosInstance.delete(ApiEndpoint.placementContact.delete_contact, {
         data: { contact_id: contact.contact_id },
       } as any);
@@ -390,23 +385,7 @@ const CompanyDetails: React.FC<Props> = ({ company }) => {
     )
   );
 
-  const contactPersonName = company?.contact_person ?? (company as any)?.contact_person;
   let baseContacts = [...contacts];
-  if (contacts.length === 0 && contactPersonName && contactPersonName.trim() !== "") {
-    baseContacts.push({
-      contact_id: -1,
-      company_id: company?.company_id ?? (company as any)?.id ?? 0,
-      first_name: contactPersonName,
-      last_name: "",
-      email: company?.contact_email ?? (company as any)?.contact_email ?? "",
-      phone: company?.contact_phone ?? (company as any)?.contact_phone ?? "",
-      designation_id: 0,
-      designation_name: (company as any)?.contact_designation_name ?? company?.contact_designation ?? (company as any)?.contact_designation ?? "Primary Recruiter",
-      is_primary: 1,
-      status: 1,
-      is_active: 1,
-    });
-  }
 
   const displayContacts = baseContacts.filter((c) => {
     // Only active contacts

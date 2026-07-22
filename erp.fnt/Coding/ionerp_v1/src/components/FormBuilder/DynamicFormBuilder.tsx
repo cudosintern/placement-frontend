@@ -202,8 +202,8 @@ const DynamicFormBuilder = forwardRef<DynamicFormHandle, DynamicFormProps>((prop
           const dependencyValue = dependencyMap[field.dependsOn || ""];
           const prevDependencyValue = prevDependencyMapRef.current[field.dependsOn || ""];
 
-          // Reset the child field value if the dependency changed (and it's not the initial mount)
-          if (!isFirstRunRef.current && field.dependsOn && dependencyValue !== prevDependencyValue) {
+          // Reset the child field value if the dependency changed (and it's not the initial mount/load)
+          if (field.dependsOn && prevDependencyValue !== undefined && dependencyValue !== prevDependencyValue) {
             setValue(field.name, field.type === "multiselect" ? [] : "");
           }
 
@@ -360,7 +360,7 @@ const DynamicFormBuilder = forwardRef<DynamicFormHandle, DynamicFormProps>((prop
   }[columnLayout];
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" autoComplete="off">
       {fields.map((group, groupIndex) => (
         <div key={`${group.group}-${groupIndex}`} className="space-y-4">
           {group.group && (

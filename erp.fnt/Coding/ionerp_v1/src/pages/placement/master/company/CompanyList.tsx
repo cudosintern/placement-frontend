@@ -388,19 +388,19 @@ const CompanyList: React.FC = () => {
               </button>
               {isActive ? (
                 <button
-                  className="p-2 border border-red-100 hover:bg-red-50 text-red-500 rounded-full transition-all duration-150 active:scale-90"
+                  className="p-2 border border-emerald-100 hover:bg-emerald-50 text-emerald-600 rounded-full transition-all duration-150 active:scale-90"
                   onClick={() => openStatusDialog(params.data)}
                   title="Disable Company"
                 >
-                  <Ban className="h-4 w-4" />
+                  <CheckCircle className="h-4 w-4" />
                 </button>
               ) : (
                 <button
-                  className="p-2 border border-emerald-100 hover:bg-emerald-50 text-emerald-600 rounded-full transition-all duration-150 active:scale-90"
+                  className="p-2 border border-red-100 hover:bg-red-50 text-red-500 rounded-full transition-all duration-150 active:scale-90"
                   onClick={() => openStatusDialog(params.data)}
                   title="Enable Company"
                 >
-                  <CheckCircle className="h-4 w-4" />
+                  <Ban className="h-4 w-4" />
                 </button>
               )}
             </div>
@@ -498,16 +498,16 @@ const CompanyList: React.FC = () => {
   );
 
   // Dynamic stats calculation
-  const totalComp = Array.isArray(responseData) ? responseData.length : defaultData.length;
+  const totalComp = Array.isArray(responseData) ? responseData.length : 0;
   const activeComp = Array.isArray(responseData) 
     ? responseData.filter((c: any) => c.status === 1).length 
-    : defaultData.filter((c: any) => c.status === 1).length;
+    : 0;
   const disabledComp = Array.isArray(responseData) 
     ? responseData.filter((c: any) => c.status === 0).length 
-    : defaultData.filter((c: any) => c.status === 0).length;
+    : 0;
   const uniqueInd = Array.isArray(responseData) 
     ? new Set(responseData.map((c: any) => c.industry).filter(Boolean)).size 
-    : new Set(defaultData.map((c: any) => c.industry).filter(Boolean)).size;
+    : 0;
 
   return (
     <>
@@ -583,7 +583,7 @@ const CompanyList: React.FC = () => {
         <div className="bg-white dark:bg-slate-950 rounded-3xl border border-gray-100 dark:border-slate-800 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <DataTable
             columnDefs={columnDefs}
-            rowData={Array.isArray(responseData) && responseData.length ? responseData : defaultData}
+            rowData={Array.isArray(responseData) ? responseData : []}
             showAddButton={false}
             showExportButton={false}
             headerFilter={true}
