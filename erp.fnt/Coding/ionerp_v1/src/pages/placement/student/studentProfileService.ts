@@ -516,7 +516,7 @@ export interface DriveListItem {
 export const getActiveDrives = async (): Promise<DriveListItem[]> => {
   try {
     const res = await axiosInstance.get(
-      `${PlacementApiEndpoint.drive.list}?status=2`
+      `${PlacementApiEndpoint.drive.list}?status=2&for_student=true`
     );
     const raw = unwrap<{ drives: DriveListItem[] }>(res);
     return Array.isArray(raw?.drives) ? raw.drives : [];
@@ -582,7 +582,7 @@ export const applyToDrive = async (
     return unwrap<StudentApplication>(res);
   } catch (err) {
     console.error("studentProfileService.applyToDrive", err);
-    return null;
+    throw err;
   }
 };
 

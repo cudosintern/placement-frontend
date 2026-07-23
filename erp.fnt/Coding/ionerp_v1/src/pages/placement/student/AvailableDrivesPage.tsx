@@ -244,8 +244,8 @@ const AvailableDrivesPage: React.FC = () => {
       } else {
         setApplyError("Failed to submit application. Please try again.");
       }
-    } catch {
-      setApplyError("Failed to submit application. Please try again.");
+    } catch (err: any) {
+      setApplyError(err?.message || "Failed to submit application. Please try again.");
     } finally {
       setApplying(null);
     }
