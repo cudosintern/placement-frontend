@@ -22,7 +22,7 @@ const getDaysUntil = (dateStr: string): number => {
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const target = new Date(dateStr); target.setHours(0, 0, 0, 0);
   return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-};
+}; 
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GLOBE ICON COMPONENT
@@ -359,6 +359,14 @@ const InterviewSchedulePage: React.FC = () => {
     onConfirm: () => void;
   } | null>(null);
 
+  // Collision: another student has same date+time with the same interviewer in this schedule
+  const [slotCollisionPopup, setSlotCollisionPopup] = useState<{
+    conflictingStudentName: string;
+    interviewerName: string;
+    slotTime: string;
+    onConfirm: () => void;
+  } | null>(null);
+
   // ── UI state ────────────────────────────────────────────────────────────────
   const [showWizard, setShowWizard] = useState(false);
   const [pageSize, setPageSize] = useState(10);
@@ -646,60 +654,69 @@ const InterviewSchedulePage: React.FC = () => {
       );
     }
 
-    setSlots(prev => {
-      const existingIdx = prev.findIndex(
-        sl => sl.schedule_id === confirmedSchedule.schedule_id && sl.application_id === applicationId
+    // ── Extract the actual slot write so it can be called directly or via popup ─
+    const applySlotUpdate = () => {
+      setSlots(prev => {
+        const existingIdx = prev.findIndex(
+          sl => sl.schedule_id === confirmedSchedule.schedule_id && sl.application_id === applicationId
+        );
+        if (existingIdx < 0) return prev;
+
+        const next = [...prev];
+        const originalSlot = prev[existingIdx];
+
+        // Update only this student's slot — other students' slots are NOT auto-adjusted.
+        // Once students are notified, their individual time slots must not be changed automatically.
+        next[existingIdx] = {
+          ...originalSlot,
+          slot_time: `${resolvedDate} ${resolvedTime}`,
+          interviewer_name:  ivName  !== undefined ? ivName  : originalSlot.interviewer_name,
+          interviewer_email: ivEmail !== undefined ? ivEmail : originalSlot.interviewer_email,
+          interviewer_id:    ivId    !== undefined ? ivId    : originalSlot.interviewer_id,
+          contact_id:        ivId    !== undefined ? ivId    : originalSlot.contact_id,
+        };
+
+        return next;
+      });
+    };
+
+    // ── SAME-SCHEDULE SLOT COLLISION CHECK ────────────────────────────────
+    // A conflict only exists when BOTH students share the SAME interviewer at
+    // the same date + time. If the interviewers differ, they can run in parallel
+    // — no conflict, no popup.
+    //
+    // Also skip the check when the edited student has no interviewer assigned yet
+    // (no collision is possible without a shared interviewer).
+    const currentSlot = slots.find(sl => sl.application_id === applicationId);
+    const currentInterviewerId = currentSlot?.interviewer_id ?? null;
+    const currentInterviewerName = currentSlot?.interviewer_name ?? "";
+
+    if (currentInterviewerId) {
+      const conflicting = slots.find(sl =>
+        sl.application_id !== applicationId &&
+        sl.slot_time != null &&
+        sl.slot_time.split(" ")[0] === resolvedDate &&
+        sl.slot_time.split(" ")[1] === resolvedTime &&
+        sl.interviewer_id === currentInterviewerId
       );
-      if (existingIdx < 0) return prev;
 
-      const duration = activeRound?.duration_minutes ?? 30;
-      const holidayDates = new Set(holidays.map(h => h.holiday_date));
-      const next = [...prev];
-      const originalSlot = prev[existingIdx];
-
-      const originalTime = originalSlot.slot_time || "";
-      const newTime = `${resolvedDate} ${resolvedTime}`;
-      const isTimeOrDateChanged = originalTime !== newTime;
-
-      // Update the target slot
-      next[existingIdx] = {
-        ...originalSlot,
-        slot_time: newTime,
-        interviewer_name:  ivName  !== undefined ? ivName  : originalSlot.interviewer_name,
-        interviewer_email: ivEmail !== undefined ? ivEmail : originalSlot.interviewer_email,
-        interviewer_id:    ivId    !== undefined ? ivId    : originalSlot.interviewer_id,
-        contact_id:        ivId    !== undefined ? ivId    : originalSlot.contact_id,
-      };
-
-      // Cascade ripple time updates to all following slots
-      if (isTimeOrDateChanged) {
-        let currentDate = resolvedDate;
-        let currentMins = timeToMins(resolvedTime);
-
-        for (let i = existingIdx + 1; i < next.length; i++) {
-          currentMins += duration;
-
-          // Skip lunch hour (13:00–14:00)
-          if (currentMins >= 13 * 60 && currentMins < 14 * 60) {
-            currentMins = 14 * 60;
-          }
-
-          // Roll to next working day (holiday-only block) when past workEnd
-          if (currentMins + duration > workEndMins) {
-            currentMins = workStartMins;
-            currentDate = getNextWorkingDay(currentDate, holidayDates);
-          }
-
-          next[i] = {
-            ...next[i],
-            slot_time: `${currentDate} ${minsToTime(currentMins)}`,
-          };
-        }
+      if (conflicting) {
+        setSlotCollisionPopup({
+          conflictingStudentName: conflicting.student_name,
+          interviewerName: currentInterviewerName,
+          slotTime: resolvedTime,
+          onConfirm: () => {
+            applySlotUpdate();
+            setSlotCollisionPopup(null);
+          },
+        });
+        return; // Pause — wait for user's Yes/No decision
       }
+    }
 
-      return next;
-    });
-  }, [confirmedSchedule, activeRound, holidays, dayBounds]);
+    // No collision detected — apply immediately
+    applySlotUpdate();
+  }, [confirmedSchedule, holidays, dayBounds, slots]);
 
   // ── After wizard confirms → refresh from API ──────────────────────────────
   const handleWizardConfirm = async (record: ConfirmedScheduleRecord) => {
@@ -1483,6 +1500,46 @@ const InterviewSchedulePage: React.FC = () => {
                 className="flex-1 rounded-xl border border-indigo-700 bg-indigo-600 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-100 hover:bg-indigo-700 active:scale-95 cursor-pointer"
               >
                 Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Slot Collision Warning Popup */}
+      {slotCollisionPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 flex flex-col items-center text-center animate-in fade-in zoom-in duration-200">
+            <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500 mb-4 text-2xl shadow-inner">
+              ⏰
+            </div>
+            <h3 className="text-lg font-extrabold text-slate-900 leading-tight">
+              Time Slot Already Taken
+            </h3>
+            <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+              <strong className="text-slate-800">{slotCollisionPopup.conflictingStudentName}</strong>{" "}
+              is already assigned at{" "}
+              <strong className="text-slate-800">{slotCollisionPopup.slotTime}</strong>{" "}
+              with interviewer{" "}
+              <strong className="text-slate-800">{slotCollisionPopup.interviewerName}</strong>.
+            </p>
+            <p className="text-xs text-amber-700 font-semibold mt-3 bg-amber-50 border border-amber-100 px-3 py-1.5 rounded-xl">
+              Do you want to assign this same slot anyway?
+            </p>
+            <div className="mt-6 flex w-full gap-2.5">
+              <button
+                type="button"
+                onClick={() => setSlotCollisionPopup(null)}
+                className="flex-1 rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-bold text-gray-700 shadow-sm transition hover:bg-gray-50 active:scale-95 cursor-pointer"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={() => slotCollisionPopup.onConfirm()}
+                className="flex-1 rounded-xl border border-amber-600 bg-amber-500 py-2.5 text-sm font-bold text-white shadow-md shadow-amber-100 hover:bg-amber-600 active:scale-95 cursor-pointer"
+              >
+                Yes, Assign Anyway
               </button>
             </div>
           </div>
