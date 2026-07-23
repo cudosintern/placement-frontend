@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../utils/api";
-import { PlacementApiEndpoint } from "../../../../utils/ApiEndpoint/placementapiEndpoint";
 import DataTable from "../../../../components/Table/DataTable";
 import {
   ConfirmedScheduleRecord,
