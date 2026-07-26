@@ -882,11 +882,8 @@ const DriveDetailPage: React.FC = () => {
       toast.warn(`Vacancy cap (${vac}) already reached — ${alreadyShortlisted} shortlisted.`);
       return;
     }
-    // Need more total applicants than vacancy to run auto-shortlisting
-    if (!isUnlimited && vac !== null && totalCount <= vac) {
-      toast.warn(
-        `Total applied (${totalCount}) must exceed vacancy (${vac}) to run auto-shortlisting.`
-      );
+    if (totalCount === 0) {
+      toast.warn("No applicants available to shortlist.");
       return;
     }
     setShowConfirm(true);
@@ -1686,11 +1683,11 @@ const DriveDetailPage: React.FC = () => {
             appliedCount > 0 &&
             deadlinePassed &&
             (vacancy === null || appliedCount <= vacancy);
-          // Run Shortlisting: applied > vacancy
+          // Run Shortlisting: allowed whenever there are applicants and cap not reached
           const canRun =
             !capReached &&
             !autoShortlisting &&
-            (vacancy === null || totalCount > vacancy);
+            totalCount > 0;
 
           return (
             <>
@@ -1750,10 +1747,8 @@ const DriveDetailPage: React.FC = () => {
                 title={
                   capReached
                     ? `Vacancy cap reached (${vacancy})`
-                    : vacancy !== null && totalCount <= vacancy
-                      ? deadlinePassed
-                        ? `Use "Shortlist All" above — deadline passed, applied ≤ vacancy`
-                        : `Applied (${totalCount}) must exceed vacancy (${vacancy}) to run auto-shortlisting`
+                    : totalCount === 0
+                      ? "No applicants to shortlist"
                       : "Auto-shortlist: branch-eligible students + high-CGPA students (any branch), sorted by CGPA"
                 }
                 style={{

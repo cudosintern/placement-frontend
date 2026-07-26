@@ -1,0 +1,71 @@
+/* Centralized CSS for the Placement Module */
+/* Your team can add custom global styles here */
+
+/* -----------------------------------------
+   Custom PLM Data Table Styles
+   Wraps ag-theme-alpine to style only PLM tables
+----------------------------------------- */
+.plm-datatable-wrapper {
+  --ag-font-family: inherit;
+  --ag-font-size: 13px;
+  --ag-header-background-color: #f8fafc;
+  --ag-header-foreground-color: #334155;
+  --ag-border-color: #e2e8f0;
+  --ag-row-border-color: #f1f5f9;
+  --ag-row-hover-color: #f8fafc;
+  --ag-header-column-separator-display: none;
+  --ag-cell-horizontal-padding: 18px;
+  
+  /* Make the wrapper fill height and set borders properly */
+  width: 100%;
+}
+
+/* Header Typography */
+.plm-datatable-wrapper .ag-theme-alpine .ag-header-cell-text {
+  font-weight: 700 !important;
+  font-size: 13px;
+  color: #1e293b;
+}
+
+/* Clean Header Borders */
+.plm-datatable-wrapper .ag-theme-alpine .ag-header {
+  border-bottom: 2px solid #e2e8f0;
+  background-color: #ffffff; /* Or very light gray if needed */
+}
+
+/* Remove default border around the entire grid */
+.plm-datatable-wrapper .ag-theme-alpine.ag-root-wrapper {
+  border: none;
+}
+
+/* Center cell content vertically */
+.plm-datatable-wrapper .ag-theme-alpine .ag-cell {
+  display: flex;
+  align-items: center;
+  color: #475569;
+  font-weight: 500;
+  border-right: 1px solid transparent;
+}
+
+/* Clean up filter inputs in headers to match screenshot */
+.plm-datatable-wrapper .ag-theme-alpine .ag-header-cell {
+  border-right: 1px solid #f1f5f9;
+}
+.plm-datatable-wrapper .ag-theme-alpine .ag-header-cell:last-child {
+  border-right: none;
+}
+
+/* General improvements for table inputs/controls */
+.plm-datatable-wrapper input[type="text"],
+.plm-datatable-wrapper input[type="time"],
+.plm-datatable-wrapper input[type="date"] {
+  outline: none;
+  transition: all 0.2s;
+}
+
+.plm-datatable-wrapper input:focus {
+  border-color: #6366f1 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+

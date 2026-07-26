@@ -48,7 +48,49 @@ export const PLACEMENTROUTE = [
     element: Outlet,
     roles: [],
     subItems: [
-
+      {
+        name: "Placement Module",
+        href: "",
+        roles: [],
+        element: Outlet,
+        subItems: [
+          {
+            name: "Applications",
+            href: "plm/applications",
+            roles: [],
+            element: require("../pages/placement/plm/ApplicationList").default,
+            subItems: [],
+          },
+          {
+            name: "Shortlist",
+            href: "plm/shortlist",
+            roles: [],
+            element: require("../pages/placement/plm/ShortlistManagement").default,
+            subItems: [],
+          },
+          {
+            name: "Waitlist",
+            href: "plm/waitlist",
+            roles: [],
+            element: require("../pages/placement/plm/WaitlistManagement").default,
+            subItems: [],
+          },
+          {
+            name: "Interview Schedule",
+            href: "plm/interview-schedule",
+            roles: [],
+            element: require("../pages/placement/plm/interview/InterviewSchedulePage").default,
+            subItems: [],
+          },
+          {
+            name: "Round Results",
+            href: "plm/round-results",
+            roles: [],
+            element: require("../pages/placement/plm/interview/RoundResultPage").default,
+            subItems: [],
+          },
+        ],
+      },
       {
         name: "Company Contact",
         href: "company-contact",
@@ -56,21 +98,21 @@ export const PLACEMENTROUTE = [
         element: CompanyContactPage,
         subItems: [],
       },
-       {
-    name: "Notification Template",
-    href: "notification-template",
-    roles: [],
-    element: NotificationTemplatePage,
-    subItems: [],
-  },
+      {
+        name: "Notification Template",
+        href: "notification-template",
+        roles: [],
+        element: NotificationTemplatePage,
+        subItems: [],
+      },
 
-  {
-  name: "Notification Log",
-  href: "notification-log",
-  roles: [],
-  element: NotificationLogPage,
-  subItems: [],
-},
+      {
+        name: "Notification Log",
+        href: "notification-log",
+        roles: [],
+        element: NotificationLogPage,
+        subItems: [],
+      },
 
 {
   name: "Notification Event Type",
@@ -224,3 +266,4 @@ export const PLACEMENTROUTE = [
 ];
 
 export default PLACEMENTROUTE;
+

@@ -91,11 +91,10 @@ const getDrives = async (): Promise<any[]> => {
 const getStudents = async (): Promise<any[]> => {
   try {
     const res: any = await axiosInstance.get(PlmApiEndpoint.studentProfile.get_all_students_list);
-    const body = res.data?.data;
-    if (body && !Array.isArray(body)) {
-      return body.students || [];
-    }
-    return body || [];
+    const data = res.data?.data;
+    // API returns a paginated object: { students: [...], total_count, page, ... }
+    // Extract the students array; fall back gracefully for any unexpected shape
+    return Array.isArray(data) ? data : Array.isArray(data?.students) ? data.students : [];
   } catch (err) {
     console.error("offerManagementService.getStudents failed:", err);
     // Return mock students if API fails

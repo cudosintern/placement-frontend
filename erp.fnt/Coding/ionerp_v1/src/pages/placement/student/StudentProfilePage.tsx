@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/api";
@@ -470,6 +470,15 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
   const [resumeUploading, setResumeUploading] = useState(false);
   const resumeFileRef = useRef<HTMLInputElement>(null);
 
+  // ── Notifications state
+  const [notifications, setNotifications] = useState<profileService.StudentNotification[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [isScheduled, setIsScheduled] = useState(false);
+
+  const unreadNotificationsCount = useMemo(() => {
+    return notifications.filter(n => n.status !== "READ").length;
+  }, [notifications]);
+
   // ── PDF modal state
   const [pdfLoading, setPdfLoading]     = useState<number | null>(null);
   const [pdfModalOpen, setPdfModalOpen] = useState(false);
@@ -521,6 +530,15 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
         setSkills(s);
         setCerts(c);
         setResumes(r);
+
+        // Fetch student notifications
+        try {
+          const notifsRes = await profileService.getStudentNotifications(studentId);
+          setIsScheduled(notifsRes.is_scheduled);
+          setNotifications(notifsRes.notifications);
+        } catch (e) {
+          console.error("Failed to load notifications", e);
+        }
 
         // Fetch academic data using regno from the profile
         if (p?.regno) {
@@ -1316,6 +1334,49 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
 
         {/* Right: Badges + View Drives Button */}
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          {isScheduled && (
+            <button
+              onClick={() => setShowNotifications(true)}
+              style={{
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                padding: "4px 8px",
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "transform 0.2s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.15)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              title="View Interview Notifications"
+            >
+              <span style={{ fontSize: 20 }}>🔔</span>
+              {unreadNotificationsCount > 0 && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: -2,
+                    right: 0,
+                    background: "#e11d48",
+                    color: "#fff",
+                    borderRadius: "50%",
+                    width: 16,
+                    height: 16,
+                    fontSize: 9,
+                    fontWeight: 800,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "1.5px solid #fff",
+                  }}
+                >
+                  {unreadNotificationsCount}
+                </span>
+              )}
+            </button>
+          )}
           <span
             style={{
               padding: "4px 14px",
@@ -2152,6 +2213,214 @@ const StudentProfilePage: React.FC<{ studentId: number }> = ({ studentId }) => {
                 marginTop: "-40px",        /* push toolbar out of the clipped container */
               }}
             />
+          </div>
+        </div>
+      )}
+      {/* ── Notification Overlay Modal ── */}
+      {showNotifications && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 99999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(15, 23, 42, 0.4)",
+            backdropFilter: "blur(4px)",
+            padding: 16,
+          }}
+          onClick={() => setShowNotifications(false)}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 24,
+              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+              width: "100%",
+              maxWidth: 520,
+              overflow: "hidden",
+              border: "1px solid #f1f5f9",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "20px 24px",
+                borderBottom: "1px solid #f1f5f9",
+                background: "#f8fafc",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#1e293b", textAlign: "left" }}>
+                <span style={{ fontSize: 22 }}>🔔</span>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "#0f172a" }}>
+                    Interview Notifications
+                  </h3>
+                  <p style={{ margin: "2px 0 0", fontSize: 11, color: "#64748b", fontWeight: 500 }}>
+                    Official interview schedule communications
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowNotifications(false)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  fontSize: 16,
+                  color: "#94a3b8",
+                  cursor: "pointer",
+                  fontWeight: 700,
+                  fontFamily: "monospace",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: 24, maxHeight: 400, overflowY: "auto", background: "#fff" }}>
+              {notifications.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "40px 20px", color: "#94a3b8" }}>
+                  <div style={{ fontSize: 36, marginBottom: 12 }}>✉️</div>
+                  <h4 style={{ fontSize: 14, fontWeight: 700, color: "#475569", margin: 0 }}>No Notifications</h4>
+                  <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
+                    No interview schedules have been dispatched to you yet.
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  {notifications.map((notif) => (
+                    <div
+                      key={notif.log_id}
+                      style={{
+                        padding: 16,
+                        borderRadius: 16,
+                        background: "#f8fafc",
+                        border: "1px solid #f1f5f9",
+                        textAlign: "left",
+                        opacity: notif.status === "READ" ? 0.7 : 1,
+                        transition: "opacity 0.2s",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBottom: 12,
+                          borderBottom: "1px dashed #e2e8f0",
+                          paddingBottom: 8,
+                        }}
+                      >
+                        <h4 style={{ margin: 0, fontSize: 13, fontWeight: 800, color: "#1e293b" }}>
+                          {notif.subject}
+                        </h4>
+                        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                          <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, whiteSpace: "nowrap" }}>
+                            {notif.sent_at}
+                          </span>
+                          {notif.is_expired && (
+                            <span style={{ fontSize: 9, color: "#b91c1c", backgroundColor: "#fee2e2", border: "1px solid #fca5a5", padding: "1px 5px", borderRadius: 6, fontWeight: 700 }}>
+                              Expired
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: 12,
+                          color: "#475569",
+                          whiteSpace: "pre-line",
+                          lineHeight: "1.6",
+                          fontFamily: "sans-serif",
+                        }}
+                      >
+                        {notif.body}
+                      </p>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          alignItems: "center",
+                          marginTop: 12,
+                          borderTop: "1px solid #f1f5f9",
+                          paddingTop: 8,
+                        }}
+                      >
+                        {notif.status !== "READ" ? (
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              const ok = await profileService.markNotificationAsRead(notif.log_id);
+                              if (ok) {
+                                setNotifications((prev) =>
+                                  prev.map((n) => (n.log_id === notif.log_id ? { ...n, status: "READ" } : n))
+                                );
+                                toast.success("Notification marked as read!");
+                              } else {
+                                toast.error("Failed to mark notification as read.");
+                              }
+                            }}
+                            style={{
+                              background: "#1e293b",
+                              color: "#fff",
+                              border: "none",
+                              borderRadius: 8,
+                              padding: "6px 12px",
+                              fontSize: 11,
+                              fontWeight: 700,
+                              cursor: "pointer",
+                              transition: "background 0.2s",
+                              boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = "#334155")}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = "#1e293b")}
+                          >
+                            ✓ Mark as Read
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: 11, color: "#16a34a", fontWeight: 700 }}>
+                            ✓ Read
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div
+              style={{
+                padding: "16px 24px",
+                borderTop: "1px solid #f1f5f9",
+                background: "#f8fafc",
+                textAlign: "right",
+              }}
+            >
+              <button
+                onClick={() => setShowNotifications(false)}
+                style={{
+                  background: "#1e293b",
+                  color: "#fff",
+                  border: "none",
+                  padding: "8px 16px",
+                  borderRadius: 12,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
