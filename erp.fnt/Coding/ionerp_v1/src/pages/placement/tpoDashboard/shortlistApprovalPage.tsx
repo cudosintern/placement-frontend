@@ -37,8 +37,8 @@ const ShortlistApprovalPage: React.FC = () => {
         const body = res.data as any;
         if (body?.status) {
           const allDrives: DriveRecord[] = Array.isArray(body.data?.drives) ? body.data.drives : [];
-          // Filter to active drives (status === 2)
-          setDrives(allDrives.filter(d => d.status === 2));
+          // Filter to active or completed drives (status === 2 or 3)
+          setDrives(allDrives.filter(d => d.status === 2 || d.status === 3));
         }
       } catch {
         toast.error("Failed to load active drives.");
