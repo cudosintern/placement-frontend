@@ -91,7 +91,11 @@ const getDrives = async (): Promise<any[]> => {
 const getStudents = async (): Promise<any[]> => {
   try {
     const res: any = await axiosInstance.get(PlmApiEndpoint.studentProfile.get_all_students_list);
-    return res.data?.data || [];
+    const body = res.data?.data;
+    if (body && !Array.isArray(body)) {
+      return body.students || [];
+    }
+    return body || [];
   } catch (err) {
     console.error("offerManagementService.getStudents failed:", err);
     // Return mock students if API fails
