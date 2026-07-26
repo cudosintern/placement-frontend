@@ -17,6 +17,11 @@ import OfficerShortlistPage from "../pages/placement/officerDashboard/officerSho
 import ShortlistApprovalPage from "../pages/placement/tpoDashboard/shortlistApprovalPage";
 import StudentPlacementReport from "../pages/placement/reports/StudentPlacementReport";
 import DriveSummaryReport from "../pages/placement/reports/DriveSummaryReport";
+import ApplicationList from "../pages/placement/plm/ApplicationList";
+import ShortlistManagement from "../pages/placement/plm/ShortlistManagement";
+import WaitlistManagement from "../pages/placement/plm/WaitlistManagement";
+import InterviewSchedulePage from "../pages/placement/plm/interview/InterviewSchedulePage";
+import RoundResultPage from "../pages/placement/plm/interview/RoundResultPage";
 const ProtectedRoute: React.FC<{
   element: React.ReactElement;
   roles?: string[];
@@ -118,6 +123,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/officer/shortlist" element={<OfficerShortlistPage />} />
         <Route path="/reports/student-placement" element={<StudentPlacementReport />} />
         <Route path="/reports/drive-summary" element={<DriveSummaryReport />} />
+        <Route path="/plm/applications" element={<ApplicationList />} />
+        <Route path="/plm/shortlist" element={<ShortlistManagement />} />
+        <Route path="/plm/waitlist" element={<WaitlistManagement />} />
+        <Route path="/plm/interview-schedule" element={<InterviewSchedulePage />} />
+        <Route path="/plm/round-results" element={<RoundResultPage />} />
       </Route>
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
